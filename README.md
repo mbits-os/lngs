@@ -1,0 +1,2 @@
+# locale
+Language strings support
