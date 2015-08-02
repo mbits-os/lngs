@@ -28,12 +28,6 @@
 #include <filesystem>
 
 namespace locale {
-	enum flag_t {
-		BLOCK_ATTR = 1,
-		BLOCK_STRINGS = 2,
-		BLOCK_IDS = 3
-	};
-
 	enum attr_t {
 		ATTR_CULTURE,
 		ATTR_LANGUAGE,
@@ -56,7 +50,8 @@ namespace locale {
 		string(const string&) = default;
 		string& operator=(const string&) = default;
 
-		string(uint32_t id, const std::string& val) : value(val) {
+		string(uint32_t id, const std::string& val) : value(val)
+		{
 			key.id = id;
 			key.length = (uint32_t)value.length();
 		}
@@ -71,6 +66,7 @@ namespace locale {
 
 	struct outstream;
 	struct file {
+		uint32_t serial;
 		std::vector<string> attrs;
 		std::vector<string> strings;
 		std::vector<string> keys;

@@ -32,7 +32,26 @@
 #include <strings.hpp>
 
 namespace locale {
-	std::string warp(const std::string& s) {
+
+	struct section_header {
+		uint32_t id;
+		uint32_t ints;
+	};
+
+	inline namespace v1_0 {
+		struct file_header : section_header {
+			uint32_t version;
+			uint32_t serial;
+		};
+
+		struct string_header : section_header {
+			uint32_t string_count;
+			uint32_t string_offset; // in ints
+		};
+	}
+
+	std::string warp(const std::string& s)
+	{
 		auto w = utf::widen(s);
 		for (auto& c : w) {
 			switch (c) {
@@ -144,7 +163,7 @@ namespace locale {
 	{
 		std::vector<string> props;
 		auto it = gtt.find("");
-		auto attrs = attrGTT(it == gtt.end() ? std::string{} : it->second);
+		auto attrs = attrGTT(it == gtt.end() ? std::string{ } : it->second);
 
 		props.push_back({ ATTR_CULTURE, attrs["Language"] });
 		auto attr = attrs.find("Plural-Forms");
@@ -268,58 +287,101 @@ namespace locale {
 
 			return 0;
 		}
+
+		int section(locale::outstream& os, uint32_t section_id, std::vector<string>& block)
+		{
+			// string sections:
+			//   section header:
+			//      0 4 id
+			//      4 4 size (after this header) (== <offset to strings> - 8 + <strings payload length> 
+			//   section sub-header:
+			//      8 4 offset to strings (from the start of the section)
+			//     12 4 string count
+			//     16 12 <string count> * string key:
+			//           0 4 string id
+			//           4 4 string offset
+			//           8 4 string length (w/out terminating zero)
+			//     <offset to string>+<string N offset> <string N length> stringN
+			//     <offset to string>+<string N offset>+<string N length> 1 \0
+
+			if (block.empty())
+				return 0;
+
+			uint32_t key_size = sizeof(string_key) / sizeof(uint32_t);
+			key_size *= block.size();
+
+			string_header hdr;
+			hdr.id = section_id;
+			hdr.string_offset = key_size + sizeof(string_header) / sizeof(uint32_t);
+			hdr.ints = hdr.string_offset - sizeof(section_header) / sizeof(uint32_t);
+			hdr.string_count = block.size();
+
+			uint32_t offset = 0;
+			update_offsets(offset, block);
+			uint32_t padding = (((offset + 3) >> 2) << 2) - offset;
+			offset += padding;
+			offset /= sizeof(uint32_t);
+			hdr.ints += offset;
+
+			WRITE(os, hdr);
+
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable: 4127)
+#endif
+
+			CARRY(list(os, block));
+			CARRY(data(os, block));
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
+
+			while (padding--) {
+				WRITE(os, '\0');
+			}
+
+			return 0;
+		}
 	}
 
 	int file::write(locale::outstream& os)
 	{
 		constexpr uint32_t header_size = 3 * sizeof(uint32_t);
 		constexpr uint32_t langtext_tag = 0x474E414Cu;
+		constexpr uint32_t hdrtext_tag  = 0x72646820u;
+		constexpr uint32_t attrtext_tag = 0x72747461u;
+		constexpr uint32_t strstext_tag = 0x73727473u;
+		constexpr uint32_t keystext_tag = 0x7379656Bu;
+		constexpr uint32_t lasttext_tag = 0x7473616Cu;
 		constexpr uint32_t ver_1_0 = 0x00000100u;
 
 		auto next_offset = header_size;
-		uint32_t flags = 0;
 
-		if (!attrs.empty()) {
-			next_offset += 2 * sizeof(uint32_t);
-			flags |= BLOCK_ATTR;
-		}
-
-		if (!strings.empty()) {
-			next_offset += 2 * sizeof(uint32_t);
-			flags |= BLOCK_STRINGS;
-		}
-
-		if (!keys.empty()) {
-			next_offset += 2 * sizeof(uint32_t);
-			flags |= BLOCK_IDS;
-		}
+		file_header hdr;
+		hdr.id = hdrtext_tag;
+		hdr.ints = (sizeof(file_header) - sizeof(section_header)) / sizeof(uint32_t);
+		hdr.version = ver_1_0;
+		hdr.serial = serial;
 
 		WRITE(os, langtext_tag);
-		WRITE(os, ver_1_0);
-		WRITE(os, flags);
+		WRITE(os, hdr);
 
 #ifdef _MSC_VER
 #pragma warning(push)
 #pragma warning(disable: 4127)
 #endif
-		CARRY(header(os, next_offset, attrs)); // attribute ids as a first block
-		CARRY(header(os, next_offset, strings));
-		CARRY(header(os, next_offset, keys));
 
-		update_offsets(next_offset, strings);
-		update_offsets(next_offset, keys);
-		update_offsets(next_offset, attrs); // attribute strings as a last block
+		CARRY(section(os, attrtext_tag, attrs));
+		CARRY(section(os, strstext_tag, strings));
+		CARRY(section(os, keystext_tag, keys));
 
-		CARRY(list(os, attrs)); // attribute ids as a first block
-		CARRY(list(os, strings));
-		CARRY(list(os, keys));
-
-		CARRY(data(os, strings));
-		CARRY(data(os, keys));
-		CARRY(data(os, attrs)); // attribute ids as a last block
 #ifdef _MSC_VER
 #pragma warning(pop)
 #endif
+
+		WRITE(os, lasttext_tag);
+		WRITE(os, (size_t)0);
 
 		return 0;
 	}

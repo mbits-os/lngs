@@ -51,6 +51,7 @@ namespace make {
 			return -1;
 
 		locale::file file;
+		file.serial = strings.serial;
 		auto map = gtt::open(moname);
 		file.strings = locale::translations(map, strings.strings, warp_missing, verbose);
 		file.attrs = locale::attributes(map);
@@ -77,7 +78,7 @@ namespace make {
 		std::unique_ptr<FILE, decltype(&fclose)> outf{ nullptr, fclose };
 		FILE* output = stdout;
 		if (outname != "-") {
-			outf.reset(fs::fopen(outname, "w"));
+			outf.reset(fs::fopen(outname, "wb"));
 			if (!outf) {
 				fprintf(stderr, "could not open `%s'", outname.native().c_str());
 				return -1;
