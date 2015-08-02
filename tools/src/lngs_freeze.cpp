@@ -47,7 +47,7 @@ namespace freeze {
 			printf("%s\n", inname.string().c_str());
 
 		locale::Strings strings;
-		std::vector<char> contents(fs::file_size(inname));
+		std::vector<char> contents((size_t)fs::file_size(inname));
 
 		{
 			std::unique_ptr<FILE, decltype(&fclose)> inf{ fs::fopen(inname, "rb"), fclose };

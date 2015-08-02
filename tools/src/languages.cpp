@@ -277,13 +277,13 @@ namespace locale {
 				return 0;
 
 			uint32_t key_size = sizeof(string_key) / sizeof(uint32_t);
-			key_size *= block.size();
+			key_size *= (uint32_t)block.size();
 
 			string_header hdr;
 			hdr.id = section_id;
 			hdr.string_offset = key_size + sizeof(string_header) / sizeof(uint32_t);
 			hdr.ints = hdr.string_offset - sizeof(section_header) / sizeof(uint32_t);
-			hdr.string_count = block.size();
+			hdr.string_count = (uint32_t)block.size();
 
 			uint32_t offset = 0;
 			update_offsets(offset, block);

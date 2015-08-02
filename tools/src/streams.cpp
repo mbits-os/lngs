@@ -101,7 +101,7 @@ namespace locale {
 		constexpr size_t line = 16;
 		auto ptr = m_data.data();
 		auto size = m_data.size();
-		size_t off = 0;
+		uint32_t off = 0;
 
 		while (size > line) {
 			printf("%08X ", off);
