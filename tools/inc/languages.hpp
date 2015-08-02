@@ -26,20 +26,9 @@
 #include <filesystem.hpp>
 #include <vector>
 #include <filesystem>
+#include <locale_base.hpp>
 
 namespace locale {
-	enum attr_t {
-		ATTR_CULTURE,
-		ATTR_LANGUAGE,
-		ATTR_PLURALS
-	};
-
-	struct string_key {
-		uint32_t id = 0;
-		uint32_t offset = 0;
-		uint32_t length = 0;
-	};
-
 	struct string {
 		string_key key;
 		std::string value;
