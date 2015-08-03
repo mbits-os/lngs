@@ -26,6 +26,9 @@
     <ClCompile Include="..\..\lib\src\translation.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\lib\src\locale_storage.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\lib\src\expr_parser.hpp">

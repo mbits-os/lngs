@@ -22,6 +22,7 @@
     <ClCompile Include="..\..\lib\src\expr_parser.cpp" />
     <ClCompile Include="..\..\lib\src\format.cpp" />
     <ClCompile Include="..\..\lib\src\lang_file.cpp" />
+    <ClCompile Include="..\..\lib\src\locale_storage.cpp" />
     <ClCompile Include="..\..\lib\src\plurals.cpp" />
     <ClCompile Include="..\..\lib\src\translation.cpp" />
   </ItemGroup>

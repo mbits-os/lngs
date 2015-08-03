@@ -27,8 +27,11 @@
 #include <translation.hpp>
 #include <assert.h>
 #include <type_traits>
+#include <string>
+#include <vector>
 
 namespace locale {
+	std::vector<std::string> system_locales();
 	namespace storage {
 		class FileBased {
 			std::shared_ptr<translation> m_impl;
