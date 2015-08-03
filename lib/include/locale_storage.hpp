@@ -26,6 +26,7 @@
 
 #include <translation.hpp>
 #include <assert.h>
+#include <type_traits>
 
 namespace locale {
 	namespace storage {
@@ -64,6 +65,16 @@ namespace locale {
 			}
 
 
+			template <typename C>
+			bool open_range(C&& langs)
+			{
+				for (auto& lang : langs) {
+					if (open(lang))
+						return true;
+				}
+
+				return false;
+			}
 		public:
 			template <typename Manager, typename... Args>
 			void path_manager(Args&&... args)
@@ -76,6 +87,25 @@ namespace locale {
 			{
 				assert(m_impl);
 				return m_impl->open(lng);
+			}
+
+			template <typename T, typename C>
+			using is_range_of = std::integral_constant<bool,
+				std::is_reference<decltype(*std::begin(std::declval<C>()))>::value &&
+				std::is_convertible<decltype(*std::begin(std::declval<C>())), T>::value>;
+
+			template <typename T>
+			std::enable_if_t<std::is_convertible<T, std::string>::value, bool>
+				open_first_of(std::initializer_list<T>&& langs)
+			{
+				return open_range(std::move(langs));
+			}
+
+			template <typename C>
+			std::enable_if_t<is_range_of<std::string, C>::value, bool>
+				open_first_of(C&& langs)
+			{
+				return open_range(std::forward<C>(langs));
 			}
 		};
 
@@ -171,6 +201,7 @@ namespace locale {
 		public:
 			using FileBased::path_manager;
 			using FileBased::open;
+			using FileBased::open_first_of;
 			using Builtin<ResourceT>::init;
 		};
 	}
