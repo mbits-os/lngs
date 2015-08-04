@@ -27,6 +27,7 @@
 #include <experimental/filesystem>
 #include <functional>
 #include <memory>
+#include <vector>
 #include <locale_file.hpp>
 
 namespace locale {
@@ -44,22 +45,69 @@ namespace locale {
 				, m_fname(std::move(fname))
 			{}
 
-			fs_ex::path operator()(const std::string& lng) {
+			fs_ex::path expand(const std::string& lng) const
+			{
 				return m_base / lng / m_fname;
+			}
+
+			std::vector<fs_ex::path> known() const
+			{
+				std::vector<fs_ex::path> out;
+
+				for (auto& entry : fs_ex::directory_iterator { m_base }) {
+					std::error_code ec;
+					auto stat = entry.status(ec);
+					if (ec)
+						continue;
+
+					if (!fs_ex::is_directory(stat))
+						continue;
+
+					auto full = entry.path() / m_fname;
+					if (fs_ex::is_regular_file(full))
+						out.push_back(full);
+				};
+
+				return out;
 			}
 		};
 
 		// uses base and filename to generate paths "<base>/<filename>.<lng>"
 		class ExtensionPath {
-			std::string m_base;
+			fs_ex::path m_base;
+			std::string m_fname;
 		public:
 			explicit ExtensionPath(std::string base, std::string fname)
-				: m_base((fs_ex::path{ std::move(base) } / (fname += ".")).string())
+				: m_base(std::move(base))
+				, m_fname(std::move(fname))
 			{
 			}
 
-			fs_ex::path operator()(const std::string& lng) {
-				return m_base + lng;
+			fs_ex::path expand(const std::string& lng) const
+			{
+				static std::string dot { "." };
+				return m_base / (m_fname + dot + lng);
+			}
+
+			std::vector<fs_ex::path> known() const
+			{
+				std::vector<fs_ex::path> out;
+
+				for (auto& entry : fs_ex::directory_iterator { m_base }) {
+					std::error_code ec;
+					auto stat = entry.status(ec);
+					if (ec)
+						continue;
+
+					if (!fs_ex::is_regular_file(stat))
+						continue;
+
+					auto fname = entry.path().filename().replace_extension();
+					if (fname == m_fname)
+						out.push_back(entry.path());
+				};
+
+				return out;
 			}
 		};
 	}
@@ -68,8 +116,36 @@ namespace locale {
 		std::unique_ptr<char[]> block;
 	};
 
+	struct culture {
+		std::string lang;
+		std::string name;
+	};
+
 	class translation {
-		std::function<fs_ex::path(const std::string&)> m_file_path;
+		struct manager_t {
+			virtual ~manager_t() { }
+			virtual fs_ex::path expand(const std::string& lng) const = 0;
+			virtual std::vector<fs_ex::path> known() const = 0;
+		};
+
+		template <typename T>
+		class manager_impl : public manager_t {
+			T info;
+		public:
+			template <typename... Args>
+			explicit manager_impl(Args&&... args) : info(std::forward<Args>(args)...) {}
+			fs_ex::path expand(const std::string& lng) const override
+			{
+				return info.expand(lng);
+			}
+
+			std::vector<fs_ex::path> known() const override
+			{
+				return info.known();
+			}
+		};
+
+		std::unique_ptr<manager_t> m_path_mgr;
 		fs_ex::path m_path;
 		memory_block m_data;
 		lang_file m_file;
@@ -83,12 +159,12 @@ namespace locale {
 				return decltype(time){};
 			return time;
 		}
-		memory_block open() noexcept;
+		static memory_block open(const fs_ex::path& path) noexcept;
 	public:
-		template <typename T>
-		void path_manager(T&& manager)
+		template <typename T, typename... Args>
+		void path_manager(Args&&... args)
 		{
-			m_file_path = manager;
+			m_path_mgr = std::make_unique<manager_impl<T>>(std::forward<Args>(args)...);
 		}
 
 		bool open(const std::string& lng);
@@ -98,5 +174,6 @@ namespace locale {
 		const char* get_attr(uint32_t id) const noexcept;
 		const char* get_key(uint32_t id) const noexcept;
 		uint32_t find_key(const char* id) const noexcept;
+		std::vector<culture> known() const;
 	};
 }

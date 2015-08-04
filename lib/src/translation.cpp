@@ -23,12 +23,14 @@
  */
 
 #include <translation.hpp>
+#include <assert.h>
 
 namespace locale {
-	memory_block translation::open() noexcept
+	/* static */
+	memory_block translation::open(const fs_ex::path& path) noexcept
 	{
 		std::error_code ec;
-		auto size = fs_ex::file_size(m_path, ec);
+		auto size = fs_ex::file_size(path, ec);
 		if (ec)
 			return{};
 
@@ -39,14 +41,13 @@ namespace locale {
 		if (!block.block)
 			return{};
 
-		m_path = m_path.make_preferred();
 #ifdef WIN32
 		FILE* file = nullptr;
-		_wfopen_s(&file, m_path.wstring().c_str(), L"rb");
+		_wfopen_s(&file, path.wstring().c_str(), L"rb");
 		std::unique_ptr<FILE, decltype(&fclose)> f { file, fclose };
 #else
 		std::unique_ptr<FILE, decltype(&fclose)> f {
-			fopen(m_path.native().c_str(), "rb"), fclose
+			fopen(path.native().c_str(), "rb"), fclose
 		};
 #endif
 
@@ -62,10 +63,14 @@ namespace locale {
 
 	bool translation::open(const std::string& lng)
 	{
-		m_path = m_file_path(lng);
+		assert(m_path_mgr);
+		m_path = m_path_mgr->expand(lng);
 		m_mtime = mtime();
+
 		m_file.close();
-		m_data = open();
+		m_path.make_preferred();
+		m_data = open(m_path);
+
 		if (!m_file.open(m_data)) {
 			m_file.close();
 			m_data = memory_block { };
@@ -101,4 +106,37 @@ namespace locale {
 		return m_file.find_key(id);
 	}
 
+	std::vector<culture> translation::known() const
+	{
+		assert(m_path_mgr);
+		auto files = m_path_mgr->known();
+
+		std::vector<culture> out;
+
+		for (auto& path : files) {
+			lang_file file;
+			path.make_preferred();
+			auto view = open(path);
+			if (!file.open(view))
+				continue;
+
+			auto lang = file.get_attr(ATTR_CULTURE);
+			auto name = file.get_attr(ATTR_LANGUAGE);
+
+			culture c;
+			if (lang)
+				c.lang = lang;
+			if (name)
+				c.name = name;
+
+			auto copy = m_path_mgr->expand(c.lang);
+			copy.make_preferred();
+			if (copy != path)
+				continue;
+
+			out.push_back(c);
+		}
+
+		return out;
+	}
 }

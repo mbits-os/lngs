@@ -84,7 +84,7 @@ namespace locale {
 			void path_manager(Args&&... args)
 			{
 				m_impl = std::make_shared<translation>();
-				m_impl->path_manager(Manager { std::forward<Args>(args)... });
+				m_impl->path_manager<Manager>(std::forward<Args>(args)...);
 			}
 
 			bool open(const std::string& lng)
@@ -110,6 +110,12 @@ namespace locale {
 				open_first_of(C&& langs)
 			{
 				return open_range(std::forward<C>(langs));
+			}
+
+			std::vector<culture> known()
+			{
+				assert(m_impl);
+				return m_impl->known();
 			}
 		};
 
@@ -206,6 +212,7 @@ namespace locale {
 			using FileBased::path_manager;
 			using FileBased::open;
 			using FileBased::open_first_of;
+			using FileBased::known;
 			using Builtin<ResourceT>::init;
 		};
 	}
