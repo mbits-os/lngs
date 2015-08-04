@@ -26,14 +26,23 @@
 
 #ifdef WIN32
 #define WIN32_LOCALES
+#else
+#define GNU_LOCALES
 #endif
 
 #ifdef WIN32_LOCALES
 #include <windows.h>
 #endif // WIN32_LOCALES
 
+#ifdef GNU_LOCALES
+#include <clocale>
+#include <cstdlib>
+#include <memory.h>
+#include "str.hpp"
+#endif // GNU_LOCALES
+
 namespace locale {
-	inline bool inside(const std::vector<std::string>& locales, const std::string& key)
+	static inline bool inside(const std::vector<std::string>& locales, const std::string& key)
 	{
 		for (auto&& locale : locales) {
 			if (locale == key)
@@ -42,7 +51,7 @@ namespace locale {
 		return false;
 	}
 
-	void appendLocale(std::vector<std::string>& locales, const std::string & locale)
+	static void appendLocale(std::vector<std::string>& locales, const std::string & locale)
 	{
 		auto candidate = locale;
 		while (true) {
@@ -60,6 +69,7 @@ namespace locale {
 	}
 
 #ifdef WIN32_LOCALES
+
 	static std::string narrow(const wchar_t* s)
 	{
 		if (!s)
@@ -71,7 +81,7 @@ namespace locale {
 		return out.get();
 	}
 
-	std::vector<std::string> system_locales()
+	std::vector<std::string> system_locales(bool)
 	{
 		auto get_locale = [](auto&& fun) {
 			wchar_t locale[LOCALE_NAME_MAX_LENGTH];
@@ -88,5 +98,72 @@ namespace locale {
 
 		return out;
 	}
+
+#elif defined(GNU_LOCALES)
+
+	template <size_t length>
+	static inline bool starts_with(const char* value, size_t len, const char(&test)[length])
+	{
+		// if value == test || value == test + "." + something else
+		if ((length == len || (length > len && value[length] == '.')) && !strncmp(value, test, length))
+			return true;
+
+		return false;
+	}
+
+	static void expand(std::vector<std::string>& locales, const char* value)
+	{
+		if (!value || !*value)
+			return;
+
+		auto len = strlen(value);
+		if (starts_with(value, len, "C"))
+			return;
+		if (starts_with(value, len, "POSIX"))
+			return;
+
+		if (len > 3 && !strncmp(value, "LC_", 3) && strchr(value, ';') && strchr(value, '='))
+			return; // LC_ALL might be "LC_CTYPE=...;LC_...=...;..." if one has outstanding value
+
+		for (auto& s : split(value, ":")) {
+			auto pos = s.find('.');
+			if (pos != std::string::npos)
+				s = s.substr(0, pos);
+			for (auto& c : s) {
+				if (c == '_')
+					c = '-';
+			}
+			appendLocale(locales, s);
+		}
+	}
+
+	static void try_locale(std::vector<std::string>& locales, int cat)
+	{
+		expand(locales, std::setlocale(cat, nullptr));
+	}
+
+	static void try_environment(std::vector<std::string>& locales, const char* name)
+	{
+		expand(locales, std::getenv(name));
+	}
+
+	std::vector<std::string> system_locales(bool init_setlocale)
+	{
+		if (init_setlocale)
+			std::setlocale(LC_ALL, "");
+
+		std::vector<std::string> locales;
+		try_environment(locales, "LANGUAGE");
+		try_locale(locales, LC_ALL);
+#ifdef LC_MESSAGES
+		try_locale(locales, LC_MESSAGES);
+#endif
+		try_environment(locales, "LC_ALL");
+		try_environment(locales, "LC_MESSAGES");
+		try_environment(locales, "LANG");
+		appendLocale(locales, "en");
+		return locales;
+	}
+
 #endif
 }

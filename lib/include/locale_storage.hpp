@@ -31,7 +31,7 @@
 #include <vector>
 
 namespace locale {
-	std::vector<std::string> system_locales();
+	std::vector<std::string> system_locales(bool init_setlocale = true);
 	namespace storage {
 		class FileBased {
 			std::shared_ptr<translation> m_impl;
