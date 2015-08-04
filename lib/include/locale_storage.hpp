@@ -32,6 +32,7 @@
 
 namespace locale {
 	std::vector<std::string> system_locales(bool init_setlocale = true);
+	std::vector<std::string> http_accept_language(const char* header);
 	namespace storage {
 		class FileBased {
 			std::shared_ptr<translation> m_impl;

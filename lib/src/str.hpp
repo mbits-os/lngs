@@ -3,7 +3,7 @@
 #include <string>
 #include <cctype>
 
-std::vector<std::string> split(const std::string& str, const std::string& sep)
+inline std::vector<std::string> split(const std::string& str, const std::string& sep)
 {
 	std::vector<std::string> out;
 	auto pos = str.find(sep, 0);
@@ -18,7 +18,7 @@ std::vector<std::string> split(const std::string& str, const std::string& sep)
 	return out;
 }
 
-std::vector<std::string> split(const std::string& str, const std::string& sep, size_t count)
+inline std::vector<std::string> split(const std::string& str, const std::string& sep, size_t count)
 {
 	std::vector<std::string> out;
 	auto pos = str.find(sep, 0);
@@ -34,7 +34,7 @@ std::vector<std::string> split(const std::string& str, const std::string& sep, s
 	return out;
 }
 
-std::string join(const std::vector<std::string>& list, const std::string& sep)
+inline std::string join(const std::vector<std::string>& list, const std::string& sep)
 {
 	if (list.empty())
 		return{};
@@ -55,7 +55,7 @@ std::string join(const std::vector<std::string>& list, const std::string& sep)
 	return out;
 }
 
-std::string strip(const std::string& s) {
+inline std::string strip(const std::string& s) {
 	auto b = std::begin(s);
 	auto e = std::end(s);
 

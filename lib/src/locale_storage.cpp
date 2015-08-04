@@ -38,8 +38,9 @@
 #include <clocale>
 #include <cstdlib>
 #include <memory.h>
-#include "str.hpp"
 #endif // GNU_LOCALES
+
+#include "str.hpp"
 
 namespace locale {
 	static inline bool inside(const std::vector<std::string>& locales, const std::string& key)
@@ -166,4 +167,141 @@ namespace locale {
 	}
 
 #endif
+
+	struct ListItem {
+		std::string m_value;
+		size_t m_pos;
+		size_t m_q;
+
+		// SORT q DESC, pos ASC
+		bool operator < (const ListItem& right) const
+		{
+			if (m_q != right.m_q) return m_q > right.m_q;
+			return m_pos < right.m_pos;
+		}
+
+#define WS do { while (isspace((unsigned char)*c) && c < end) c++; } while(0)
+#define LOOK_FOR(ch) do { while (!isspace((unsigned char)*c) && *c != ',' && *c != (ch) && c < end) c++; } while(0)
+
+		const char* read(size_t pos, const char* c, const char* end)
+		{
+			m_pos = pos;
+			m_q = 1000;
+
+			WS;
+			const char* token = c;
+			LOOK_FOR(';');
+			m_value.assign(token, c);
+			WS;
+			while (*c == ';') {
+				c++;
+				WS;
+				token = c;
+				LOOK_FOR('=');
+				if (c - token == 1 && *token == 'q') {
+					WS;
+					if (*c == '=') {
+						c++;
+						WS;
+						token = c;
+						LOOK_FOR(';');
+						m_q = quality(token, c);
+						WS;
+					}
+				} else LOOK_FOR(';');
+			}
+			return ++c;
+		}
+		static size_t quality(const char* c, const char* end)
+		{
+			size_t q = 0;
+			size_t pow = 1000;
+			bool seen_dot = false;
+			while (c != end) {
+				switch (*c) {
+				case '0': case '1': case '2': case '3': case '4':
+				case '5': case '6': case '7': case '8': case '9':
+					q *= 10;
+					q += *c - '0';
+					if (seen_dot) {
+						pow /= 10;
+						if (pow == 1)
+							return q;
+					}
+					break;
+				case '.':
+					seen_dot = true;
+					break;
+				default:
+					return q * pow;
+				};
+				++c;
+			}
+			return q * pow;
+		}
+	};
+
+	std::vector<std::string> priority_list(const char* header)
+	{
+		std::vector<ListItem> items;
+
+		const char* c = header;
+		const char* e = c + strlen(c);
+		size_t pos = 0;
+		while (c < e) {
+			ListItem it;
+			c = it.read(pos++, c, e);
+			items.push_back(it);
+		}
+
+		std::stable_sort(items.begin(), items.end());
+		std::vector<std::string> out;
+		out.resize(items.size());
+		std::transform(begin(items), end(items), begin(out), [](const ListItem& item) { return item.m_value; });
+		return out;
+	}
+
+	bool expand_list(std::vector<std::string>& langs)
+	{
+		for (auto&& lang : langs) {
+			auto pos = lang.find_last_of('-');
+			if (pos == std::string::npos)
+				continue; // no tags in the language range
+
+			auto sub = lang.substr(0, pos);
+			if (inside(langs, sub))
+				continue; // sub-range already in list
+
+			auto sub_len = sub.length();
+			auto insert = langs.end();
+			auto cur = langs.begin(), end = langs.end();
+			for (; cur != end; ++cur) {
+				if (
+					cur->compare(0, sub_len, sub) == 0 &&
+					cur->length() > sub_len &&
+					cur->at(sub_len) == '-'
+					) {
+					insert = cur;
+				}
+			}
+
+			if (insert != langs.end())
+				++insert;
+
+			langs.insert(insert, sub);
+			return true;
+		}
+		return false;
+	}
+
+	std::vector<std::string> http_accept_language(const char* header)
+	{
+		auto out = priority_list(header);
+		while (expand_list(out));
+
+		if (!inside(out, "en"))
+			out.push_back("en");
+
+		return out;
+	}
 }
