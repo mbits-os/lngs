@@ -142,13 +142,30 @@ namespace locale {
 		return out;
 	}
 
+	static std::string gnu2iso(std::string s)
+	{
+		size_t i = 0;
+		for (auto& c : s) {
+			if (c == '_') {
+				c = '.';
+			} else if (c == '.') { // ll_CC.code?
+				s = s.substr(0, i);
+				break;
+			}
+
+			++i;
+		}
+
+		return s;
+	}
+
 	std::vector<string> attributes(const std::map<std::string, std::string>& gtt)
 	{
 		std::vector<string> props;
 		auto it = gtt.find("");
 		auto attrs = attrGTT(it == gtt.end() ? std::string{ } : it->second);
 
-		props.push_back({ ATTR_CULTURE, attrs["Language"] });
+		props.push_back({ ATTR_CULTURE, gnu2iso(attrs["Language"]) });
 		auto attr = attrs.find("Plural-Forms");
 		if (attr != attrs.end())
 			props.push_back({ ATTR_PLURALS, attr->second });
