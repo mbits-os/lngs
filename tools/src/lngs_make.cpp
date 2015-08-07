@@ -31,6 +31,10 @@
 #include <languages.hpp>
 #include <gettext.hpp>
 
+namespace locale {
+	std::string language_name(const std::string& ll_cc);
+}
+
 namespace make {
 	int call(args::parser& parser)
 	{
@@ -56,11 +60,13 @@ namespace make {
 		file.strings = locale::translations(map, strings.strings, warp_missing, verbose);
 		file.attrs = locale::attributes(map);
 
-		if (!llname.empty()) {
-			auto prop = std::find_if(std::begin(file.attrs), std::end(file.attrs), [](auto& item) { return item.key.id == locale::ATTR_CULTURE; });
-			if (prop == std::end(file.attrs) || prop->value.empty()) {
-				printf("warning: message file does not contain Language attribute.\n");
-			} else {
+		auto prop = std::find_if(std::begin(file.attrs), std::end(file.attrs), [](auto& item) { return item.key.id == locale::ATTR_CULTURE; });
+		if (prop == std::end(file.attrs) || prop->value.empty()) {
+			printf("warning: message file does not contain Language attribute.\n");
+		} else {
+			bool lang_set = false;
+
+			if (!llname.empty()) {
 				std::map<std::string, std::string> names;
 				if (!locale::ll_CC(llname, names))
 					return -1;
@@ -70,10 +76,18 @@ namespace make {
 					printf("warning: no %s in %s\n", prop->value.c_str(), llname.string().c_str());
 				else {
 					file.attrs.emplace_back(locale::ATTR_LANGUAGE, it->second);
-					std::sort(std::begin(file.attrs), std::end(file.attrs), [](auto& lhs, auto& rhs) { return lhs.key.id < rhs.key.id; });
+					lang_set = true;
 				}
 			}
+
+			if (!lang_set) {
+				auto name = locale::language_name(prop->value);
+				if (!name.empty())
+					file.attrs.emplace_back(locale::ATTR_LANGUAGE, locale::warp(name));
+			}
 		}
+
+		std::sort(std::begin(file.attrs), std::end(file.attrs), [](auto& lhs, auto& rhs) { return lhs.key.id < rhs.key.id; });
 
 		std::unique_ptr<FILE, decltype(&fclose)> outf{ nullptr, fclose };
 		FILE* output = stdout;

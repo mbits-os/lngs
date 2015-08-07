@@ -35,10 +35,18 @@
     <ClCompile Include="..\src\lngs_res.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\lang_codes.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\pch\pch.h">
       <Filter>pch</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\src\lang_codes.inl">
+      <Filter>src</Filter>
+    </None>
   </ItemGroup>
 </Project>

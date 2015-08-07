@@ -25,6 +25,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="..\src\lang_codes.cpp" />
     <ClCompile Include="..\src\lngs.cpp" />
     <ClCompile Include="..\src\lngs_enums.cpp" />
     <ClCompile Include="..\src\lngs_freeze.cpp" />
@@ -34,6 +35,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\pch\pch.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\src\lang_codes.inl">
+      <FileType>Document</FileType>
+    </ClInclude>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{F13244B9-429E-4CC1-AFC4-0A4E0477A340}</ProjectGuid>
