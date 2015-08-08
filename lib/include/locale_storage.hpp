@@ -112,7 +112,7 @@ namespace locale {
 				return open_range(std::forward<C>(langs));
 			}
 
-			std::vector<culture> known()
+			std::vector<culture> known() const
 			{
 				assert(m_impl);
 				return m_impl->known();
