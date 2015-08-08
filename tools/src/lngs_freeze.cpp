@@ -90,7 +90,7 @@ namespace freeze {
 			return 0;
 		}
 
-		std::unique_ptr<FILE, decltype(&fclose)> outf{ fs::fopen(outname, "w"), fclose };
+		std::unique_ptr<FILE, decltype(&fclose)> outf{ fs::fopen(outname, "wb"), fclose };
 
 		if (!outf) {
 			fprintf(stderr, "could not open `%s'", outname.native().c_str());
