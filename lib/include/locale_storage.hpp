@@ -117,6 +117,18 @@ namespace locale {
 				assert(m_impl);
 				return m_impl->known();
 			}
+
+			uint32_t add_onupdate(const std::function<void()>& fn)
+			{
+				assert(m_impl);
+				return m_impl->add_onupdate(fn);
+			}
+
+			void remove_onupdate(uint32_t token)
+			{
+				assert(m_impl);
+				return m_impl->remove_onupdate(token);
+			}
 		};
 
 		template <typename ResourceT>
@@ -213,7 +225,25 @@ namespace locale {
 			using FileBased::open;
 			using FileBased::open_first_of;
 			using FileBased::known;
+			using FileBased::add_onupdate;
+			using FileBased::remove_onupdate;
 			using Builtin<ResourceT>::init;
 		};
 	}
+
+	template <typename Strings>
+	struct Translation {
+		Strings tr;
+		void onupdate(const std::function<void()>& fn)
+		{
+			reg_token = tr.add_onupdate(fn);
+		}
+
+		~Translation()
+		{
+			if (reg_token) tr.remove_onupdate(reg_token);
+		}
+	private:
+		uint32_t reg_token = 0;
+	};
 }

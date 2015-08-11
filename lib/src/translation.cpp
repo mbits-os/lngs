@@ -78,6 +78,7 @@ namespace locale {
 			return false;
 		}
 
+		onupdate();
 		return true;
 	}
 
@@ -138,5 +139,30 @@ namespace locale {
 		}
 
 		return out;
+	}
+
+	uint32_t translation::add_onupdate(const std::function<void()>& fn)
+	{
+		if (!fn)
+			return 0;
+		++m_nextupdate;
+		if (!m_nextupdate)
+			++m_nextupdate;
+		m_updatelisteners[m_nextupdate] = fn;
+		return m_nextupdate;
+	}
+
+	void translation::remove_onupdate(uint32_t token)
+	{
+		auto it = m_updatelisteners.find(token);
+		if (it != m_updatelisteners.end())
+			m_updatelisteners.erase(it);
+	}
+
+	void translation::onupdate()
+	{
+		auto copy = m_updatelisteners;
+		for (auto& pair : copy)
+			pair.second();
 	}
 }

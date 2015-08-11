@@ -28,6 +28,7 @@
 #include <functional>
 #include <memory>
 #include <vector>
+#include <map>
 #include <locale_file.hpp>
 
 namespace locale {
@@ -160,6 +161,11 @@ namespace locale {
 			return time;
 		}
 		static memory_block open(const fs_ex::path& path) noexcept;
+
+		std::map<uint32_t, std::function<void()>> m_updatelisteners;
+		uint32_t m_nextupdate = 0xba5e0000;
+
+		void onupdate();
 	public:
 		template <typename T, typename... Args>
 		void path_manager(Args&&... args)
@@ -175,5 +181,8 @@ namespace locale {
 		const char* get_key(uint32_t id) const noexcept;
 		uint32_t find_key(const char* id) const noexcept;
 		std::vector<culture> known() const;
+
+		uint32_t add_onupdate(const std::function<void()>&);
+		void remove_onupdate(uint32_t token);
 	};
 }
