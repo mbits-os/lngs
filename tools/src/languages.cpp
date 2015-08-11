@@ -147,7 +147,7 @@ namespace locale {
 		size_t i = 0;
 		for (auto& c : s) {
 			if (c == '_') {
-				c = '.';
+				c = '-';
 			} else if (c == '.') { // ll_CC.code?
 				s = s.substr(0, i);
 				break;
