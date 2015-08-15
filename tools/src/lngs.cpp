@@ -36,6 +36,7 @@ using XChar = char;
 
 namespace pot { int call(args::parser&); }
 namespace enums { int call(args::parser&); }
+namespace py { int call(args::parser&); }
 namespace make { int call(args::parser&); }
 namespace res { int call(args::parser&); }
 namespace freeze { int call(args::parser&); }
@@ -50,6 +51,7 @@ command commands[] = {
 	{ "make",  "Translates MO file to LNG file.", make::call },
 	{ "pot",   "Creates POT file from message file.", pot::call },
 	{ "enums", "Creates header file from message file.", enums::call },
+	{ "py",    "Creates Python module with string keys.", py::call },
 	{ "res",   "Creates C++ file with fallback resource for the message file.", res::call },
 	{ "freeze","Reads the language description file and assigns values to new strings.", freeze::call },
 };

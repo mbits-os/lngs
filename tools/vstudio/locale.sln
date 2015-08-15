@@ -11,6 +11,16 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "internal", "internal.vcxpro
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "locale", "locale.vcxproj", "{484B71A3-B87C-4CBC-9409-593A7DE8B483}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "strings", "strings.vcxproj", "{0FE7561D-0875-4FEC-82F6-9ABB55A106A0}"
+	ProjectSection(ProjectDependencies) = postProject
+		{484B71A3-B87C-4CBC-9409-593A7DE8B483} = {484B71A3-B87C-4CBC-9409-593A7DE8B483}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "py-strings", "py-strings.vcxproj", "{638495B3-4A1C-424E-95D3-5ECC37FE26CF}"
+	ProjectSection(ProjectDependencies) = postProject
+		{0FE7561D-0875-4FEC-82F6-9ABB55A106A0} = {0FE7561D-0875-4FEC-82F6-9ABB55A106A0}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -51,6 +61,30 @@ Global
 		{484B71A3-B87C-4CBC-9409-593A7DE8B483}.Release|x64.ActiveCfg = Release|x64
 		{484B71A3-B87C-4CBC-9409-593A7DE8B483}.Release|x64.Build.0 = Release|x64
 		{484B71A3-B87C-4CBC-9409-593A7DE8B483}.Release|x86.ActiveCfg = Release|Win32
+		{0FE7561D-0875-4FEC-82F6-9ABB55A106A0}.Debug|Win32.ActiveCfg = Debug|Win32
+		{0FE7561D-0875-4FEC-82F6-9ABB55A106A0}.Debug|Win32.Build.0 = Debug|Win32
+		{0FE7561D-0875-4FEC-82F6-9ABB55A106A0}.Debug|x64.ActiveCfg = Debug|x64
+		{0FE7561D-0875-4FEC-82F6-9ABB55A106A0}.Debug|x64.Build.0 = Debug|x64
+		{0FE7561D-0875-4FEC-82F6-9ABB55A106A0}.Debug|x86.ActiveCfg = Debug|Win32
+		{0FE7561D-0875-4FEC-82F6-9ABB55A106A0}.Debug|x86.Build.0 = Debug|Win32
+		{0FE7561D-0875-4FEC-82F6-9ABB55A106A0}.Release|Win32.ActiveCfg = Release|Win32
+		{0FE7561D-0875-4FEC-82F6-9ABB55A106A0}.Release|Win32.Build.0 = Release|Win32
+		{0FE7561D-0875-4FEC-82F6-9ABB55A106A0}.Release|x64.ActiveCfg = Release|x64
+		{0FE7561D-0875-4FEC-82F6-9ABB55A106A0}.Release|x64.Build.0 = Release|x64
+		{0FE7561D-0875-4FEC-82F6-9ABB55A106A0}.Release|x86.ActiveCfg = Release|Win32
+		{0FE7561D-0875-4FEC-82F6-9ABB55A106A0}.Release|x86.Build.0 = Release|Win32
+		{638495B3-4A1C-424E-95D3-5ECC37FE26CF}.Debug|Win32.ActiveCfg = Debug|Win32
+		{638495B3-4A1C-424E-95D3-5ECC37FE26CF}.Debug|Win32.Build.0 = Debug|Win32
+		{638495B3-4A1C-424E-95D3-5ECC37FE26CF}.Debug|x64.ActiveCfg = Debug|x64
+		{638495B3-4A1C-424E-95D3-5ECC37FE26CF}.Debug|x64.Build.0 = Debug|x64
+		{638495B3-4A1C-424E-95D3-5ECC37FE26CF}.Debug|x86.ActiveCfg = Debug|Win32
+		{638495B3-4A1C-424E-95D3-5ECC37FE26CF}.Debug|x86.Build.0 = Debug|Win32
+		{638495B3-4A1C-424E-95D3-5ECC37FE26CF}.Release|Win32.ActiveCfg = Release|Win32
+		{638495B3-4A1C-424E-95D3-5ECC37FE26CF}.Release|Win32.Build.0 = Release|Win32
+		{638495B3-4A1C-424E-95D3-5ECC37FE26CF}.Release|x64.ActiveCfg = Release|x64
+		{638495B3-4A1C-424E-95D3-5ECC37FE26CF}.Release|x64.Build.0 = Release|x64
+		{638495B3-4A1C-424E-95D3-5ECC37FE26CF}.Release|x86.ActiveCfg = Release|Win32
+		{638495B3-4A1C-424E-95D3-5ECC37FE26CF}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

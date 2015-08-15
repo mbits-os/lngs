@@ -27,7 +27,7 @@
 
 namespace locale {
 	/* static */
-	memory_block translation::open(const fs_ex::path& path) noexcept
+	memory_block translation::open_file(const fs_ex::path& path) noexcept
 	{
 		std::error_code ec;
 		auto size = fs_ex::file_size(path, ec);
@@ -69,7 +69,7 @@ namespace locale {
 
 		m_file.close();
 		m_path.make_preferred();
-		m_data = open(m_path);
+		m_data = open_file(m_path);
 
 		if (!m_file.open(m_data)) {
 			m_file.close();
@@ -117,7 +117,7 @@ namespace locale {
 		for (auto& path : files) {
 			lang_file file;
 			path.make_preferred();
-			auto view = open(path);
+			auto view = open_file(path);
 			if (!file.open(view))
 				continue;
 

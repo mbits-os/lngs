@@ -160,13 +160,13 @@ namespace locale {
 				return decltype(time){};
 			return time;
 		}
-		static memory_block open(const fs_ex::path& path) noexcept;
 
 		std::map<uint32_t, std::function<void()>> m_updatelisteners;
 		uint32_t m_nextupdate = 0xba5e0000;
 
 		void onupdate();
 	public:
+		static memory_block open_file(const fs_ex::path& path) noexcept;
 		template <typename T, typename... Args>
 		void path_manager(Args&&... args)
 		{

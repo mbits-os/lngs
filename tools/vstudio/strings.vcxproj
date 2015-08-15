@@ -19,37 +19,20 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\pch\pch.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="..\src\lang_codes.cpp" />
-    <ClCompile Include="..\src\lngs.cpp" />
-    <ClCompile Include="..\src\lngs_enums.cpp" />
-    <ClCompile Include="..\src\lngs_freeze.cpp" />
-    <ClCompile Include="..\src\lngs_make.cpp" />
-    <ClCompile Include="..\src\lngs_pot.cpp" />
-    <ClCompile Include="..\src\lngs_py.cpp" />
-    <ClCompile Include="..\src\lngs_res.cpp" />
+    <ClCompile Include="..\..\lib\src\strings.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\pch\pch.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\src\lang_codes.inl">
-      <FileType>Document</FileType>
-    </ClInclude>
+    <ClInclude Include="..\..\lib\include\strings.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{F13244B9-429E-4CC1-AFC4-0A4E0477A340}</ProjectGuid>
+    <ProjectGuid>{0FE7561D-0875-4FEC-82F6-9ABB55A106A0}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>lngs</RootNamespace>
+    <RootNamespace>strings</RootNamespace>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <PlatformToolset>v140</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -69,10 +52,10 @@
     <Import Project="$(SolutionDir)\Platform.$(Platform).props" Condition="exists('$(SolutionDir)\Platform.$(Platform).props')" />
     <Import Project="$(SolutionDir)\Configuration.$(Configuration).props" Condition="exists('$(SolutionDir)\Configuration.$(Configuration).props')" />
     <Import Project="$(SolutionDir)\Cross.$(Platform).$(Configuration).props" Condition="exists('$(SolutionDir)\Cross.$(Platform).$(Configuration).props')" />
-    <Import Project="$(SolutionDir)\apps.lngs.props" Condition="exists('$(SolutionDir)\apps.lngs.props')" />
-    <Import Project="$(SolutionDir)\apps.lngs.$(Platform).props" Condition="exists('$(SolutionDir)\apps.lngs.$(Platform).props')" />
-    <Import Project="$(SolutionDir)\apps.lngs.$(Configuration).props" Condition="exists('$(SolutionDir)\apps.lngs.$(Configuration).props')" />
-    <Import Project="$(SolutionDir)\apps.lngs.$(Platform).$(Configuration).props" Condition="exists('$(SolutionDir)\apps.lngs.$(Platform).$(Configuration).props')" />
+    <Import Project="$(SolutionDir)\dlls.strings.props" Condition="exists('$(SolutionDir)\dlls.strings.props')" />
+    <Import Project="$(SolutionDir)\dlls.strings.$(Platform).props" Condition="exists('$(SolutionDir)\dlls.strings.$(Platform).props')" />
+    <Import Project="$(SolutionDir)\dlls.strings.$(Configuration).props" Condition="exists('$(SolutionDir)\dlls.strings.$(Configuration).props')" />
+    <Import Project="$(SolutionDir)\dlls.strings.$(Platform).$(Configuration).props" Condition="exists('$(SolutionDir)\dlls.strings.$(Platform).$(Configuration).props')" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
