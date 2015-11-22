@@ -1,0 +1,4 @@
+#pragma once
+
+#cmakedefine CMAKE_HAVE_TS_FILESYSTEM
+#cmakedefine CMAKE_HAVE_SOME_FEATURE

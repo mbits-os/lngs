@@ -1,0 +1,13 @@
+cmake_minimum_required (VERSION 2.8)
+project (locale)
+set(CMAKE_MODULE_PATH
+  ${PROJECT_SOURCE_DIR}/cmake
+  ${CMAKE_MODULE_PATH})
+
+set(LOCALE_VERSION_MAJOR 0)
+set(LOCALE_VERSION_MINOR 2)
+set(LOCALE_VERSION_PATCH 0)
+set(LOCALE_VERSION ${LOCALE_VERSION_MAJOR}.${LOCALE_VERSION_MINOR}.${LOCALE_VERSION_PATCH} )
+
+add_subdirectory(libs)
+add_subdirectory(lngs)
