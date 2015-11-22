@@ -46,5 +46,4 @@ install(TARGETS strings locale
 	ARCHIVE DESTINATION lib
 	LIBRARY DESTINATION lib
 	RUNTIME DESTINATION bin)
-install(TARGETS strings locale DESTINATION lib)
 install(DIRECTORY include/locale/ DESTINATION include/locale)
