@@ -64,13 +64,13 @@ namespace lngs::freeze {
 		int offset = 0;
 		auto [from, to] = value_pos(bytes + defs.serial_offset);
 		out.write(bytes, defs.serial_offset + from + 1);
-		out.printf("%u", defs.serial);
+		out.fmt("{}", defs.serial);
 		offset = defs.serial_offset + to;
 
 		for (auto& str : defs.strings) {
 			auto[from, to] = value_pos(bytes + str.id_offset);
 			out.write(bytes + offset, str.id_offset + from + 1 - offset);
-			out.printf("%u", str.id);
+			out.fmt("{}", str.id);
 			offset = str.id_offset + to;
 		}
 

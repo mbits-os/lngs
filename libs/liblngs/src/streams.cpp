@@ -25,6 +25,7 @@
 #include <lngs/streams.hpp>
 #include <cctype>
 #include <cstring>
+#include <fmt/format.h>
 
 namespace lngs {
 	instream::~instream() = default;
@@ -108,6 +109,12 @@ namespace lngs {
 	}
 
 	outstream::~outstream() = default;
+
+	std::size_t outstream::vprint(fmt::string_view format_str, fmt::format_args args) {
+		fmt::memory_buffer buffer;
+		vformat_to(buffer, format_str, args);
+		return write(buffer.data(), buffer.size());
+	}
 
 	std_outstream& get_stdout() {
 		static std_outstream stdout__{ stdout };

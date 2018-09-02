@@ -24,10 +24,9 @@
 
 #pragma once
 
-#include <cstdarg>
-#include <cstddef>
 #include <filesystem>
 #include <vector>
+#include <cstddef>
 
 namespace fs {
 using namespace std::filesystem;
@@ -58,15 +57,6 @@ public:
 	size_t load(void* buffer, size_t length) const noexcept;
 	size_t store(const void* buffer, size_t length) const noexcept;
 	bool feof() const noexcept { return std::feof(get()); }
-
-	size_t vprintf(const char* format, va_list args) const noexcept { return std::vprintf(format, args); }
-	std::size_t printf(const char* format, ...) const noexcept {
-		va_list args;
-		va_start(args, format);
-		auto result = vprintf(format, args);
-		va_end(args);
-		return result;
-	}
 };
 
 inline file fopen(const path& file, char const* mode = "r") noexcept {

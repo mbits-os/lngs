@@ -28,6 +28,7 @@
 #include <cstdint>
 #include <cstdio>
 #include <locale/file.hpp>
+#include <fmt/core.h>
 
 namespace lngs {
 	struct instream {
@@ -83,7 +84,6 @@ namespace lngs {
 	struct outstream {
 		virtual ~outstream();
 		virtual std::size_t write(const void* buffer, std::size_t length) noexcept = 0;
-		virtual std::size_t vprintf(const char* format, va_list vlist) noexcept = 0;
 
 		std::size_t write(const std::string& s) noexcept
 		{
@@ -96,13 +96,19 @@ namespace lngs {
 			return write(&obj, sizeof(obj)) / sizeof(obj); // will yield 1 on success or 0 on error
 		}
 
-		std::size_t printf(const char* format, ...) noexcept {
-			va_list args;
-			va_start(args, format);
-			auto result = vprintf(format, args);
-			va_end(args);
-			return result;
+		template <typename... Args>
+		inline std::size_t print(fmt::string_view format_str, const Args & ... args) {
+			fmt::format_arg_store<fmt::format_context, Args...> as(args...);
+			return vprint(format_str, as);
 		}
+
+		template <typename... Args>
+		inline std::size_t fmt(::fmt::string_view format_str, const Args & ... args) {
+			::fmt::format_arg_store<::fmt::format_context, Args...> as(args...);
+			return vprint(format_str, as);
+		}
+	private:
+		std::size_t vprint(fmt::string_view format_str, fmt::format_args args);
 	};
 
 	class std_outstream : public outstream {
@@ -113,7 +119,6 @@ namespace lngs {
 		{
 			return std::fwrite(data, 1, length, ptr);
 		}
-		std::size_t vprintf(const char* format, va_list list) noexcept final { return std::vprintf(format, list); }
 	};
 
 	std_outstream& get_stdout();
@@ -127,6 +132,5 @@ namespace lngs {
 		{
 			return file.store(data, length);
 		}
-		std::size_t vprintf(const char* format, va_list list) noexcept final { return file.vprintf(format, list); }
 	};
 }

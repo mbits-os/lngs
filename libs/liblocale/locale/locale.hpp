@@ -25,7 +25,7 @@
 #pragma once
 
 #include <locale/locale_storage.hpp>
-#include <locale/format.hpp>
+#include <fmt/core.h>
 
 namespace locale {
 	template <typename Enum, typename Storage = storage::FileBased>
@@ -41,7 +41,7 @@ namespace locale {
 		std::string operator()(Enum val, Args&&... args) const noexcept
 		{
 			auto ptr = Storage::get_string((uint32_t)val);
-			return ptr ? ::str::format(ptr, std::forward<Args>(args)...) : std::string{ };
+			return ptr ? fmt::format(ptr, std::forward<Args>(args)...) : std::string{ };
 		}
 
 		std::string attr(v1_0::attr_t val) const noexcept
@@ -64,7 +64,7 @@ namespace locale {
 		std::string operator()(Enum val, intmax_t count, Args&&... args) const noexcept
 		{
 			auto ptr = Storage::get_string((uint32_t)val, count);
-			return ptr ? ::str::format(ptr, std::forward<Args>(args)...) : std::string{ };
+			return ptr ? fmt::format(ptr, std::forward<Args>(args)...) : std::string{ };
 		}
 	};
 
@@ -82,7 +82,7 @@ namespace locale {
 		std::string operator()(PEnum val, intmax_t count, Args&&... args) const noexcept
 		{
 			auto ptr = SingularStrings<SEnum, Storage>::get_string((uint32_t)val, count);
-			return ptr ? ::str::format(ptr, std::forward<Args>(args)...) : std::string{ };
+			return ptr ? fmt::format(ptr, std::forward<Args>(args)...) : std::string{ };
 		}
 	};
 }

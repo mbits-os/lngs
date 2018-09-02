@@ -45,7 +45,7 @@ namespace lngs::pot {
 	struct info {
 		std::string copy{ "THE PACKAGE'S COPYRIGHT HOLDER" };
 		std::string first_author{ "FIRST AUTHOR <EMAIL@ADDRESS>" };
-		std::string lang_team{ "LANGUAGE <LL@li.org>" };
+		std::string title{ "SOME DESCRIPTIVE TITLE" };
 	};
 
 	int write(outstream& out, const idl_strings& defs, const info& nfo);

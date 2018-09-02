@@ -132,14 +132,14 @@ namespace lngs {
 		auto name = outname;
 		name.make_preferred();
 
-		auto outf = fs::fopen(outname, "w");
+		auto outf = fs::fopen(outname, "wb");
 		if (!outf) {
-			fprintf(stderr, "could not open `%s'", name.string().c_str());
+			fmt::print(stderr, "could not open `{}'", name.string());
 			return 1;
 		}
 
 		if (verbose == with_outname)
-			printf("%s\n", name.string().c_str());
+			fmt::print("{}\n", name.string());
 
 		foutstream out{ std::move(outf) };
 		return writer(out);
@@ -158,12 +158,14 @@ namespace lngs::pot {
 		parser.arg(inname, "i", "in").meta("FILE").help("set message file to read");
 		parser.arg(nfo.copy, "c", "copy").meta("HOLDER").help("the name of copyright holder").opt();
 		parser.arg(nfo.first_author, "a", "author").meta("EMAIL").help("the name and address of first author");
-		parser.arg(nfo.lang_team, "l", "langteam").meta("EMAIL").help("the name and address of language team").opt();
+		parser.arg(nfo.title, "t", "title").meta("TITLE").help("some descriptive title").opt();
 		parser.parse();
 
 		idl_strings strings;
-		if (!read_strings(inname, strings, verbose))
+		if (!read_strings(inname, strings, verbose)) {
+			fmt::print(stderr, "`{}' is not strings file.\n", inname.string());
 			return 1;
+		}
 
 		return write_result(outname, [&](outstream& out) {
 			return write(out, strings, nfo);
@@ -185,8 +187,10 @@ namespace lngs::enums {
 		parser.parse();
 
 		idl_strings strings;
-		if (!read_strings(inname, strings, verbose))
+		if (!read_strings(inname, strings, verbose)) {
+			fmt::print(stderr, "`{}' is not strings file.\n", inname.string());
 			return 1;
+		}
 
 		return write_result(outname, [&](outstream& out) {
 			return write(out, strings, with_resource);
@@ -206,8 +210,10 @@ namespace lngs::py {
 		parser.parse();
 
 		idl_strings strings;
-		if (!read_strings(inname, strings, verbose))
+		if (!read_strings(inname, strings, verbose)) {
+			fmt::print(stderr, "`{}' is not strings file.\n", inname.string());
 			return 1;
+		}
 
 		return write_result(outname, [&](outstream& out) {
 			return write(out, strings);
@@ -231,8 +237,10 @@ namespace lngs::make {
 		parser.parse();
 
 		idl_strings strings;
-		if (!read_strings(inname, strings, verbose))
+		if (!read_strings(inname, strings, verbose)) {
+			fmt::print(stderr, "`{}' is not strings file.\n", inname.string());
 			return 1;
+		}
 
 		auto file = load_mo(strings, warp_missing, verbose, moname);
 		if (!fix_attributes(file, llname))
@@ -246,11 +254,11 @@ namespace lngs::make {
 
 		auto outf = fs::fopen(outname, "wb");
 		if (!outf) {
-			fprintf(stderr, "could not open `%s'", name.string().c_str());
+			fmt::print(stderr, "could not open `{}'", name.string());
 			return 1;
 		}
 
-		fprintf(stderr, "%s\n", name.string().c_str());
+		fmt::print("{}\n", name.string());
 		foutstream out{ std::move(outf) };
 		return file.write(out);
 	}
@@ -274,8 +282,10 @@ namespace lngs::res {
 		parser.parse();
 
 		idl_strings strings;
-		if (!read_strings(inname, strings, verbose))
+		if (!read_strings(inname, strings, verbose)) {
+			fmt::print(stderr, "`{}' is not strings file.\n", inname.string());
 			return 1;
+		}
 
 		if (include.empty())
 			include = strings.project + ".hpp";
@@ -301,7 +311,7 @@ namespace lngs::freeze {
 
 		inname.make_preferred();
 		if (verbose)
-			printf("%s\n", inname.string().c_str());
+			fmt::print("{}\n", inname.string());
 
 		idl_strings strings;
 		std::vector<std::byte> contents;
@@ -310,7 +320,7 @@ namespace lngs::freeze {
 			auto inf = fs::fopen(inname, "rb");
 
 			if (!inf) {
-				fprintf(stderr, "could not open `%s'", inname.string().c_str());
+				fmt::print(stderr, "could not open `{}'", inname.string());
 				return -1;
 			}
 			contents = inf.read();
@@ -320,14 +330,14 @@ namespace lngs::freeze {
 			meminstream is{ contents.data(), contents.size() };
 			if (!read_strings(is, inname.string(), strings)) {
 				if (verbose)
-					fprintf(stderr, "`%s' is not strings file.\n", inname.string().c_str());
+					fmt::print(stderr, "`{}' is not strings file.\n", inname.string().c_str());
 				return -1;
 			}
 		}
 
 		if (!freeze::freeze(strings)) {
 			if (verbose)
-				printf("No new strings found\n");
+				fmt::print("No new strings found\n");
 			return 0;
 		}
 

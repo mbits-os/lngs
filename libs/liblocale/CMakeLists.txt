@@ -3,7 +3,6 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/version.in.hpp ${CMAKE_CURRENT_BI
 set(locale_SRCS
 	src/expr_parser.cpp
 	src/file.cpp
-	src/format.cpp
 	src/lang_file.cpp
 	src/locale_storage.cpp
 	src/plurals.cpp
@@ -13,7 +12,6 @@ set(locale_SRCS
 
 set (locale_INCS
 	locale/file.hpp
-	locale/format.hpp
 	locale/locale.hpp
 	locale/locale_base.hpp
 	locale/locale_file.hpp
@@ -54,10 +52,11 @@ target_include_directories(locale
 	  $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
 	  $<INSTALL_INTERFACE:include>
 	PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
-target_link_libraries(locale PUBLIC ${EXTRA_LIBS})
+target_link_libraries(locale PUBLIC ${EXTRA_LIBS} fmt::fmt)
 
 install(TARGETS locale
 	ARCHIVE DESTINATION lib
 	LIBRARY DESTINATION lib
 	RUNTIME DESTINATION bin)
 install(DIRECTORY locale/ DESTINATION include/locale)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/locale/version.hpp DESTINATION include/locale)

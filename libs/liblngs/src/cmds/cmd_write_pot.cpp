@@ -82,34 +82,33 @@ namespace lngs::pot {
 		auto has_plurals = find_if(begin(defs.strings), end(defs.strings),
 			[](auto& str) { return !str.plural.empty(); }) != end(defs.strings);
 
-		out.printf(R"(# Copyright (C) %d %s
-# This file is distributed under the same license as the %s package.
-# %s, %d.
+		out.fmt(R"(# {5}.
+# Copyright (C) {0} {3}
+# This file is distributed under the same license as the {1} package.
+# {4}, {0}.
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: %s %s\n"
+"Project-Id-Version: {1} {2}\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: %s\n"
+"POT-Creation-Date: {6}\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: %s\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 )",
 
-thisYear(), nfo.copy.c_str(),
-defs.project.c_str(),
-nfo.first_author.c_str(), thisYear(),
-defs.project.c_str(), defs.version.c_str(),
-creationDate().c_str(),
-nfo.lang_team.c_str());
+/*0*/ thisYear(),
+/*1*/ defs.project, /*2*/ defs.version,
+/*3*/ nfo.copy, /*4*/ nfo.first_author, /*5*/ nfo.title,
+/*6*/ creationDate());
 
 		if (has_plurals)
-			out.printf(R"("Plural-Forms: nplurals=2; plural=(n != 1);\n"
+			out.fmt(R"("Plural-Forms: nplurals=2; plural=(n != 1);\n"
 )");
 
 		std::vector<std::string> ids;
@@ -121,21 +120,21 @@ nfo.lang_team.c_str());
 			auto it = find_if(begin(defs.strings), end(defs.strings), [&](auto& str) { return str.key == id; });
 
 			auto& def = *it;
-			out.printf("\n");
+			out.fmt("\n");
 			if (!def.help.empty())
-				out.printf("#. {}\n", def.help.c_str());
-			out.printf("msgctxt \"{}\"\n", def.key.c_str());
-			out.printf("msgid \"{}\"\n", escape(def.value).c_str());
+				out.fmt("#. {}\n", def.help);
+			out.fmt("msgctxt \"{}\"\n", def.key);
+			out.fmt("msgid \"{}\"\n", escape(def.value));
 			if (def.plural.empty())
-				out.printf("msgstr \"\"\n");
+				out.fmt("msgstr \"\"\n");
 			else {
-				out.printf("msgid_plural \"{}\"\n", escape(def.plural).c_str());
-				out.printf("msgstr[0] \"\"\n");
-				out.printf("msgstr[1] \"\"\n");
+				out.fmt("msgid_plural \"{}\"\n", escape(def.plural));
+				out.fmt("msgstr[0] \"\"\n");
+				out.fmt("msgstr[1] \"\"\n");
 			}
 		}
 
-		out.printf("\n");
+		out.fmt("\n");
 
 		return 0;
 	}
