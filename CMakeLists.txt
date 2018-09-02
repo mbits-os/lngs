@@ -1,13 +1,23 @@
 cmake_minimum_required (VERSION 3.10)
 project (locale)
 
+set(LOCALE_TESTING ON CACHE BOOL "Compile and/or run self-tests")
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-set(CMAKE_MODULE_PATH
-  ${PROJECT_SOURCE_DIR}/cmake
-  ${CMAKE_MODULE_PATH})
+foreach(MOD lngs locale)
+  list(APPEND COVERALLS_DIRS
+    libs/lib${MOD}/${MOD}
+    libs/lib${MOD}/src)
+endforeach()
+
+include(Coveralls.cmake)
+
+if (COVERALLS AND NOT LOCALE_TESTING)
+  message(FATAL_ERROR "Coveralls are useless without -DLOCALE_TESTING=ON")
+endif()
 
 find_package(Git)
 
@@ -37,5 +47,25 @@ endif()
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
+if (LOCALE_TESTING)
+  enable_testing()
+  include( ${CMAKE_CURRENT_SOURCE_DIR}/googletest.cmake )
+endif()
+
 add_subdirectory(libs)
 add_subdirectory(lngs)
+
+set(CPACK_PACKAGE_NAME "${PROJECT_NAME}")
+set(CPACK_PACKAGE_VENDOR "midnightBITS")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Locale File Format And Processor")
+set(CPACK_PACKAGE_VERSION "${LOCALE_VERSION}")
+set(CPACK_PACKAGE_VERSION_MAJOR "${LOCALE_VERSION_MAJOR}")
+set(CPACK_PACKAGE_VERSION_MINOR "${LOCALE_VERSION_MINOR}")
+set(CPACK_PACKAGE_VERSION_PATCH "${LOCALE_VERSION_PATCH}")
+if (LOCALE_VERSION_BUILD)
+set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}.${LOCALE_VERSION_BUILD}${LOCALE_VERSION_STABILITY}-${CMAKE_SYSTEM_NAME}")
+else()
+set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}${LOCALE_VERSION_STABILITY}-${CMAKE_SYSTEM_NAME}")
+endif()
+set(CPACK_NSIS_MODIFY_PATH ON)
+include(CPack)

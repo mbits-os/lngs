@@ -30,3 +30,22 @@ target_include_directories(lngs_impl
   PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 target_link_libraries(lngs_impl locale)
+
+##################################################################
+##  TESTING
+##################################################################
+
+if (LOCALE_TESTING)
+
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/tests)
+set(DATA_DIR ${CMAKE_CURRENT_SOURCE_DIR}/test-data)
+
+file(GLOB TEST_SRCS tests/*.cc)
+
+add_executable(lngs-test "${CMAKE_SOURCE_DIR}/googletest.cpp" ${TEST_SRCS})
+set_target_properties(lngs-test PROPERTIES FOLDER tests)
+target_link_libraries(lngs-test lngs_impl gtest gmock ${CMAKE_THREAD_LIBS_INIT})
+
+enable_testing()
+
+endif()
