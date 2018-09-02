@@ -642,14 +642,14 @@ namespace locale {
 		if (verbose)
 			printf("%s\n", inname.string().c_str());
 
-		std::unique_ptr<FILE, decltype(&fclose)> inf{ fs::fopen(in, "rb"), fclose };
+		auto inf = fs::fopen(in, "rb");
 
 		if (!inf) {
 			fprintf(stderr, "could not open `%s'", inname.string().c_str());
 			return false;
 		}
 
-		finstream is{ inf.get() };
+		finstream is{ inf.handle() };
 		if (!read_strings(is, inname.string(), def)) {
 			if (verbose)
 				fprintf(stderr, "`%s' is not strings file.\n", inname.string().c_str());

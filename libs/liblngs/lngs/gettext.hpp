@@ -25,7 +25,7 @@
 #pragma once
 #include <map>
 #include <string>
-#include <lngs/filesystem.hpp>
+#include <locale/file.hpp>
 
 namespace gtt {
 	std::map<std::string, std::string> open(const fs::path& path);

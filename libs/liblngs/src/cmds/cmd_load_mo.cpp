@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2015 midnightBITS
+ * Copyright (C) 2015 midnightBITS
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -22,12 +22,13 @@
  * SOFTWARE.
  */
 
-#include <lngs/filesystem.hpp>
+#include <locale/file.hpp>
 #include <lngs/argparser.hpp>
 #include <lngs/streams.hpp>
 #include <lngs/strings.hpp>
 #include <lngs/languages.hpp>
 #include <lngs/gettext.hpp>
+#include <algorithm>
 
 namespace locale {
 	std::string language_name(const std::string& ll_cc);
@@ -87,16 +88,16 @@ namespace make {
 
 		std::sort(std::begin(file.attrs), std::end(file.attrs), [](auto& lhs, auto& rhs) { return lhs.key.id < rhs.key.id; });
 
-		std::unique_ptr<FILE, decltype(&fclose)> outf{ nullptr, fclose };
+		fs::file outf;
 		FILE* output = stdout;
 		if (outname != "-") {
-			outf.reset(fs::fopen(outname, "wb"));
+			outf = fs::fopen(outname, "wb");
 			if (!outf) {
 				fprintf(stderr, "could not open `%s'", outname.string().c_str());
 				return -1;
 			}
 
-			output = outf.get();
+			output = outf.handle();
 		}
 
 		locale::foutstream os{ output };

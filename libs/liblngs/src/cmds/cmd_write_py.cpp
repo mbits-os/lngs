@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2015 midnightBITS
+ * Copyright (C) 2015 midnightBITS
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-#include <lngs/filesystem.hpp>
+#include <locale/file.hpp>
 #include <lngs/argparser.hpp>
 #include <lngs/strings.hpp>
 
@@ -47,7 +47,7 @@ namespace py {
 			return 0;
 		}
 
-		std::unique_ptr<FILE, decltype(&fclose)> outf{ fs::fopen(outname, "w"), fclose };
+		auto outf = fs::fopen(outname, "w");
 
 		if (!outf) {
 			fprintf(stderr, "could not open `%s'", outname.string().c_str());
@@ -57,7 +57,7 @@ namespace py {
 		if (verbose)
 			printf("%s\n", outname.string().c_str());
 
-		write(outf.get(), strings);
+		write(outf.handle(), strings);
 		return 0;
 	}
 

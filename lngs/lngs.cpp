@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2015 midnightBITS
+ * Copyright (C) 2015 midnightBITS
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-#include <lngs/filesystem.hpp>
+#include <locale/file.hpp>
 #include <lngs/argparser.hpp>
 
 #if defined(_WIN32) && defined(_UNICODE)

@@ -1,5 +1,3 @@
-include (BuildConfig)
-
 set(lngs_SRCS
   src/argparser.cpp
   src/cmds/cmd_freeze_ids.cpp
@@ -8,7 +6,6 @@ set(lngs_SRCS
   src/cmds/cmd_write_pot.cpp
   src/cmds/cmd_write_py.cpp
   src/cmds/cmd_write_res.cpp
-  src/filesystem.cpp
   src/gettext.cpp
   src/languages.cpp
   src/lang_codes.cpp
@@ -19,7 +16,6 @@ set(lngs_SRCS
 
 set (lngs_INCS
   lngs/argparser.hpp
-  lngs/filesystem.hpp
   lngs/gettext.hpp
   lngs/languages.hpp
   lngs/streams.hpp
@@ -30,7 +26,7 @@ set (lngs_INCS
 add_library(lngs_impl STATIC ${lngs_SRCS} ${lngs_INCS})
 set_target_properties(lngs_impl PROPERTIES FOLDER tools)
 target_include_directories(lngs_impl
-  PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR}
+  PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
   PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 target_link_libraries(lngs_impl locale)

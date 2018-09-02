@@ -1,7 +1,6 @@
-include (BuildConfig)
-
 set(locale_SRCS
 	src/expr_parser.cpp
+	src/file.cpp
 	src/format.cpp
 	src/lang_file.cpp
 	src/locale_storage.cpp
@@ -10,6 +9,7 @@ set(locale_SRCS
 )
 
 set (locale_INCS
+	locale/file.hpp
 	locale/format.hpp
 	locale/locale.hpp
 	locale/locale_base.hpp
@@ -25,6 +25,19 @@ set (locale_INCS
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 set(EXTRA_LIBS)
+
+if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+	include(CheckIncludeFileCXX)
+	check_include_file_cxx(__config HAS_LIBCXX)
+	if (HAS_LIBCXX)
+		list(APPEND EXTRA_LIBS c++abi c++fs)
+	else()
+		list(APPEND EXTRA_LIBS stdc++fs)
+	endif()
+endif()
+if (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+	list(APPEND EXTRA_LIBS stdc++fs)
+endif()
 
 add_library(locale STATIC ${locale_SRCS} ${locale_INCS})
 set_target_properties(locale PROPERTIES

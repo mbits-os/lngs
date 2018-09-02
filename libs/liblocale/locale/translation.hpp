@@ -24,44 +24,14 @@
 
 #pragma once
 
-#include "cmakeconfig.h"
-
-#ifdef CMAKE_HAVE_TS_FILESYSTEM
-#include <experimental/filesystem>
-#else
-#include <boost/filesystem.hpp>
-#endif
 #include <functional>
 #include <memory>
 #include <vector>
 #include <map>
 #include <locale/locale_file.hpp>
-
-#ifndef CMAKE_HAVE_TS_FILESYSTEM
-namespace boost { namespace filesystem {
-inline directory_iterator begin(const directory_iterator& iter)
-{
-	return iter;
-}
-inline directory_iterator end(const directory_iterator&)
-{
-	return directory_iterator { };
-}
-}} // boost::filesystem
-#endif
+#include <locale/file.hpp>
 
 namespace locale {
-
-	namespace fs {
-#ifdef CMAKE_HAVE_TS_FILESYSTEM
-		using namespace std::experimental::filesystem;
-		using std::error_code;
-#else // !def CMAKE_HAVE_TS_FILESYSTEM
-		using namespace boost::filesystem;
-		using boost::system::error_code;
-		using file_time_type = std::time_t;
-#endif // CMAKE_HAVE_TS_FILESYSTEM
-	}
 
 	namespace manager {
 		// uses base and filename to generate paths "<base>/<lng>/<filename>"

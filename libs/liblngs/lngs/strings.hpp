@@ -23,7 +23,7 @@
  */
 
 #pragma once
-#include <lngs/filesystem.hpp>
+#include <locale/file.hpp>
 #include <vector>
 
 namespace locale {

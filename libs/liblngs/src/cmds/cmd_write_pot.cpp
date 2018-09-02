@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2015 midnightBITS
+ * Copyright (C) 2015 midnightBITS
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -24,8 +24,9 @@
 
 #include <ctime>
 #include <iterator>
+#include <algorithm>
 
-#include <lngs/filesystem.hpp>
+#include <locale/file.hpp>
 #include <lngs/argparser.hpp>
 #include <lngs/strings.hpp>
 
@@ -61,14 +62,14 @@ namespace pot {
 			return 0;
 		}
 
-		std::unique_ptr<FILE, decltype(&fclose)> outf{ fs::fopen(outname, "w"), fclose };
+		auto outf = fs::fopen(outname, "w");
 
 		if (!outf) {
 			fprintf(stderr, "could not open `%s'", outname.string().c_str());
 			return -1;
 		}
 
-		write(outf.get(), strings, nfo);
+		write(outf.handle(), strings, nfo);
 		return 0;
 	}
 

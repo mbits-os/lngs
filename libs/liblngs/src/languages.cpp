@@ -28,6 +28,7 @@
 #include <lngs/languages.hpp>
 #include <lngs/streams.hpp>
 #include <lngs/strings.hpp>
+#include <lngs/utf8.hpp>
 
 namespace locale {
 
@@ -222,13 +223,13 @@ namespace locale {
 		auto inname = in;
 		inname.make_preferred();
 
-		std::unique_ptr<FILE, decltype(&fclose)> inf{ fs::fopen(in, "rb"), fclose };
+		auto inf = fs::fopen(in, "rb");
 		if (!inf) {
 			fprintf(stderr, "could not open `%s'", inname.string().c_str());
 			return false;
 		}
 
-		locale::finstream is{ inf.get() };
+		locale::finstream is{ inf.handle() };
 		std::string code, name;
 		bool ret = true;
 		while (ll_code(is, code, name, inname.string(), ret) && ret)

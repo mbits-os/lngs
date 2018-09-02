@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 midnightBITS
+ * Copyright (C) 2018 midnightBITS
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -22,25 +22,69 @@
  * SOFTWARE.
  */
 
-#include <lngs/filesystem.hpp>
-#include <lngs/utf8.hpp>
+#include <locale/file.hpp>
+#include <cstdio>
 
 namespace fs {
-FILE* fopen(const path& file, char const* mode)
+FILE* file::fopen(path file, char const* mode) noexcept
 {
-#if OS(WINDOWS)
-
+	file.make_preferred();
+#if defined WIN32 || defined _WIN32
 #ifdef _MSC_VER
 #pragma warning(push)
 #pragma warning(disable: 4996)
 #endif
-	return ::_wfopen(file.native().c_str(), utf::widen(mode).c_str());
+	std::unique_ptr<wchar_t[]> heap;
+	wchar_t buff[20];
+	wchar_t* ptr = buff;
+	auto len = mode ? strlen(mode) : 0;
+	if (len >= sizeof(buff)) {
+		heap.reset(new (std::nothrow) wchar_t[len + 1]);
+		if (!heap)
+			return nullptr;
+		ptr = heap.get();
+	}
+
+	auto dst = ptr;
+	while (*dst++ = *mode++);
+
+	return ::_wfopen(file.native().c_str(), ptr);
 #ifdef _MSC_VER
 #pragma warning(pop)
 #endif
 
-#else // OS(WINDOWS)
-	return ::fopen(file.string().c_str(), mode);
+#else // WIN32 || _WIN32
+	return std::fopen(file.string().c_str(), mode);
 #endif
 }
+
+std::vector<char> file::read() const noexcept {
+	std::vector<char> out;
+	if (!*this)
+		return out;
+	char buffer[1024];
+
+	while (true) {
+		auto ret = std::fread(buffer, 1, sizeof(buffer), get());
+		if (!ret) {
+			if (!std::feof(get()))
+				out.clear();
+			break;
+		}
+		out.insert(end(out), buffer, buffer + ret);
+	}
+
+	return out;
+}
+
+size_t file::load(void* buffer, size_t length) const noexcept
+{
+	return std::fread(buffer, 1, length, get());
+}
+
+size_t file::store(const void* buffer, size_t length) const noexcept
+{
+	return std::fwrite(buffer, 1, length, get());
+}
+
 }

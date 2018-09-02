@@ -47,8 +47,8 @@ namespace gtt {
 
 			m_content.reset(new char[m_size]);
 
-			std::unique_ptr<FILE, decltype(&fclose)> inf{ fs::fopen(path, "rb"), fclose };
-			size_t read = std::fread(m_content.get(), 1, m_size, inf.get());
+			auto inf = fs::fopen(path, "rb");
+			size_t read = inf.load(m_content.get(), m_size);
 			return read == m_size;
 		}
 

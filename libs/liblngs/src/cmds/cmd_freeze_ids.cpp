@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2015 midnightBITS
+ * Copyright (C) 2015 midnightBITS
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -22,10 +22,11 @@
  * SOFTWARE.
  */
 
-#include <lngs/filesystem.hpp>
+#include <locale/file.hpp>
 #include <lngs/argparser.hpp>
 #include <lngs/strings.hpp>
 #include <lngs/streams.hpp>
+#include <algorithm>
 
 namespace freeze {
 	void write(FILE* out, const locale::Strings& defs, std::vector<char>& data);
@@ -45,16 +46,16 @@ namespace freeze {
 			printf("%s\n", inname.string().c_str());
 
 		locale::Strings strings;
-		std::vector<char> contents((size_t)fs::file_size(inname));
+		std::vector<char> contents;
 
 		{
-			std::unique_ptr<FILE, decltype(&fclose)> inf{ fs::fopen(inname, "rb"), fclose };
+			auto inf = fs::fopen(inname, "rb");
 
 			if (!inf) {
 				fprintf(stderr, "could not open `%s'", inname.string().c_str());
 				return -1;
 			}
-			fread(&contents[0], 1, contents.size(), inf.get());
+			contents = inf.read();
 		}
 
 		{
@@ -88,14 +89,14 @@ namespace freeze {
 			return 0;
 		}
 
-		std::unique_ptr<FILE, decltype(&fclose)> outf{ fs::fopen(outname, "wb"), fclose };
+		auto outf = fs::fopen(outname, "wb");
 
 		if (!outf) {
 			fprintf(stderr, "could not open `%s'", outname.string().c_str());
 			return -1;
 		}
 
-		write(outf.get(), strings, contents);
+		write(outf.handle(), strings, contents);
 		return 0;
 	}
 

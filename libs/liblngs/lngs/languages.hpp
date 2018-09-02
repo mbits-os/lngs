@@ -23,10 +23,10 @@
  */
 
 #pragma once
-#include <lngs/filesystem.hpp>
-#include <locale/locale_base.hpp>
-#include <vector>
 #include <map>
+#include <vector>
+#include <locale/locale_base.hpp>
+#include <locale/file.hpp>
 
 namespace locale {
 	struct string {
