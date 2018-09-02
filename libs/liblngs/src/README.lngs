@@ -1,0 +1,2 @@
+enums -r -i lngs.idl -o ../lngs/strings/lngs.hpp
+res -i lngs.idl -o lngs_res.cpp --include lngs/strings/lngs.hpp

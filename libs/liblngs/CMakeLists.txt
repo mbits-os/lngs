@@ -9,6 +9,7 @@ set(lngs_SRCS
   src/gettext.cpp
   src/languages.cpp
   src/lang_codes.cpp
+  src/lngs_res.cpp
   src/streams.cpp
   src/strings.cpp
   src/utf8.cpp
@@ -20,11 +21,13 @@ set (lngs_INCS
   lngs/languages.hpp
   lngs/streams.hpp
   lngs/strings.hpp
+  lngs/strings/lngs.hpp
   lngs/utf8.hpp
 )
 
 add_library(lngs_impl STATIC ${lngs_SRCS} ${lngs_INCS})
-set_target_properties(lngs_impl PROPERTIES FOLDER tools)
+set_target_properties(lngs_impl PROPERTIES FOLDER tools IDL "${CMAKE_CURRENT_SOURCE_DIR}/src/lngs.idl")
+target_compile_definitions(lngs_impl PRIVATE _CRT_SECURE_NO_WARNINGS)
 target_include_directories(lngs_impl
   PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
   PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)

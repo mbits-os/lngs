@@ -23,7 +23,7 @@ find_package(Git)
 
 set(LOCALE_VERSION_MAJOR 0)
 set(LOCALE_VERSION_MINOR 3)
-set(LOCALE_VERSION_PATCH 1)
+set(LOCALE_VERSION_PATCH 2)
 set(LOCALE_VERSION_BUILD 0)
 set(LOCALE_VERSION_STABILITY "-alpha")
 set(LOCALE_VERSION ${LOCALE_VERSION_MAJOR}.${LOCALE_VERSION_MINOR}.${LOCALE_VERSION_PATCH} )
@@ -51,6 +51,8 @@ if (LOCALE_TESTING)
   enable_testing()
   include( ${CMAKE_CURRENT_SOURCE_DIR}/googletest.cmake )
 endif()
+
+define_property(TARGET PROPERTY IDL BRIEF_DOCS "The language file path" FULL_DOCS "Same...")
 
 add_subdirectory(libs)
 add_subdirectory(lngs)

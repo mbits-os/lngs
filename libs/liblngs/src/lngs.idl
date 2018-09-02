@@ -1,0 +1,14 @@
+[
+	project("lngs"),
+	version("0.3"),
+	serial(1)
+] strings {
+	[help("Name of the severity label for notes."), id(1001)]
+	SEVERITY_NOTE = "note";
+	[help("Name of the severity label for warnings."), id(1002)]
+	SEVERITY_WARNING = "warning";
+	[help("Name of the severity label for errors."), id(1003)]
+	SEVERITY_ERROR = "error";
+	[help("Name of the severity label for fatals."), id(1004)]
+	SEVERITY_FATAL = "fatal";
+}

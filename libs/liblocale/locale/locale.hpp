@@ -25,7 +25,7 @@
 #pragma once
 
 #include <locale/locale_storage.hpp>
-#include <format.hpp>
+#include <locale/format.hpp>
 
 namespace locale {
 	template <typename Enum, typename Storage = storage::FileBased>

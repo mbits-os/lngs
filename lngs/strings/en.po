@@ -1,0 +1,39 @@
+# Locale File Processor translation.
+# Copyright (C) 2018 midnightBITS
+# This file is distributed under the same license as the lngs package.
+# Marcin Zdun <mzdun@midnightbits.com>, 2018.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: lngs 0.3-0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-09-03 12:03+0200\n"
+"PO-Revision-Date: 2018-09-03 12:02+0200\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 2.1.1\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#. Name of the severity label for errors.
+msgctxt "SEVERITY_ERROR"
+msgid "error"
+msgstr "error"
+
+#. Name of the severity label for fatals.
+msgctxt "SEVERITY_FATAL"
+msgid "fatal"
+msgstr "fatal"
+
+#. Name of the severity label for notes.
+msgctxt "SEVERITY_NOTE"
+msgid "note"
+msgstr "note"
+
+#. Name of the severity label for warnings.
+msgctxt "SEVERITY_WARNING"
+msgid "warning"
+msgstr "warning"
