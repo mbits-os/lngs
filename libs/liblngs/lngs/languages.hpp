@@ -28,9 +28,9 @@
 #include <locale/locale_base.hpp>
 #include <locale/file.hpp>
 
-namespace locale {
+namespace lngs {
 	struct string {
-		string_key key;
+		locale::string_key key;
 		std::string value;
 
 		string();
@@ -46,11 +46,11 @@ namespace locale {
 		}
 	};
 
-	struct String;
+	struct idl_string;
 
 	std::string warp(const std::string& s);
 	std::vector<string> attributes(const std::map<std::string, std::string>& gtt);
-	std::vector<string> translations(const std::map<std::string, std::string>& gtt, const std::vector<String>& strings, bool warp_missing, bool verbose);
+	std::vector<string> translations(const std::map<std::string, std::string>& gtt, const std::vector<idl_string>& strings, bool warp_missing, bool verbose);
 	bool ll_CC(const fs::path& in, std::map<std::string, std::string>& langs);
 
 	struct outstream;

@@ -28,7 +28,7 @@
 #include <lngs/streams.hpp>
 #include <lngs/strings.hpp>
 
-namespace locale {
+namespace lngs {
 	constexpr std::byte operator""_b(char c) { return (std::byte) c; }
 
 	enum tok_t {
@@ -516,7 +516,7 @@ namespace locale {
 		return true;
 	}
 
-	bool read_string(tokenizer& tok, String& str)
+	bool read_string(tokenizer& tok, idl_string& str)
 	{
 		if (!tok.expect(CBRAKET_C, SQBRAKET_O, ID)) // `}', '[' or LNG_ID
 			return false;
@@ -576,7 +576,7 @@ namespace locale {
 		return true;
 	}
 
-	bool read_strings(instream& in, const std::string& inname, Strings& def)
+	bool read_strings(instream& in, const std::string& inname, idl_strings& def)
 	{
 		tokenizer tok{ in, inname };
 
@@ -607,7 +607,7 @@ namespace locale {
 		tok.get();
 
 		while (!tok.expect(CBRAKET_C, false)) {
-			String str;
+			idl_string str;
 			if (!read_string(tok, str))
 				return false;
 
@@ -636,7 +636,7 @@ namespace locale {
 		return true;
 	}
 
-	bool read_strings(const fs::path& in, Strings& def, bool verbose)
+	bool read_strings(const fs::path& in, idl_strings& def, bool verbose)
 	{
 		auto inname = in;
 		inname.make_preferred();

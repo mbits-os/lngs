@@ -22,57 +22,43 @@
  * SOFTWARE.
  */
 
-#include <locale/file.hpp>
-#include <lngs/argparser.hpp>
+#include <lngs/commands.hpp>
 #include <lngs/streams.hpp>
 #include <lngs/strings.hpp>
 #include <lngs/languages.hpp>
 #include <lngs/gettext.hpp>
+
 #include <algorithm>
 
-namespace locale {
+namespace lngs {
 	std::string language_name(std::string_view ll_cc);
 }
 
-namespace make {
-	int call(args::parser& parser)
-	{
-		fs::path moname, inname, llname, outname;
-		bool verbose = false;
-		bool warp_missing = false;
+namespace lngs::make {
+	file load_mo(const idl_strings& defs, bool warp_missing, bool verbose, const fs::path& path) {
+		file file;
+		file.serial = defs.serial;
+		auto map = gtt::open(path);
+		file.strings = translations(map, defs.strings, warp_missing, verbose);
+		file.attrs = attributes(map);
+		return file;
+	}
 
-		parser.set<std::true_type>(verbose, "v", "verbose").help("show more info").opt();
-		parser.set<std::true_type>(warp_missing, "w", "warp").help("replace missing strings with warped ones; resulting strings are always singular").opt();
-		parser.arg(outname, "o", "out").meta("FILE").help("LNG binary file to write; if - is used, result is written to standard output");
-		parser.arg(moname, "m", "msgs").meta("MOFILE").help("GetText message file to read");
-		parser.arg(inname, "i", "in").meta("FILE").help("LNGS message file to read");
-		parser.arg(llname, "l", "lang").meta("FILE").help("ATTR_LANGUAGE file with ll_CC names list").opt();
-		parser.parse();
-
-		locale::Strings strings;
-		if (!locale::read_strings(inname, strings, verbose))
-			return -1;
-
-		locale::file file;
-		file.serial = strings.serial;
-		auto map = gtt::open(moname);
-		file.strings = locale::translations(map, strings.strings, warp_missing, verbose);
-		file.attrs = locale::attributes(map);
-
-		auto prop = std::find_if(std::begin(file.attrs), std::end(file.attrs), [](auto& item) { return item.key.id == locale::ATTR_CULTURE; });
-		if (prop == std::end(file.attrs) || prop->value.empty()) {
+	bool fix_attributes(file& file, const fs::path& ll_CCs) {
+		auto prop = find_if(begin(file.attrs), end(file.attrs), [](auto& item) { return item.key.id == locale::ATTR_CULTURE; });
+		if (prop == end(file.attrs) || prop->value.empty()) {
 			printf("warning: message file does not contain Language attribute.\n");
 		} else {
 			bool lang_set = false;
 
-			if (!llname.empty()) {
+			if (!ll_CCs.empty()) {
 				std::map<std::string, std::string> names;
-				if (!locale::ll_CC(llname, names))
-					return -1;
+				if (!ll_CC(ll_CCs, names))
+					return false;
 
 				auto it = names.find(prop->value);
 				if (it == names.end())
-					printf("warning: no %s in %s\n", prop->value.c_str(), llname.string().c_str());
+					printf("warning: no %s in %s\n", prop->value.c_str(), ll_CCs.string().c_str());
 				else {
 					file.attrs.emplace_back(locale::ATTR_LANGUAGE, it->second);
 					lang_set = true;
@@ -80,25 +66,13 @@ namespace make {
 			}
 
 			if (!lang_set) {
-				auto name = locale::language_name(prop->value);
+				auto name = language_name(prop->value);
 				if (!name.empty())
-					file.attrs.emplace_back(locale::ATTR_LANGUAGE, locale::warp(name));
+					file.attrs.emplace_back(locale::ATTR_LANGUAGE, warp(name));
 			}
 		}
 
-		std::sort(std::begin(file.attrs), std::end(file.attrs), [](auto& lhs, auto& rhs) { return lhs.key.id < rhs.key.id; });
-
-		if (outname != "-") {
-			auto outf = fs::fopen(outname, "wb");
-			if (!outf) {
-				fprintf(stderr, "could not open `%s'", outname.string().c_str());
-				return -1;
-			}
-
-			locale::foutstream os{ std::move(outf) };
-			return file.write(os);
-		}
-
-		return file.write(locale::get_stdout());
+		sort(begin(file.attrs), end(file.attrs), [](auto& lhs, auto& rhs) { return lhs.key.id < rhs.key.id; });
+		return true;
 	}
 }

@@ -17,6 +17,7 @@ set(lngs_SRCS
 
 set (lngs_INCS
   lngs/argparser.hpp
+  lngs/commands.hpp
   lngs/gettext.hpp
   lngs/languages.hpp
   lngs/streams.hpp

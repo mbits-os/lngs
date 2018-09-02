@@ -51,7 +51,7 @@ namespace {
 
 };
 
-namespace locale {
+namespace lngs {
 	std::string language_name(std::string_view lang)
 	{
 		const auto ll_cc = lang.substr(0, lang.find('.'));

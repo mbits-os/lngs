@@ -26,8 +26,8 @@
 #include <locale/file.hpp>
 #include <vector>
 
-namespace locale {
-	struct String {
+namespace lngs {
+	struct idl_string {
 		std::string key;
 		std::string value;
 		std::string help;
@@ -37,16 +37,16 @@ namespace locale {
 		int id_offset = -1;
 	};
 
-	struct Strings {
+	struct idl_strings {
 		std::string project;
 		std::string version;
 		uint32_t serial = 0;
 		int serial_offset = -1;
 		bool has_new = false;
-		std::vector<String> strings;
+		std::vector<idl_string> strings;
 	};
 
 	struct instream;
-	bool read_strings(instream& in, const std::string& inname, Strings& str);
-	bool read_strings(const fs::path& inname, Strings& str, bool verbose);
+	bool read_strings(instream& in, const std::string& inname, idl_strings& str);
+	bool read_strings(const fs::path& inname, idl_strings& str, bool verbose);
 }

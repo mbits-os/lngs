@@ -26,7 +26,7 @@
 #include <cctype>
 #include <cstring>
 
-namespace locale {
+namespace lngs {
 	instream::~instream() = default;
 	void buffered_instream::underflow() noexcept
 	{

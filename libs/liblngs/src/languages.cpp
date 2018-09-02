@@ -30,7 +30,7 @@
 #include <lngs/strings.hpp>
 #include <lngs/utf8.hpp>
 
-namespace locale {
+namespace lngs {
 
 	std::string warp(const std::string& s)
 	{
@@ -85,7 +85,7 @@ namespace locale {
 		return utf::as_u8(u32);
 	}
 
-	std::vector<string> translations(const std::map<std::string, std::string>& gtt, const std::vector<locale::String>& strings, bool warp_missing, bool verbose)
+	std::vector<string> translations(const std::map<std::string, std::string>& gtt, const std::vector<idl_string>& strings, bool warp_missing, bool verbose)
 	{
 		std::vector<string> out;
 		out.reserve(gtt.empty() ? 0 : gtt.size() - 1);
@@ -158,13 +158,13 @@ namespace locale {
 		return s;
 	}
 
-	template <attr_t Name>
+	template <locale::attr_t Name>
 	static inline void copy_attr(const std::map<std::string, std::string, std::less<>>& src,
 		std::vector<string>& dst, std::string_view key) {
 		auto attr = src.find(key);
 		if (attr == end(src))
 			return;
-		if constexpr(Name == ATTR_CULTURE)
+		if constexpr(Name == locale::ATTR_CULTURE)
 			dst.push_back({ Name, gnu2iso(attr->second) });
 		else
 			dst.push_back({ Name, attr->second });
@@ -176,20 +176,20 @@ namespace locale {
 		auto it = gtt.find("");
 		auto attrs = attrGTT(it == gtt.end() ? std::string{ } : it->second);
 
-		copy_attr<ATTR_CULTURE>(attrs, props, "Language");
-		copy_attr<ATTR_PLURALS>(attrs, props, "Plural-Forms");
+		copy_attr<locale::ATTR_CULTURE>(attrs, props, "Language");
+		copy_attr<locale::ATTR_PLURALS>(attrs, props, "Plural-Forms");
 
 		return props;
 	}
 
-	char nextc(locale::instream& is)
+	char nextc(instream& is)
 	{
 		char c;
 		is.read(&c, 1);
 		return c;
 	}
 
-	bool ll_code(locale::instream& is, std::string& code, std::string& name, const std::string& fname, bool ret)
+	bool ll_code(instream& is, std::string& code, std::string& name, const std::string& fname, bool ret)
 	{
 		code.clear();
 		name.clear();
@@ -238,7 +238,7 @@ namespace locale {
 			return false;
 		}
 
-		locale::finstream is{ std::move(inf) };
+		finstream is{ std::move(inf) };
 		std::string code, name;
 		bool ret = true;
 		while (ll_code(is, code, name, inname.string(), ret) && ret)
@@ -252,14 +252,14 @@ namespace locale {
 #define CARRY(ex) do { auto ret = (ex); if (ret) return ret; } while (0)
 
 	namespace {
-		int header(locale::outstream& os, uint32_t& next_offset, std::vector<string>& block)
+		int header(outstream& os, uint32_t& next_offset, std::vector<string>& block)
 		{
 			if (block.empty())
 				return 0;
 
 			WRITE(os, (uint32_t)block.size());
 			WRITE(os, next_offset);
-			next_offset += (uint32_t)(sizeof(string_key) * block.size());
+			next_offset += (uint32_t)(sizeof(locale::string_key) * block.size());
 			return 0;
 		}
 
@@ -272,7 +272,7 @@ namespace locale {
 			}
 		}
 
-		int list(locale::outstream& os, std::vector<string>& block)
+		int list(outstream& os, std::vector<string>& block)
 		{
 			if (block.empty())
 				return 0;
@@ -283,7 +283,7 @@ namespace locale {
 			return 0;
 		}
 
-		int data(locale::outstream& os, std::vector<string>& block)
+		int data(outstream& os, std::vector<string>& block)
 		{
 			if (block.empty())
 				return 0;
@@ -296,18 +296,18 @@ namespace locale {
 			return 0;
 		}
 
-		int section(locale::outstream& os, uint32_t section_id, std::vector<string>& block)
+		int section(outstream& os, uint32_t section_id, std::vector<string>& block)
 		{
 			if (block.empty())
 				return 0;
 
-			uint32_t key_size = sizeof(string_key) / sizeof(uint32_t);
+			uint32_t key_size = sizeof(locale::string_key) / sizeof(uint32_t);
 			key_size *= (uint32_t)block.size();
 
-			string_header hdr;
+			locale::string_header hdr;
 			hdr.id = section_id;
-			hdr.string_offset = key_size + sizeof(string_header) / sizeof(uint32_t);
-			hdr.ints = hdr.string_offset - sizeof(section_header) / sizeof(uint32_t);
+			hdr.string_offset = key_size + sizeof(locale::string_header) / sizeof(uint32_t);
+			hdr.ints = hdr.string_offset - sizeof(locale::section_header) / sizeof(uint32_t);
 			hdr.string_count = (uint32_t)block.size();
 
 			uint32_t offset = 0;
@@ -345,17 +345,17 @@ namespace locale {
 	string::string(const string&) = default;
 	string& string::operator=(const string&) = default;
 
-	int file::write(locale::outstream& os)
+	int file::write(outstream& os)
 	{
 		constexpr uint32_t header_size = 3 * sizeof(uint32_t);
 
-		file_header hdr;
-		hdr.id = hdrtext_tag;
-		hdr.ints = (sizeof(file_header) - sizeof(section_header)) / sizeof(uint32_t);
-		hdr.version = v1_0::version;
+		locale::file_header hdr;
+		hdr.id = locale::hdrtext_tag;
+		hdr.ints = (sizeof(locale::file_header) - sizeof(locale::section_header)) / sizeof(uint32_t);
+		hdr.version = locale::v1_0::version;
 		hdr.serial = serial;
 
-		WRITE(os, langtext_tag);
+		WRITE(os, locale::langtext_tag);
 		WRITE(os, hdr);
 
 #ifdef _MSC_VER
@@ -363,16 +363,16 @@ namespace locale {
 #pragma warning(disable: 4127)
 #endif
 
-		CARRY(section(os, attrtext_tag, attrs));
-		CARRY(section(os, strstext_tag, strings));
-		CARRY(section(os, keystext_tag, keys));
+		CARRY(section(os, locale::attrtext_tag, attrs));
+		CARRY(section(os, locale::strstext_tag, strings));
+		CARRY(section(os, locale::keystext_tag, keys));
 
 #ifdef _MSC_VER
 #pragma warning(pop)
 #endif
 
-		WRITE(os, lasttext_tag);
-		WRITE(os, (size_t)0);
+		WRITE(os, locale::lasttext_tag);
+		WRITE(os, (uint32_t)0);
 
 		return 0;
 	}

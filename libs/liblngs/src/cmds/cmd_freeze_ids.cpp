@@ -22,82 +22,29 @@
  * SOFTWARE.
  */
 
-#include <locale/file.hpp>
-#include <lngs/argparser.hpp>
+#include <lngs/commands.hpp>
 #include <lngs/strings.hpp>
 #include <lngs/streams.hpp>
+
 #include <algorithm>
 
-namespace freeze {
-	void write(FILE* out, const locale::Strings& defs, std::vector<std::byte>& data);
-	int call(args::parser& parser)
-	{
-		fs::path inname, outname;
-		bool verbose = false;
+namespace lngs::freeze {
+	bool freeze(idl_strings& defs) {
+		if (!defs.has_new)
+			return false;
 
-		parser.set<std::true_type>(verbose, "v", "verbose").help("show more info").opt();
-		parser.arg(inname, "i", "in").meta("FILE").help("LNGS message file to read");
-		parser.arg(outname, "o", "out").meta("FILE").help("LNGS message file to write; it may be the same as input; if - is used, result is written to standard output");
-		parser.parse();
+		++defs.serial;
 
-		inname.make_preferred();
-
-		if (verbose)
-			printf("%s\n", inname.string().c_str());
-
-		locale::Strings strings;
-		std::vector<std::byte> contents;
-
-		{
-			auto inf = fs::fopen(inname, "rb");
-
-			if (!inf) {
-				fprintf(stderr, "could not open `%s'", inname.string().c_str());
-				return -1;
-			}
-			contents = inf.read();
-		}
-
-		{
-			locale::meminstream is{ contents.data(), contents.size() };
-			if (!locale::read_strings(is, inname.string(), strings)) {
-				if (verbose)
-					fprintf(stderr, "`%s' is not strings file.\n", inname.string().c_str());
-				return -1;
-			}
-		}
-
-		if (!strings.has_new) {
-			if (verbose)
-				printf("No new strings found\n");
-			return -1;
-		}
-
-		++strings.serial;
-
-		for (auto& s : strings.strings) {
+		for (auto& s : defs.strings) {
 			s.value.clear();
 			s.help.clear();
 			s.plural.clear();
 		}
 
-		std::sort(begin(strings.strings), end(strings.strings),
+		sort(begin(defs.strings), end(defs.strings),
 			[](auto&& left, auto&& right) { return left.id_offset < right.id_offset; });
 
-		if (outname == "-") {
-			write(stdout, strings, contents);
-			return 0;
-		}
-
-		auto outf = fs::fopen(outname, "wb");
-
-		if (!outf) {
-			fprintf(stderr, "could not open `%s'", outname.string().c_str());
-			return -1;
-		}
-
-		write(outf.handle(), strings, contents);
-		return 0;
+		return true;
 	}
 
 	constexpr std::byte operator""_b(char c) { return (std::byte) c; }
@@ -111,22 +58,23 @@ namespace freeze {
 		return{ first, second };
 	}
 
-	void write(FILE* out, const locale::Strings& defs, std::vector<std::byte>& data)
+	int write(outstream& out, const idl_strings& defs, const std::vector<std::byte>& data)
 	{
 		const std::byte* bytes = data.data();
 		int offset = 0;
 		auto [from, to] = value_pos(bytes + defs.serial_offset);
-		fwrite(bytes, 1, defs.serial_offset + from + 1, out);
-		fprintf(out, "%d", defs.serial);
+		out.write(bytes, defs.serial_offset + from + 1);
+		out.printf("%u", defs.serial);
 		offset = defs.serial_offset + to;
 
 		for (auto& str : defs.strings) {
 			auto[from, to] = value_pos(bytes + str.id_offset);
-			fwrite(bytes + offset, 1, str.id_offset + from + 1 - offset, out);
-			fprintf(out, "%d", str.id);
+			out.write(bytes + offset, str.id_offset + from + 1 - offset);
+			out.printf("%u", str.id);
 			offset = str.id_offset + to;
 		}
 
-		fwrite(bytes + offset, 1, data.size() - offset, out);
+		out.write(bytes + offset, data.size() - offset);
+		return 0;
 	}
 }

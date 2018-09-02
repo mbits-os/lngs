@@ -26,53 +26,11 @@
 #include <iterator>
 #include <algorithm>
 
-#include <locale/file.hpp>
-#include <lngs/argparser.hpp>
+#include <lngs/commands.hpp>
 #include <lngs/strings.hpp>
+#include <lngs/streams.hpp>
 
-namespace pot {
-	struct info {
-		std::string copy{ "THE PACKAGE'S COPYRIGHT HOLDER" };
-		std::string first_author{ "FIRST AUTHOR <EMAIL@ADDRESS>" };
-		std::string lang_team{ "LANGUAGE <LL@li.org>" };
-	};
-
-	void write(FILE* out, const locale::Strings& defs, const info& nfo);
-
-	int call(args::parser& parser)
-	{
-		fs::path inname, outname;
-		bool verbose = false;
-		info nfo;
-
-		parser.set<std::true_type>(verbose, "v", "verbose").help("show more info").opt();
-		parser.arg(outname, "o", "out").meta("FILE").help("set POT file to write; if - is used, result is written to standard output");
-		parser.arg(inname, "i", "in").meta("FILE").help("set message file to read");
-		parser.arg(nfo.copy, "c", "copy").meta("HOLDER").help("the name of copyright holder").opt();
-		parser.arg(nfo.first_author, "a", "author").meta("EMAIL").help("the name and address of first author");
-		parser.arg(nfo.lang_team, "l", "langteam").meta("EMAIL").help("the name and address of language team").opt();
-		parser.parse();
-
-		locale::Strings strings;
-		if (!locale::read_strings(inname, strings, verbose))
-			return -1;
-
-		if (outname == "-") {
-			write(stdout, strings, nfo);
-			return 0;
-		}
-
-		auto outf = fs::fopen(outname, "w");
-
-		if (!outf) {
-			fprintf(stderr, "could not open `%s'", outname.string().c_str());
-			return -1;
-		}
-
-		write(outf.handle(), strings, nfo);
-		return 0;
-	}
-
+namespace lngs::pot {
 	auto now_recalc() {
 		struct tm tm;
 		time_t now;
@@ -119,11 +77,12 @@ namespace pot {
 		return out;
 	}
 
-	void write(FILE* out, const locale::Strings& defs, const info& nfo)
+	int write(outstream& out, const idl_strings& defs, const info& nfo)
 	{
-		auto has_plurals = std::find_if(std::begin(defs.strings), std::end(defs.strings), [](auto& str) { return !str.plural.empty(); }) != std::end(defs.strings);
+		auto has_plurals = find_if(begin(defs.strings), end(defs.strings),
+			[](auto& str) { return !str.plural.empty(); }) != end(defs.strings);
 
-		fprintf(out, R"(# Copyright (C) %d %s
+		out.printf(R"(# Copyright (C) %d %s
 # This file is distributed under the same license as the %s package.
 # %s, %d.
 #
@@ -150,34 +109,34 @@ creationDate().c_str(),
 nfo.lang_team.c_str());
 
 		if (has_plurals)
-			fprintf(out, R"("Plural-Forms: nplurals=2; plural=(n != 1);\n"
+			out.printf(R"("Plural-Forms: nplurals=2; plural=(n != 1);\n"
 )");
 
 		std::vector<std::string> ids;
 		ids.reserve(defs.strings.size());
-		std::transform(std::begin(defs.strings), std::end(defs.strings), std::back_inserter(ids), [](auto& str) {return str.key; });
-		std::sort(std::begin(ids), std::end(ids));
+		transform(begin(defs.strings), end(defs.strings), back_inserter(ids), [](auto& str) {return str.key; });
+		sort(begin(ids), end(ids));
 
 		for (auto& id : ids) {
-			auto it = std::find_if(std::begin(defs.strings), std::end(defs.strings), [&](auto& str) { return str.key == id; });
-			if (it == std::end(defs.strings))
-				continue;
+			auto it = find_if(begin(defs.strings), end(defs.strings), [&](auto& str) { return str.key == id; });
 
 			auto& def = *it;
-			fprintf(out, "\n");
+			out.printf("\n");
 			if (!def.help.empty())
-				fprintf(out, "#. %s\n", def.help.c_str());
-			fprintf(out, "msgctxt \"%s\"\n", def.key.c_str());
-			fprintf(out, "msgid \"%s\"\n", escape(def.value).c_str());
+				out.printf("#. {}\n", def.help.c_str());
+			out.printf("msgctxt \"{}\"\n", def.key.c_str());
+			out.printf("msgid \"{}\"\n", escape(def.value).c_str());
 			if (def.plural.empty())
-				fprintf(out, "msgstr \"\"\n");
+				out.printf("msgstr \"\"\n");
 			else {
-				fprintf(out, "msgid_plural \"%s\"\n", escape(def.plural).c_str());
-				fprintf(out, "msgstr[0] \"\"\n");
-				fprintf(out, "msgstr[1] \"\"\n");
+				out.printf("msgid_plural \"{}\"\n", escape(def.plural).c_str());
+				out.printf("msgstr[0] \"\"\n");
+				out.printf("msgstr[1] \"\"\n");
 			}
 		}
 
-		fprintf(out, "\n");
+		out.printf("\n");
+
+		return 0;
 	}
 }

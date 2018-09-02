@@ -29,7 +29,7 @@
 #include <cstdio>
 #include <locale/file.hpp>
 
-namespace locale {
+namespace lngs {
 	struct instream {
 		virtual ~instream();
 		virtual std::size_t read(void* buffer, std::size_t length) noexcept = 0;
@@ -83,6 +83,7 @@ namespace locale {
 	struct outstream {
 		virtual ~outstream();
 		virtual std::size_t write(const void* buffer, std::size_t length) noexcept = 0;
+		virtual std::size_t vprintf(const char* format, va_list vlist) noexcept = 0;
 
 		std::size_t write(const std::string& s) noexcept
 		{
@@ -94,6 +95,14 @@ namespace locale {
 		{
 			return write(&obj, sizeof(obj)) / sizeof(obj); // will yield 1 on success or 0 on error
 		}
+
+		std::size_t printf(const char* format, ...) noexcept {
+			va_list args;
+			va_start(args, format);
+			auto result = vprintf(format, args);
+			va_end(args);
+			return result;
+		}
 	};
 
 	class std_outstream : public outstream {
@@ -104,6 +113,7 @@ namespace locale {
 		{
 			return std::fwrite(data, 1, length, ptr);
 		}
+		std::size_t vprintf(const char* format, va_list list) noexcept final { return std::vprintf(format, list); }
 	};
 
 	std_outstream& get_stdout();
@@ -117,5 +127,6 @@ namespace locale {
 		{
 			return file.store(data, length);
 		}
+		std::size_t vprintf(const char* format, va_list list) noexcept final { return file.vprintf(format, list); }
 	};
 }
