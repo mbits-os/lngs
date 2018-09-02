@@ -29,7 +29,7 @@
 #include <algorithm>
 
 namespace freeze {
-	void write(FILE* out, const locale::Strings& defs, std::vector<char>& data);
+	void write(FILE* out, const locale::Strings& defs, std::vector<std::byte>& data);
 	int call(args::parser& parser)
 	{
 		fs::path inname, outname;
@@ -46,7 +46,7 @@ namespace freeze {
 			printf("%s\n", inname.string().c_str());
 
 		locale::Strings strings;
-		std::vector<char> contents;
+		std::vector<std::byte> contents;
 
 		{
 			auto inf = fs::fopen(inname, "rb");
@@ -100,30 +100,31 @@ namespace freeze {
 		return 0;
 	}
 
-	std::pair<int, int> value_pos(const char* start)
+	constexpr std::byte operator""_b(char c) { return (std::byte) c; }
+	std::pair<int, int> value_pos(const std::byte* start)
 	{
 		int first = 0;
-		while (*start != '(') ++start, ++first;
+		while (*start != '('_b) ++start, ++first;
 		int second = first;
-		while (*start != ')') ++start, ++second;
+		while (*start != ')'_b) ++start, ++second;
 
 		return{ first, second };
 	}
 
-	void write(FILE* out, const locale::Strings& defs, std::vector<char>& data)
+	void write(FILE* out, const locale::Strings& defs, std::vector<std::byte>& data)
 	{
-		const char* bytes = data.data();
+		const std::byte* bytes = data.data();
 		int offset = 0;
-		auto p = value_pos(bytes + defs.serial_offset);
-		fwrite(bytes, 1, defs.serial_offset + p.first + 1, out);
+		auto [from, to] = value_pos(bytes + defs.serial_offset);
+		fwrite(bytes, 1, defs.serial_offset + from + 1, out);
 		fprintf(out, "%d", defs.serial);
-		offset = defs.serial_offset + p.second;
+		offset = defs.serial_offset + to;
 
 		for (auto& str : defs.strings) {
-			p = value_pos(bytes + str.id_offset);
-			fwrite(bytes + offset, 1, str.id_offset + p.first + 1 - offset, out);
+			auto[from, to] = value_pos(bytes + str.id_offset);
+			fwrite(bytes + offset, 1, str.id_offset + from + 1 - offset, out);
 			fprintf(out, "%d", str.id);
-			offset = str.id_offset + p.second;
+			offset = str.id_offset + to;
 		}
 
 		fwrite(bytes + offset, 1, data.size() - offset, out);

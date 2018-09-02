@@ -212,7 +212,7 @@ namespace locale {
 			}
 		}
 
-		while (!is.eof() && is.peek() != '\n')
+		while (!is.eof() && is.peek() != (std::byte)'\n')
 			name.push_back(nextc(is));
 
 		if (!is.eof())
@@ -238,7 +238,7 @@ namespace locale {
 			return false;
 		}
 
-		locale::finstream is{ inf.handle() };
+		locale::finstream is{ std::move(inf) };
 		std::string code, name;
 		bool ret = true;
 		while (ll_code(is, code, name, inname.string(), ret) && ret)

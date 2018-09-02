@@ -27,15 +27,16 @@
 #include <cstring>
 
 namespace locale {
-	void finstream::underflow()
+	instream::~instream() = default;
+	void buffered_instream::underflow() noexcept
 	{
-		auto really_read = std::fread(buffer, 1, sizeof(buffer), ptr);
+		auto really_read = underflow(buffer);
 		cur = buffer;
 		end = cur + really_read;
 		seen_eof = !really_read;
 	}
 
-	std::size_t finstream::read(void* data, std::size_t length)
+	std::size_t buffered_instream::read(void* data, std::size_t length) noexcept
 	{
 		auto dst = reinterpret_cast<char*>(data);
 		auto size = length;
@@ -59,12 +60,12 @@ namespace locale {
 		return length - size;
 	}
 
-	bool finstream::eof() const
+	bool buffered_instream::eof() const noexcept
 	{
 		return seen_eof;
 	}
 
-	char finstream::peek()
+	std::byte buffered_instream::peek() noexcept
 	{
 		if (end == cur)
 			underflow();
@@ -72,7 +73,17 @@ namespace locale {
 		return *cur;
 	}
 
-	std::size_t meminstream::read(void* data, std::size_t len)
+	size_t std_instream::underflow(std::byte(&buffer)[buf_size]) noexcept
+	{
+		return std::fread(buffer, 1, sizeof(buffer), ptr);
+	}
+
+	size_t finstream::underflow(std::byte(&buffer)[buf_size]) noexcept
+	{
+		return file.load(buffer, buf_size);
+	}
+
+	std::size_t meminstream::read(void* data, std::size_t len) noexcept
 	{
 		auto size = len;
 		size_t rest = end - cur;
@@ -84,59 +95,28 @@ namespace locale {
 		return size;
 	}
 
-	bool meminstream::eof() const
+	bool meminstream::eof() const noexcept
 	{
 		return end == cur;
 	}
 
-	char meminstream::peek()
+	std::byte meminstream::peek() noexcept
 	{
 		if (end == cur)
-			return -1;
+			return {};
 		return *cur;
 	}
 
-	void memoutstream::print() const
-	{
-		constexpr size_t line = 16;
-		auto ptr = m_data.data();
-		auto size = m_data.size();
-		uint32_t off = 0;
+	outstream::~outstream() = default;
 
-		while (size > line) {
-			printf("%08X ", off);
-			for (size_t i = 0; i < line; ++i)
-				printf("%02X ", (uint8_t)ptr[i]);
-
-			for (size_t i = 0; i < line; ++i) {
-				if (std::isprint((uint8_t)ptr[i]))
-					putchar((uint8_t)ptr[i]);
-				else
-					putchar('.');
-			}
-
-			putchar('\n');
-
-			size -= line;
-			ptr += line;
-			off += line;
-		}
-
-		if (size) {
-			printf("%08X ", off);
-			for (size_t i = 0; i < size; ++i)
-				printf("%02X ", (uint8_t)ptr[i]);
-			for (size_t i = size; i < line; ++i)
-				printf("   ");
-
-			for (size_t i = 0; i < size; ++i) {
-				if (std::isprint((uint8_t)ptr[i]))
-					putchar((uint8_t)ptr[i]);
-				else
-					putchar('.');
-			}
-
-			putchar('\n');
-		}
+	std_outstream& get_stdout() {
+		static std_outstream stdout__{ stdout };
+		return stdout__;
 	}
+
+	std_outstream& get_stderr() {
+		static std_outstream stderr__{ stderr };
+		return stderr__;
+	}
+
 }

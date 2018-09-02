@@ -58,11 +58,11 @@ FILE* file::fopen(path file, char const* mode) noexcept
 #endif
 }
 
-std::vector<char> file::read() const noexcept {
-	std::vector<char> out;
+std::vector<std::byte> file::read() const noexcept {
+	std::vector<std::byte> out;
 	if (!*this)
 		return out;
-	char buffer[1024];
+	std::byte buffer[1024];
 
 	while (true) {
 		auto ret = std::fread(buffer, 1, sizeof(buffer), get());

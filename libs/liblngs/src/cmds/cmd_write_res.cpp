@@ -41,11 +41,11 @@ namespace res {
 			: ptr(ptr)
 		{
 		}
-		std::size_t write(const void* data, std::size_t length) override;
+		std::size_t write(const void* data, std::size_t length) noexcept override;
 		void finalize();
 	};
 
-	std::size_t table_outstream::write(const void* data, std::size_t length)
+	std::size_t table_outstream::write(const void* data, std::size_t length) noexcept
 	{
 		auto chars = reinterpret_cast<const char*>(data);
 		auto save = offset;
@@ -135,7 +135,6 @@ inline namespace %s {
 
 		{
 			table_outstream os{ output };
-			//locale::memoutstream os;
 			auto ret = file.write(os);
 			if (ret)
 				return ret;

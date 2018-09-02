@@ -29,6 +29,8 @@
 #include <lngs/strings.hpp>
 
 namespace locale {
+	constexpr std::byte operator""_b(char c) { return (std::byte) c; }
+
 	enum tok_t {
 		NONE,
 		SQBRAKET_O = '[',
@@ -146,12 +148,12 @@ namespace locale {
 					++line;
 			}
 
-			if (in.eof() || in.peek() != '/')
+			if (in.eof() || in.peek() != '/'_b)
 				break;
 			nextc();
 
-			if (!in.eof() && in.peek() == '/') {
-				while (!in.eof() && in.peek() != '\n')
+			if (!in.eof() && in.peek() == '/'_b) {
+				while (!in.eof() && in.peek() != '\n'_b)
 					nextc();
 
 				found_comment = true;
@@ -223,7 +225,7 @@ namespace locale {
 			if (c == '_' || std::isalpha((uint8_t)c)) {
 				std::string s;
 				s.push_back(c);
-				while (!in.eof() && (std::isalnum((uint8_t)in.peek()) || in.peek() == '_'))
+				while (!in.eof() && (std::isalnum((uint8_t)in.peek()) || in.peek() == '_'_b))
 					s.push_back(nextc());
 
 				return set_next(offset, s, ID);
@@ -649,7 +651,7 @@ namespace locale {
 			return false;
 		}
 
-		finstream is{ inf.handle() };
+		finstream is{ std::move(inf) };
 		if (!read_strings(is, inname.string(), def)) {
 			if (verbose)
 				fprintf(stderr, "`%s' is not strings file.\n", inname.string().c_str());

@@ -26,6 +26,7 @@
 
 #include <filesystem>
 #include <vector>
+#include <cstddef>
 
 namespace fs {
 using namespace std::filesystem;
@@ -52,7 +53,7 @@ public:
 	void close() noexcept { reset(); }
 	void open(const path& fname, char const* mode = "r") noexcept { reset(fopen(fname, mode)); }
 
-	std::vector<char> read() const noexcept;
+	std::vector<std::byte> read() const noexcept;
 	size_t load(void* buffer, size_t length) const noexcept;
 	size_t store(const void* buffer, size_t length) const noexcept;
 	bool feof() const noexcept { return std::feof(get()); }

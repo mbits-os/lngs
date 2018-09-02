@@ -39,7 +39,7 @@ namespace locale {
 		string(const string&);
 		string& operator=(const string&);
 
-		string(uint32_t id, const std::string& val) : value(val)
+		string(uint32_t id, std::string val) : value(std::move(val))
 		{
 			key.id = id;
 			key.length = (uint32_t)value.length();

@@ -88,19 +88,17 @@ namespace make {
 
 		std::sort(std::begin(file.attrs), std::end(file.attrs), [](auto& lhs, auto& rhs) { return lhs.key.id < rhs.key.id; });
 
-		fs::file outf;
-		FILE* output = stdout;
 		if (outname != "-") {
-			outf = fs::fopen(outname, "wb");
+			auto outf = fs::fopen(outname, "wb");
 			if (!outf) {
 				fprintf(stderr, "could not open `%s'", outname.string().c_str());
 				return -1;
 			}
 
-			output = outf.handle();
+			locale::foutstream os{ std::move(outf) };
+			return file.write(os);
 		}
 
-		locale::foutstream os{ output };
-		return file.write(os);
+		return file.write(locale::get_stdout());
 	}
 }
