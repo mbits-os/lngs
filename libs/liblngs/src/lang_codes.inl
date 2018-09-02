@@ -29,7 +29,7 @@ namespace {
 	const char* key_of(const char** key) { return *key; }
 
 	template <typename T, size_t len>
-	const T* search(T(&coll)[len], const std::string& key)
+	const T* search(T(&coll)[len], std::string_view key)
 	{
 		auto lo = coll;
 		auto hi = coll + len - 1;
@@ -52,10 +52,11 @@ namespace {
 };
 
 namespace locale {
-	std::string language_name(const std::string& ll_cc)
+	std::string language_name(std::string_view lang)
 	{
+		const auto ll_cc = lang.substr(0, lang.find('.'));
 		auto pos = ll_cc.find('-');
-		if (pos == std::string::npos) {
+		if (pos == std::string_view::npos) {
 			auto tok = search(languages, ll_cc);
 			if (!tok)
 				return { };
@@ -69,17 +70,17 @@ namespace locale {
 		std::string out { tok->value };
 
 		auto len = ll_cc.find('-', pos + 1);
-		if (len != std::string::npos)
+		if (len != std::string_view::npos)
 			len -= pos + 1;
 		auto script_region = ll_cc.substr(pos + 1, len);
 
 		if (search(scripts, script_region)) {
-			if (len == std::string::npos)
+			if (len == std::string_view::npos)
 				return out;
 
 			pos += 1 + len;
 			len = ll_cc.find('-', pos + 1);
-			if (len != std::string::npos)
+			if (len != std::string_view::npos)
 				len -= pos + 1;
 			script_region = ll_cc.substr(pos + 1, len);
 		}

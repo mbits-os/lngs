@@ -20,8 +20,8 @@ public:
 	}
 
 	BEGIN_TYPE_MAP("langs_file", "Looks up translated strings in specified file.")
-		TYPE_DEF("__call__", get, "Looks up the translation. Either self(id) or self(count, id), for strings with plural.")
-		TYPE_DEF("get",      get, "Looks up the translation. Either get(id) or get(count, id), for strings with plural.")
+		TYPE_DEF("__call__", get, "Looks up the translation. Either self(id) or self(id, count), for strings with plural.")
+		TYPE_DEF("get",      get, "Looks up the translation. Either get(id) or get(id, count), for strings with plural.")
 	END_TYPE_MAP()
 
 	DEF(get)
@@ -31,7 +31,7 @@ public:
 		int count = 0;
 
 		if (PyArg_ParseTuple(args, "ii", &count, &id)) {
-			lookup = ReadStringPl(strings, count, id);
+			lookup = ReadStringPl(strings, id, count);
 		} else if (PyArg_ParseTuple(args, "i", &id)) {
 			PyErr_Clear(); // ParseTuple(ii) might have left us with args exception, clear.
 			lookup = ReadString(strings, id);

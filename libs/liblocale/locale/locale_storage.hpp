@@ -38,31 +38,34 @@ namespace locale {
 			std::shared_ptr<translation> m_impl;
 
 		protected:
-			const char* get_string(uint32_t val) const noexcept
+			using identifier = lang_file::identifier;
+			using quantity = lang_file::quantity;
+
+			std::string_view get_string(identifier val) const noexcept
 			{
 				assert(m_impl);
 				return m_impl->get_string(val);
 			}
 
-			const char* get_string(uint32_t val, intmax_t count) const noexcept
+			std::string_view get_string(identifier val, quantity count) const noexcept
 			{
 				assert(m_impl);
-				return m_impl->get_string(count, val);
+				return m_impl->get_string(val, count);
 			}
 
-			const char* get_attr(uint32_t val) const noexcept
+			std::string_view get_attr(uint32_t val) const noexcept
 			{
 				assert(m_impl);
 				return m_impl->get_attr(val);
 			}
 
-			const char* get_key(uint32_t val) const noexcept
+			std::string_view get_key(uint32_t val) const noexcept
 			{
 				assert(m_impl);
 				return m_impl->get_key(val);
 			}
 
-			uint32_t find_key(const char* val) const noexcept
+			uint32_t find_key(std::string_view val) const noexcept
 			{
 				assert(m_impl);
 				return m_impl->find_key(val);
@@ -135,31 +138,34 @@ namespace locale {
 		class Builtin {
 			std::shared_ptr<lang_file> m_file;
 		protected:
-			const char* get_string(uint32_t val) const noexcept
+			using identifier = lang_file::identifier;
+			using quantity = lang_file::quantity;
+
+			std::string_view get_string(identifier val) const noexcept
 			{
 				assert(m_file);
 				return m_file->get_string(val);
 			}
 
-			const char* get_string(uint32_t val, intmax_t count) const noexcept
+			std::string_view get_string(identifier val, quantity count) const noexcept
 			{
 				assert(m_file);
-				return m_file->get_string(count, val);
+				return m_file->get_string(val, count);
 			}
 
-			const char* get_attr(uint32_t val) const noexcept
+			std::string_view get_attr(uint32_t val) const noexcept
 			{
 				assert(m_file);
 				return m_file->get_attr(val);
 			}
 
-			const char* get_key(uint32_t val) const noexcept
+			std::string_view get_key(uint32_t val) const noexcept
 			{
 				assert(m_file);
 				return m_file->get_key(val);
 			}
 
-			uint32_t find_key(const char* val) const noexcept
+			uint32_t find_key(std::string_view val) const noexcept
 			{
 				assert(m_file);
 				return m_file->find_key(val);
@@ -181,39 +187,42 @@ namespace locale {
 			using B1 = FileBased;
 			using B2 = Builtin<ResourceT>;
 		protected:
-			const char* get_string(uint32_t val) const noexcept
+			using identifier = lang_file::identifier;
+			using quantity = lang_file::quantity;
+
+			std::string_view get_string(identifier val) const noexcept
 			{
 				auto ret = B1::get_string(val);
-				if (ret)
+				if (!ret.empty())
 					return ret;
 				return B2::get_string(val);
 			}
 
-			const char* get_string(uint32_t val, intmax_t count) const noexcept
+			std::string_view get_string(identifier val, quantity count) const noexcept
 			{
 				auto ret = B1::get_string(val, count);
-				if (ret)
+				if (!ret.empty())
 					return ret;
 				return B2::get_string(val, count);
 			}
 
-			const char* get_attr(uint32_t val) const noexcept
+			std::string_view get_attr(uint32_t val) const noexcept
 			{
 				auto ret = B1::get_attr(val);
-				if (ret)
+				if (!ret.empty())
 					return ret;
 				return B2::get_attr(val);
 			}
 
-			const char* get_key(uint32_t val) const noexcept
+			std::string_view get_key(uint32_t val) const noexcept
 			{
 				auto ret = B1::get_key(val);
-				if (ret)
+				if (!ret.empty())
 					return ret;
 				return B2::get_key(val);
 			}
 
-			uint32_t find_key(const char* val) const noexcept
+			uint32_t find_key(std::string_view val) const noexcept
 			{
 				auto ret = B1::find_key(val);
 				if (ret != (uint32_t)-1)
@@ -236,6 +245,8 @@ namespace locale {
 		Strings tr;
 		void onupdate(const std::function<void()>& fn)
 		{
+			if (reg_token)
+				tr.remove_onupdate(reg_token);
 			reg_token = tr.add_onupdate(fn);
 		}
 

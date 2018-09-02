@@ -34,55 +34,55 @@ namespace locale {
 
 	std::string warp(const std::string& s)
 	{
-		auto w = utf::widen(s);
-		for (auto& c : w) {
+		auto u32 = utf::as_u32(s);
+		for (auto& c : u32) {
 			switch (c) {
-			case L'a': c = 0x0227; break; // 'ȧ'
-			case L'b': c = 0x018b; break; // 'Ƌ'
-			case L'c': c = 0x00e7; break; // 'ç'
-			case L'd': c = 0x0111; break; // 'đ'
-			case L'e': c = 0x00ea; break; // 'ê'
-			case L'f': c = 0x0192; break; // 'ƒ'
-			case L'g': c = 0x011f; break; // 'ğ'
-			case L'h': c = 0x0125; break; // 'ĥ'
-			case L'i': c = 0x00ef; break; // 'ï'
-			case L'j': c = 0x0135; break; // 'ĵ'
-			case L'k': c = 0x0137; break; // 'ķ'
-			case L'l': c = 0x013a; break; // 'ĺ'
-			case L'n': c = 0x00f1; break; // 'ñ'
-			case L'o': c = 0x00f4; break; // 'ô'
-			case L'r': c = 0x0213; break; // 'ȓ'
-			case L's': c = 0x015f; break; // 'ş'
-			case L't': c = 0x0167; break; // 'ŧ'
-			case L'u': c = 0x0169; break; // 'ũ'
-			case L'w': c = 0x0175; break; // 'ŵ'
-			case L'y': c = 0x00ff; break; // 'ÿ'
-			case L'z': c = 0x0225; break; // 'ȥ'
-			case L'A': c = 0x00c4; break; // 'Ä'
-			case L'B': c = 0x00df; break; // 'ß'
-			case L'C': c = 0x00c7; break; // 'Ç'
-			case L'D': c = 0x00d0; break; // 'Ð'
-			case L'E': c = 0x0204; break; // 'Ȅ'
-			case L'F': c = 0x0191; break; // 'Ƒ'
-			case L'G': c = 0x0120; break; // 'Ġ'
-			case L'H': c = 0x0126; break; // 'Ħ'
-			case L'I': c = 0x00cd; break; // 'Í'
-			case L'J': c = 0x0134; break; // 'Ĵ'
-			case L'K': c = 0x0136; break; // 'Ķ'
-			case L'L': c = 0x023d; break; // 'Ƚ'
-			case L'N': c = 0x00d1; break; // 'Ñ'
-			case L'O': c = 0x00d6; break; // 'Ö'
-			case L'R': c = 0x0154; break; // 'Ŕ'
-			case L'S': c = 0x015e; break; // 'Ş'
-			case L'T': c = 0x023e; break; // 'Ⱦ'
-			case L'U': c = 0x00d9; break; // 'Ù'
-			case L'W': c = 0x0174; break; // 'Ŵ'
-			case L'Y': c = 0x00dd; break; // 'Ý'
-			case L'Z': c = 0x0224; break; // 'Ȥ'
-			case L'"': c = L'?';   break; // '?'
+			case U'a': c = U'\u0227'; break; // 'ȧ'
+			case U'b': c = U'\u018b'; break; // 'Ƌ'
+			case U'c': c = U'\u00e7'; break; // 'ç'
+			case U'd': c = U'\u0111'; break; // 'đ'
+			case U'e': c = U'\u00ea'; break; // 'ê'
+			case U'f': c = U'\u0192'; break; // 'ƒ'
+			case U'g': c = U'\u011f'; break; // 'ğ'
+			case U'h': c = U'\u0125'; break; // 'ĥ'
+			case U'i': c = U'\u00ef'; break; // 'ï'
+			case U'j': c = U'\u0135'; break; // 'ĵ'
+			case U'k': c = U'\u0137'; break; // 'ķ'
+			case U'l': c = U'\u013a'; break; // 'ĺ'
+			case U'n': c = U'\u00f1'; break; // 'ñ'
+			case U'o': c = U'\u00f4'; break; // 'ô'
+			case U'r': c = U'\u0213'; break; // 'ȓ'
+			case U's': c = U'\u015f'; break; // 'ş'
+			case U't': c = U'\u0167'; break; // 'ŧ'
+			case U'u': c = U'\u0169'; break; // 'ũ'
+			case U'w': c = U'\u0175'; break; // 'ŵ'
+			case U'y': c = U'\u00ff'; break; // 'ÿ'
+			case U'z': c = U'\u0225'; break; // 'ȥ'
+			case U'A': c = U'\u00c4'; break; // 'Ä'
+			case U'B': c = U'\u00df'; break; // 'ß'
+			case U'C': c = U'\u00c7'; break; // 'Ç'
+			case U'D': c = U'\u00d0'; break; // 'Ð'
+			case U'E': c = U'\u0204'; break; // 'Ȅ'
+			case U'F': c = U'\u0191'; break; // 'Ƒ'
+			case U'G': c = U'\u0120'; break; // 'Ġ'
+			case U'H': c = U'\u0126'; break; // 'Ħ'
+			case U'I': c = U'\u00cd'; break; // 'Í'
+			case U'J': c = U'\u0134'; break; // 'Ĵ'
+			case U'K': c = U'\u0136'; break; // 'Ķ'
+			case U'L': c = U'\u023d'; break; // 'Ƚ'
+			case U'N': c = U'\u00d1'; break; // 'Ñ'
+			case U'O': c = U'\u00d6'; break; // 'Ö'
+			case U'R': c = U'\u0154'; break; // 'Ŕ'
+			case U'S': c = U'\u015e'; break; // 'Ş'
+			case U'T': c = U'\u023e'; break; // 'Ⱦ'
+			case U'U': c = U'\u00d9'; break; // 'Ù'
+			case U'W': c = U'\u0174'; break; // 'Ŵ'
+			case U'Y': c = U'\u00dd'; break; // 'Ý'
+			case U'Z': c = U'\u0224'; break; // 'Ȥ'
+			case U'"': c = U'?';   break; // '?'
 			};
 		}
-		return utf::narrowed(w);
+		return utf::as_u8(u32);
 	}
 
 	std::vector<string> translations(const std::map<std::string, std::string>& gtt, const std::vector<locale::String>& strings, bool warp_missing, bool verbose)
@@ -102,12 +102,12 @@ namespace locale {
 			out.emplace_back(str.id, it->second);
 		}
 
-		return std::move(out);
+		return out;
 	}
 
-	std::map<std::string, std::string> attrGTT(const std::string& attrs)
+	std::map<std::string, std::string, std::less<>> attrGTT(std::string_view attrs)
 	{
-		std::map<std::string, std::string> out;
+		std::map<std::string, std::string, std::less<>> out;
 
 		auto c = std::begin(attrs);
 		auto e = std::end(attrs);
@@ -158,19 +158,28 @@ namespace locale {
 		return s;
 	}
 
+	template <attr_t Name>
+	static inline void copy_attr(const std::map<std::string, std::string, std::less<>>& src,
+		std::vector<string>& dst, std::string_view key) {
+		auto attr = src.find(key);
+		if (attr == end(src))
+			return;
+		if constexpr(Name == ATTR_CULTURE)
+			dst.push_back({ Name, gnu2iso(attr->second) });
+		else
+			dst.push_back({ Name, attr->second });
+	}
+
 	std::vector<string> attributes(const std::map<std::string, std::string>& gtt)
 	{
 		std::vector<string> props;
 		auto it = gtt.find("");
 		auto attrs = attrGTT(it == gtt.end() ? std::string{ } : it->second);
 
-		props.push_back({ ATTR_CULTURE, gnu2iso(attrs["Language"]) });
-		auto attr = attrs.find("Plural-Forms");
-		if (attr != attrs.end())
-			props.push_back({ ATTR_PLURALS, attr->second });
-		// TODO: ATTR_LANGUAGE
+		copy_attr<ATTR_CULTURE>(attrs, props, "Language");
+		copy_attr<ATTR_PLURALS>(attrs, props, "Plural-Forms");
 
-		return std::move(props);
+		return props;
 	}
 
 	char nextc(locale::instream& is)

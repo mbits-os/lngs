@@ -1,3 +1,27 @@
+/*
+ * Copyright (C) 2015 midnightBITS
+ *
+ * Permission is hereby granted, free of charge, to any person
+ * obtaining a copy of this software and associated documentation
+ * files (the "Software"), to deal in the Software without
+ * restriction, including without limitation the rights to use, copy,
+ * modify, merge, publish, distribute, sublicense, and/or sell copies
+ * of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 #include <locale/strings.h>
 
 #ifdef _WIN32
@@ -18,6 +42,9 @@ namespace locale {
 		memory_block m_data;
 		lang_file m_file;
 	public:
+		using identifier = lang_file::identifier;
+		using quantity = lang_file::quantity;
+
 		bool open(const char* path)
 		{
 			m_data = locale::translation::open_file(path);
@@ -29,14 +56,14 @@ namespace locale {
 			return true;
 		}
 
-		const char* get_string(uint32_t id) const
+		const char* get_string(identifier id) const
 		{
-			return m_file.get_string(id);
+			return m_file.get_string(id).data();
 		}
 
-		const char* get_string(intmax_t count, uint32_t id) const
+		const char* get_string(identifier id, quantity count) const
 		{
-			return m_file.get_string(count, id);
+			return m_file.get_string(id, count).data();
 		}
 	};
 
@@ -56,15 +83,15 @@ API(const char*, ReadString)(HSTRINGS opaque, uint32_t id)
 	auto tr = (locale::DllTranslation*)opaque;
 	if (!tr)
 		return nullptr;
-	return tr->get_string(id);
+	return tr->get_string((locale::lang_file::identifier)id);
 }
 
-API(const char*, ReadStringPl)(HSTRINGS opaque, intmax_t count, uint32_t id)
+API(const char*, ReadStringPl)(HSTRINGS opaque, uint32_t id, intmax_t count)
 {
 	auto tr = (locale::DllTranslation*)opaque;
 	if (!tr)
 		return nullptr;
-	return tr->get_string(count, id);
+	return tr->get_string((locale::lang_file::identifier)id, (locale::lang_file::quantity)count);
 }
 
 API(void, CloseStrings)(HSTRINGS opaque)

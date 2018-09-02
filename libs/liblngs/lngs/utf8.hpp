@@ -24,10 +24,15 @@
 
 #pragma once
 #include <string>
+#include <string_view>
 
 namespace utf
 {
-	std::wstring widen(const std::string& src);
-	std::string narrowed(const std::wstring& src);
-	const char* next_char(const char* src);
+	std::u16string as_u16(std::string_view src);
+	std::u32string as_u32(std::string_view src);
+	std::string as_u8(std::u16string_view src);
+	std::u32string as_u32(std::u16string_view src);
+	std::u16string as_u16(std::u32string_view src);
+	std::string as_u8(std::u32string_view src);
+	const char* next_char(const char* src) noexcept;
 }

@@ -27,10 +27,6 @@
 
 namespace utf
 {
-	using UTF8 = uint8_t;
-	using UTF16 = wchar_t;
-	using UTF32 = uint32_t;
-
 	/*
 	* Index into the table below with the first byte of a UTF-8 sequence to
 	* get the number of trailing bytes that are supposed to follow it.
@@ -38,7 +34,7 @@ namespace utf
 	* left as-is for anyone who may want to do such conversion, which was
 	* allowed in earlier algorithms.
 	*/
-	static const char trailingBytesForUTF8[256] = {
+	static constexpr const char trailingBytesForUTF8[256] = {
 		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -54,7 +50,7 @@ namespace utf
 	* This table contains as many values as there might be trailing bytes
 	* in a UTF-8 sequence.
 	*/
-	static const UTF32 offsetsFromUTF8[6] = { 0x00000000UL, 0x00003080UL, 0x000E2080UL,
+	static constexpr const char32_t offsetsFromUTF8[6] = { 0x00000000UL, 0x00003080UL, 0x000E2080UL,
 		0x03C82080UL, 0xFA082080UL, 0x82082080UL };
 
 	/*
@@ -64,29 +60,33 @@ namespace utf
 	* (I.e., one byte sequence, two byte... etc.). Remember that sequencs
 	* for *legal* UTF-8 will be 4 or fewer bytes total.
 	*/
-	static const UTF8 firstByteMark[7] = { 0x00, 0x00, 0xC0, 0xE0, 0xF0, 0xF8, 0xFC };
+	static constexpr const uint8_t firstByteMark[7] = { 0x00, 0x00, 0xC0, 0xE0, 0xF0, 0xF8, 0xFC };
 
-	enum {
+	enum : char16_t {
 		UNI_SUR_HIGH_START = 0xD800,
 		UNI_SUR_HIGH_END = 0xDBFF,
 		UNI_SUR_LOW_START = 0xDC00,
 		UNI_SUR_LOW_END = 0xDFFF,
 	};
 
-	enum {
+	enum : char32_t {
+		UNI_REPLACEMENT_CHAR = 0x0000FFFD,
 		UNI_MAX_BMP = 0x0000FFFF,
 		UNI_MAX_UTF16 = 0x0010FFFF,
+		UNI_MAX_LEGAL_UTF32 = 0x0010FFFF
 	};
 
-	static const int halfShift = 10; /* used for shifting by 10 bits */
+	static constexpr const unsigned halfShift = 10; /* used for shifting by 10 bits */
 
-	static const UTF32 halfBase = 0x0010000UL;
-	static const UTF32 halfMask = 0x3FFUL;
+	static constexpr const char32_t halfBase = 0x0001'0000UL;
+	static constexpr const char32_t halfMask = 0x3FFUL;
+	static constexpr const char32_t byteMask = 0xBF;
+	static constexpr const char32_t byteMark = 0x80;
 
 	template <typename T>
 	static bool isLegalUTF8(T source, int length)
 	{
-		UTF8 a;
+		uint8_t a;
 		auto srcptr = source + length;
 		switch (length) {
 		default: return false;
@@ -110,127 +110,175 @@ namespace utf
 		return true;
 	}
 
-	std::wstring widen(const std::string& src)
-	{
-		std::wstring out;
-		auto source = src.begin();
-		auto sourceEnd = src.end();
-		auto target = std::back_inserter(out);
+	using utf8_it = std::string_view::const_iterator;
+	static inline char32_t decode(utf8_it& source, utf8_it sourceEnd, bool& ok) {
+		ok = false;
+		unsigned short extraBytesToRead = trailingBytesForUTF8[(uint8_t)*source];
+		if (extraBytesToRead >= sourceEnd - source)
+			return 0;
 
-		while (source < sourceEnd) {
-			UTF32 ch = 0;
-			unsigned short extraBytesToRead = trailingBytesForUTF8[(uint8_t)*source];
-			if (extraBytesToRead >= sourceEnd - source) {
-				break;
+		if (!isLegalUTF8(source, extraBytesToRead + 1))
+			return 0;
+
+		char32_t ch = 0;
+		/*
+		* The cases all fall through. See "Note A" below.
+		*/
+		switch (extraBytesToRead) {
+		case 5: ch += (uint8_t)*source++; ch <<= 6; /* remember, illegal UTF-8 */
+		case 4: ch += (uint8_t)*source++; ch <<= 6; /* remember, illegal UTF-8 */
+		case 3: ch += (uint8_t)*source++; ch <<= 6;
+		case 2: ch += (uint8_t)*source++; ch <<= 6;
+		case 1: ch += (uint8_t)*source++; ch <<= 6;
+		case 0: ch += (uint8_t)*source++;
+		}
+		ch -= offsetsFromUTF8[extraBytesToRead];
+		ok = true;
+		return ch;
+	}
+
+	using utf16_it = std::u16string_view::const_iterator;
+	static inline char32_t decode(utf16_it& source, utf16_it sourceEnd, bool& ok) {
+		ok = true;
+		char32_t ch = *source++;
+		/* If we have a surrogate pair, convert to char32_t first. */
+		if (ch >= UNI_SUR_HIGH_START && ch <= UNI_SUR_HIGH_END) {
+			ok = false;
+			/* If the 16 bits following the high surrogate are in the source buffer... */
+			if (source < sourceEnd) {
+				char32_t trail = *source;
+				/* If it's a low surrogate, convert to char32_t. */
+				if (trail >= UNI_SUR_LOW_START && trail <= UNI_SUR_LOW_END) {
+					ch = ((ch - UNI_SUR_HIGH_START) << halfShift)
+						+ trail - UNI_SUR_LOW_START + halfBase;
+					++source;
+					ok = true;
+				}
 			}
-			/* Do this check whether lenient or strict */
-			if (!isLegalUTF8(source, extraBytesToRead + 1)) {
-				break;
+		}
+
+		return ch;
+	}
+
+	using utf32_it = std::u32string_view::const_iterator;
+	static inline char32_t decode(utf32_it& source, utf32_it sourceEnd, bool& ok) {
+		ok = true;
+		return *source++;
+	}
+
+	static inline void encode(char32_t ch, std::back_insert_iterator<std::string>& target) {
+		unsigned short bytesToWrite = 0;
+
+		/* Figure out how many bytes the result will require */
+		if (ch < (char32_t)0x80) bytesToWrite = 1;
+		else if (ch < (char32_t)0x800) bytesToWrite = 2;
+		else if (ch < (char32_t)0x10000) bytesToWrite = 3;
+		else if (ch < UNI_MAX_LEGAL_UTF32) bytesToWrite = 4;
+		else {
+			bytesToWrite = 3;
+			ch = UNI_REPLACEMENT_CHAR;
+		}
+
+		uint8_t mid[4];
+		uint8_t* midp = mid + sizeof(mid);
+		switch (bytesToWrite) { /* note: everything falls through. */
+		case 4: *--midp = (uint8_t)((ch | byteMark) & byteMask); ch >>= 6;
+		case 3: *--midp = (uint8_t)((ch | byteMark) & byteMask); ch >>= 6;
+		case 2: *--midp = (uint8_t)((ch | byteMark) & byteMask); ch >>= 6;
+		case 1: *--midp = (uint8_t)(ch | firstByteMark[bytesToWrite]);
+		}
+		for (int i = 0; i < bytesToWrite; ++i)
+			*target++ = *midp++;
+	}
+
+	static inline void encode(char32_t ch, std::back_insert_iterator<std::u16string>& target) {
+		if (ch <= UNI_MAX_BMP) {
+			/* UTF-16 surrogate values are illegal in UTF-32 */
+			if (ch >= UNI_SUR_HIGH_START && ch <= UNI_SUR_LOW_END) {
+				*target++ = UNI_REPLACEMENT_CHAR;
+				return;
 			}
+			*target++ = (char16_t)ch; /* normal case */
+			return;
+		}
+
+		if (ch > UNI_MAX_UTF16) {
+			*target++ = UNI_REPLACEMENT_CHAR;
+			return;
+		}
+
+		ch -= halfBase;
+		*target++ = (char16_t)((ch >> halfShift) + UNI_SUR_HIGH_START);
+		*target++ = (char16_t)((ch & halfMask) + UNI_SUR_LOW_START);
+	}
+
+	static inline void encode(char32_t ch, std::back_insert_iterator<std::u32string>& target) {
+		if (ch <= UNI_MAX_LEGAL_UTF32) {
 			/*
-			* The cases all fall through. See "Note A" below.
-			*/
-			switch (extraBytesToRead) {
-			case 5: ch += (uint8_t)*source++; ch <<= 6; /* remember, illegal UTF-8 */
-			case 4: ch += (uint8_t)*source++; ch <<= 6; /* remember, illegal UTF-8 */
-			case 3: ch += (uint8_t)*source++; ch <<= 6;
-			case 2: ch += (uint8_t)*source++; ch <<= 6;
-			case 1: ch += (uint8_t)*source++; ch <<= 6;
-			case 0: ch += (uint8_t)*source++;
+			 * UTF-16 surrogate values are illegal in UTF-32, and anything
+			 * over Plane 17 (> 0x10FFFF) is illegal.
+			 */
+			if (ch >= UNI_SUR_HIGH_START && ch <= UNI_SUR_LOW_END) {
+				*target++ = UNI_REPLACEMENT_CHAR;
+				return;
 			}
-			ch -= offsetsFromUTF8[extraBytesToRead];
-
-			if (ch <= UNI_MAX_BMP) { /* Target is a character <= 0xFFFF */
-									 /* UTF-16 surrogate values are illegal in UTF-32 */
-				if (ch >= UNI_SUR_HIGH_START && ch <= UNI_SUR_LOW_END) {
-					*target++ = '?';
-				}
-				else {
-					*target++ = (UTF16) ch; /* normal case */
-				}
-			}
-			else if (ch > UNI_MAX_UTF16) {
-				*target++ = '?';
-			}
-			else {
-				ch -= halfBase;
-				*target++ = (UTF16) ((ch >> halfShift) + UNI_SUR_HIGH_START);
-				*target++ = (UTF16) ((ch & halfMask) + UNI_SUR_LOW_START);
-			}
+			*target++ = ch; /* normal case */
+			return;
 		}
 
-		return out;
+		*target++ = UNI_REPLACEMENT_CHAR;
 	}
 
-	std::string narrowed(const std::wstring& src) {
-		std::string out;
+	template <class String, class StringView>
+	static inline String convert(StringView src)
+	{
+		String out;
 		auto source = src.begin();
 		auto sourceEnd = src.end();
 		auto target = std::back_inserter(out);
 
 		while (source < sourceEnd) {
-			UTF32 ch;
-			unsigned short bytesToWrite = 0;
-			const UTF32 byteMask = 0xBF;
-			const UTF32 byteMark = 0x80;
-			auto oldSource = source; /* In case we have to back up because of target overflow. */
-			ch = *source++;
-			/* If we have a surrogate pair, convert to UTF32 first. */
-			if (ch >= UNI_SUR_HIGH_START && ch <= UNI_SUR_HIGH_END) {
-				/* If the 16 bits following the high surrogate are in the source buffer... */
-				if (source < sourceEnd) {
-					UTF32 ch2 = *source;
-					/* If it's a low surrogate, convert to UTF32. */
-					if (ch2 >= UNI_SUR_LOW_START && ch2 <= UNI_SUR_LOW_END) {
-						ch = ((ch - UNI_SUR_HIGH_START) << halfShift)
-							+ (ch2 - UNI_SUR_LOW_START) + halfBase;
-						++source;
-					}
-				}
-				else { /* We don't have the 16 bits following the high surrogate. */
-					--source; /* return to the high surrogate */
-					break;
-				}
-			}
+			bool ok = false;
+			char32_t ch = decode(source, sourceEnd, ok);
+			if (!ok)
+				return {};
 
-			/* Figure out how many bytes the result will require */
-			if (ch < (UTF32) 0x80) {
-				bytesToWrite = 1;
-			}
-			else if (ch < (UTF32) 0x800) {
-				bytesToWrite = 2;
-			}
-			else if (ch < (UTF32) 0x10000) {
-				bytesToWrite = 3;
-			}
-			else if (ch < (UTF32) 0x110000) {
-				bytesToWrite = 4;
-			}
-			else {
-				bytesToWrite = 3;
-				ch = '?';
-			}
-
-			UTF8 mid[4];
-			UTF8* midp = mid + sizeof(mid);
-			switch (bytesToWrite) { /* note: everything falls through. */
-			case 4: *--midp = (UTF8) ((ch | byteMark) & byteMask); ch >>= 6;
-			case 3: *--midp = (UTF8) ((ch | byteMark) & byteMask); ch >>= 6;
-			case 2: *--midp = (UTF8) ((ch | byteMark) & byteMask); ch >>= 6;
-			case 1: *--midp = (UTF8) (ch | firstByteMark[bytesToWrite]);
-			}
-			for (int i = 0; i < bytesToWrite; ++i)
-				*target++ = *midp++;
+			encode(ch, target);
 		}
+
 		return out;
 	}
 
-	const char* next_char(const char* src)
+	std::u16string as_u16(std::string_view src) {
+		return convert<std::u16string>(src);
+	}
+
+	std::u32string as_u32(std::string_view src) {
+		return convert<std::u32string>(src);
+	}
+
+	std::string as_u8(std::u16string_view src) {
+		return convert<std::string>(src);
+	}
+
+	std::u32string as_u32(std::u16string_view src) {
+		return convert<std::u32string>(src);
+	}
+
+	std::string as_u8(std::u32string_view src) {
+		return convert<std::string>(src);
+	}
+
+	std::u16string as_u16(std::u32string_view src) {
+		return convert<std::u16string>(src);
+	}
+
+	const char* next_char(const char* src) noexcept
 	{
 		if (!src)
 			return src;
 
-		auto trailing = trailingBytesForUTF8[(uint8_t)*src];
+		const auto trailing = trailingBytesForUTF8[(uint8_t)*src];
 		return src + 1 + trailing;
 	}
 }

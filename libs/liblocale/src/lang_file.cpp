@@ -26,35 +26,41 @@
 #include <cstring>
 
 namespace locale {
-	const string_key* lang_file::section::get(uint32_t id) const noexcept
+	const string_key* lang_file::section::get(identifier id) const noexcept
 	{
+		const auto comp = (uint32_t)id;
 		auto end = keys + count;
 		auto cur = keys;
 		while (end != cur) {
-			if (cur->id == id)
+			if (cur->id == comp)
 				return cur;
 			++cur;
 		}
 		return nullptr;
 	}
 
-	const char* lang_file::section::string(uint32_t id) const noexcept
+	std::string_view lang_file::section::string(identifier id) const noexcept
 	{
 		auto key = get(id);
 		if (!key)
-			return nullptr;
+			return {};
 
-		return key->offset + strings;
+		return { key->offset + strings, key->length };
 	}
 
-	const char* lang_file::section::string(const string_key* key) const noexcept
+	std::string_view lang_file::section::string(const string_key* key) const noexcept
 	{
 		if (!key)
 			return nullptr;
-		return key->offset + strings;
+		return { key->offset + strings, key->length };
 	}
 
-	lang_file::lang_file()
+	std::string_view lang_file::section::string(const string_key& key) const noexcept
+	{
+		return { key.offset + strings, key.length };
+	}
+
+	lang_file::lang_file() noexcept
 	{
 	}
 
@@ -70,7 +76,7 @@ namespace locale {
 		return acc;
 	}
 
-	bool lang_file::open(const memory_view& view)
+	bool lang_file::open(const memory_view& view) noexcept
 	{
 		constexpr uint32_t header_size = sizeof(uint32_t) + sizeof(file_header);
 		constexpr uint32_t ver_1_x = 0x0000FFFFu;
@@ -95,7 +101,7 @@ namespace locale {
 				return false;
 		}
 
-		auto read_strings = [](const string_header* sec, section& out) -> bool
+		auto read_strings = [](const string_header* sec, section& out) noexcept -> bool
 		{
 			out.close();
 
@@ -106,7 +112,7 @@ namespace locale {
 			if (uints_for_keys < sec->string_count * sizeof(string_key) / sizeof(uint32_t))
 				return false;
 
-			auto space_for_strings = (sec->ints + sizeof(section_header) / sizeof(uint32_t) - sec->string_offset) * sizeof(uint32_t);
+			const auto space_for_strings = (sec->ints + sizeof(section_header) / sizeof(uint32_t) - sec->string_offset) * sizeof(uint32_t);
 
 			auto keys = reinterpret_cast<const string_key*>(sec + 1);
 			auto strings = reinterpret_cast<const char*>(
@@ -163,65 +169,69 @@ namespace locale {
 		keys.close();
 	}
 
-	const char* lang_file::get_string(uint32_t id) const noexcept
+	std::string_view lang_file::get_string(identifier id) const noexcept
 	{
-		return strings.string(id);
+		const auto ret = strings.string(id);
+		return ret.substr(0, ret.find('\x00', 0));
 	}
 
-	const char* lang_file::get_string(intmax_t count, uint32_t id) const noexcept
+	std::string_view lang_file::get_string(identifier id, quantity count) const noexcept
 	{
 		auto key = strings.get(id);
 		auto str = strings.string(key);
-		if (!str)
+		if (str.empty())
 			return str;
 
 		intmax_t sub = calc_substring(count);
 
 		auto cur = str;
-		auto length = key->length;
+		auto length = str.length();
+
 		while (sub--) {
-			auto len = std::strlen(cur) + 1;
-			if (len >= length)
-				return str; // return singular...
-			cur += len;
-			length -= (uint32_t)len;
+			auto pos = cur.find('\x00', 0);
+			if (pos == std::string_view::npos) {
+				// return singular...
+				return str.substr(0, str.find('\x00', 0));
+			}
+
+			++pos;
+			cur = cur.substr(pos);
+			length -= (uint32_t)(pos);
 		}
 
-		return cur;
+		return cur.substr(0, cur.find('\x00', 0));
 	}
 
-	const char* lang_file::get_attr(uint32_t id) const noexcept
+	std::string_view lang_file::get_attr(uint32_t id) const noexcept
 	{
-		return attrs.string(id);
+		return attrs.string((identifier)id);
 	}
 
-	const char* lang_file::get_key(uint32_t id) const noexcept
+	std::string_view lang_file::get_key(uint32_t id) const noexcept
 	{
-		return keys.string(id);
+		return keys.string((identifier)id);
 	}
 
-	uint32_t lang_file::find_key(const char* id) const noexcept
+	uint32_t lang_file::find_key(std::string_view id) const noexcept
 	{
-		if (!id)
+		if (id.empty())
 			return (uint32_t)-1;
 
-		for (auto cur = keys.keys,
-			end = cur + keys.count;
-			cur != end; ++cur) {
+		for (auto const& cur : keys) {
 			auto key = keys.string(cur);
 
-			if (!std::strcmp(id, key))
-				return cur->id;
+			if (id == key)
+				return cur.id;
 		}
 
 		return (uint32_t)-1;
 	}
 
-	intmax_t lang_file::calc_substring(intmax_t count) const
+	intmax_t lang_file::calc_substring(quantity count) const
 	{
 		if (!lex) {
-			auto entry = attrs.string(ATTR_PLURALS);
-			if (entry)
+			auto entry = attrs.string((identifier)ATTR_PLURALS);
+			if (!entry.empty())
 				lex = plurals::decode(entry);
 			if (!lex)
 				lex = plurals::decode("0");
@@ -230,6 +240,6 @@ namespace locale {
 				return 0;
 		}
 
-		return lex.eval(count);
+		return lex.eval((intmax_t) count);
 	}
 }

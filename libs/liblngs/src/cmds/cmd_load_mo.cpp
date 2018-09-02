@@ -31,7 +31,7 @@
 #include <algorithm>
 
 namespace locale {
-	std::string language_name(const std::string& ll_cc);
+	std::string language_name(std::string_view ll_cc);
 }
 
 namespace make {

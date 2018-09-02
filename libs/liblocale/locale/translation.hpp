@@ -32,7 +32,6 @@
 #include <locale/file.hpp>
 
 namespace locale {
-
 	namespace manager {
 		// uses base and filename to generate paths "<base>/<lng>/<filename>"
 		class SubdirPath {
@@ -164,6 +163,9 @@ namespace locale {
 
 		void onupdate();
 	public:
+		using identifier = lang_file::identifier;
+		using quantity = lang_file::quantity;
+
 		static memory_block open_file(const fs::path& path) noexcept;
 		template <typename T, typename... Args>
 		void path_manager(Args&&... args)
@@ -173,11 +175,11 @@ namespace locale {
 
 		bool open(const std::string& lng);
 		bool fresh() const noexcept { return mtime() == m_mtime; }
-		const char* get_string(uint32_t id) const noexcept;
-		const char* get_string(intmax_t count, uint32_t id) const noexcept;
-		const char* get_attr(uint32_t id) const noexcept;
-		const char* get_key(uint32_t id) const noexcept;
-		uint32_t find_key(const char* id) const noexcept;
+		std::string_view get_string(identifier id) const noexcept;
+		std::string_view get_string(identifier id, quantity count) const noexcept;
+		std::string_view get_attr(uint32_t id) const noexcept;
+		std::string_view get_key(uint32_t id) const noexcept;
+		uint32_t find_key(std::string_view id) const noexcept;
 		std::vector<culture> known() const;
 
 		uint32_t add_onupdate(const std::function<void()>&);

@@ -82,27 +82,27 @@ namespace locale {
 		return true;
 	}
 
-	const char* translation::get_string(uint32_t id) const noexcept
+	std::string_view translation::get_string(identifier id) const noexcept
 	{
 		return m_file.get_string(id);
 	}
 
-	const char* translation::get_string(intmax_t count, uint32_t id) const noexcept
+	std::string_view translation::get_string(identifier id, quantity count) const noexcept
 	{
-		return m_file.get_string(count, id);
+		return m_file.get_string(id, count);
 	}
 
-	const char* translation::get_attr(uint32_t id) const noexcept
+	std::string_view translation::get_attr(uint32_t id) const noexcept
 	{
 		return m_file.get_attr(id);
 	}
 
-	const char* translation::get_key(uint32_t id) const noexcept
+	std::string_view translation::get_key(uint32_t id) const noexcept
 	{
 		return m_file.get_key(id);
 	}
 
-	uint32_t translation::find_key(const char* id) const noexcept
+	uint32_t translation::find_key(std::string_view id) const noexcept
 	{
 		return m_file.find_key(id);
 	}
@@ -125,9 +125,9 @@ namespace locale {
 			auto name = file.get_attr(ATTR_LANGUAGE);
 
 			culture c;
-			if (lang)
+			if (!lang.empty())
 				c.lang = lang;
-			if (name)
+			if (!name.empty())
 				c.name = name;
 
 			auto copy = m_path_mgr->expand(c.lang);

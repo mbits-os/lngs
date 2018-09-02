@@ -24,7 +24,7 @@
 
 #pragma once
 
-#include <locale_storage.hpp>
+#include <locale/locale_storage.hpp>
 #include <format.hpp>
 
 namespace locale {
@@ -63,7 +63,7 @@ namespace locale {
 		template <typename... Args>
 		std::string operator()(Enum val, intmax_t count, Args&&... args) const noexcept
 		{
-			auto ptr = Storage::get_string((uint32_t)val);
+			auto ptr = Storage::get_string((uint32_t)val, count);
 			return ptr ? ::str::format(ptr, std::forward<Args>(args)...) : std::string{ };
 		}
 	};

@@ -43,7 +43,7 @@
 #include "str.hpp"
 
 namespace locale {
-	static inline bool inside(const std::vector<std::string>& locales, const std::string& key)
+	static inline bool inside(const std::vector<std::string>& locales, const std::string& key) noexcept
 	{
 		for (auto&& locale : locales) {
 			if (locale == key)
@@ -126,15 +126,16 @@ namespace locale {
 		if (len > 3 && !strncmp(value, "LC_", 3) && strchr(value, ';') && strchr(value, '='))
 			return; // LC_ALL might be "LC_CTYPE=...;LC_...=...;..." if one has outstanding value
 
-		for (auto& s : split(value, ":")) {
+		for (auto& s : split_view(value, ":")) {
 			auto pos = s.find('.');
 			if (pos != std::string::npos)
 				s = s.substr(0, pos);
-			for (auto& c : s) {
+			auto str = std::string{ s };
+			for (auto& c : str) {
 				if (c == '_')
 					c = '-';
 			}
-			appendLocale(locales, s);
+			appendLocale(locales, str);
 		}
 	}
 
@@ -257,7 +258,7 @@ namespace locale {
 		std::stable_sort(items.begin(), items.end());
 		std::vector<std::string> out;
 		out.resize(items.size());
-		std::transform(begin(items), end(items), begin(out), [](const ListItem& item) { return item.m_value; });
+		std::transform(begin(items), end(items), begin(out), [](ListItem& item) { return std::move(item.m_value); });
 		return out;
 	}
 

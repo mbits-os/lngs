@@ -186,7 +186,7 @@ namespace args {
 			return name.filename().string();
 		}
 		const char* cstr(const char* ptr) { return ptr; }
-		std::string cstr(const wchar_t* ptr) { return utf::narrowed(ptr); }
+		std::string cstr(const char32_t* ptr) { return utf::as_u8(ptr); }
 
 		void parse_long(const std::string& name, size_t& i);
 		void parse_short(const std::string& name, size_t& i);

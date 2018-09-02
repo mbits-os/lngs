@@ -4,16 +4,18 @@ import os, platform
 extra_compile_args = None
 
 if os.name == 'posix':
-    extra_compile_args = ['-std=gnu++1y']
+    extra_compile_args = ['-std=cpp++17']
+else:
+    extra_compile_args = ['/std:cpp++17']
 
 mod = Extension('strings',
                 language='c++',
                 sources=['src/py-strings.cc'],
-                libraries=['strings'],
+                libraries=['locale_c'],
                 extra_compile_args=extra_compile_args)
 
 setup(name = 'Strings',
-      version = '0.2',
+      version = '0.3',
       author = 'Marcin Zdun',
       author_email = 'mzdun@midnightbits.com',
       url = 'https://github.com/mbits-os/locale',
