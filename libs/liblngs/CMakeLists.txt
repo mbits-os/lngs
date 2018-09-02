@@ -51,5 +51,6 @@ set_target_properties(lngs-test PROPERTIES FOLDER tests)
 target_link_libraries(lngs-test lngs_impl gtest gmock ${CMAKE_THREAD_LIBS_INIT})
 
 enable_testing()
+add_test(NAME lngs.utf COMMAND lngs-test --gtest_filter=*/utf_conv.*)
 
 endif()
