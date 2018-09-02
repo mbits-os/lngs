@@ -22,13 +22,11 @@
  * SOFTWARE.
  */
 
-#include "pch.h"
-
-#include <filesystem.hpp>
-#include <argparser.hpp>
-#include <strings.hpp>
-#include <streams.hpp>
-#include <languages.hpp>
+#include <lngs/filesystem.hpp>
+#include <lngs/argparser.hpp>
+#include <lngs/strings.hpp>
+#include <lngs/streams.hpp>
+#include <lngs/languages.hpp>
 
 namespace res {
 	class table_outstream : public locale::outstream {

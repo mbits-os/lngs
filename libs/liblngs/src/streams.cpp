@@ -22,8 +22,7 @@
  * SOFTWARE.
  */
 
-#include "pch.h"
-#include <streams.hpp>
+#include <lngs/streams.hpp>
 #include <cctype>
 #include <cstring>
 

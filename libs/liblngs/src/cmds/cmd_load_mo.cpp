@@ -22,14 +22,12 @@
  * SOFTWARE.
  */
 
-#include "pch.h"
-
-#include <filesystem.hpp>
-#include <argparser.hpp>
-#include <streams.hpp>
-#include <strings.hpp>
-#include <languages.hpp>
-#include <gettext.hpp>
+#include <lngs/filesystem.hpp>
+#include <lngs/argparser.hpp>
+#include <lngs/streams.hpp>
+#include <lngs/strings.hpp>
+#include <lngs/languages.hpp>
+#include <lngs/gettext.hpp>
 
 namespace locale {
 	std::string language_name(const std::string& ll_cc);

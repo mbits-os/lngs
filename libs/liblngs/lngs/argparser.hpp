@@ -27,8 +27,8 @@
 #include <string>
 #include <memory>
 #include <vector>
-#include <utf8.hpp>
-#include <filesystem.hpp>
+#include <lngs/utf8.hpp>
+#include <lngs/filesystem.hpp>
 
 #if defined(_MSC_VER)
 #define NORETURN __declspec(noreturn)

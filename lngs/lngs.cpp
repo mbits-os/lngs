@@ -22,10 +22,8 @@
  * SOFTWARE.
  */
 
-#include "pch.h"
-
-#include <filesystem.hpp>
-#include <argparser.hpp>
+#include <lngs/filesystem.hpp>
+#include <lngs/argparser.hpp>
 
 #if defined(_WIN32) && defined(_UNICODE)
 using XChar = wchar_t;

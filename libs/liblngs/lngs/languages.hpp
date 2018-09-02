@@ -22,26 +22,44 @@
  * SOFTWARE.
  */
 
-#include "pch.h"
-#include "filesystem.hpp"
-#include "utf8.hpp"
+#pragma once
+#include <lngs/filesystem.hpp>
+#include <locale/locale_base.hpp>
+#include <vector>
+#include <map>
 
-namespace fs {
-FILE* fopen(const path& file, char const* mode)
-{
-#if OS(WINDOWS)
+namespace locale {
+	struct string {
+		string_key key;
+		std::string value;
 
-#ifdef _MSC_VER
-#pragma warning(push)
-#pragma warning(disable: 4996)
-#endif
-	return ::_wfopen(file.native().c_str(), utf::widen(mode).c_str());
-#ifdef _MSC_VER
-#pragma warning(pop)
-#endif
+		string();
+		string(string&&);
+		string& operator=(string&&);
+		string(const string&);
+		string& operator=(const string&);
 
-#else // OS(WINDOWS)
-	return ::fopen(file.string().c_str(), mode);
-#endif
-}
+		string(uint32_t id, const std::string& val) : value(val)
+		{
+			key.id = id;
+			key.length = (uint32_t)value.length();
+		}
+	};
+
+	struct String;
+
+	std::string warp(const std::string& s);
+	std::vector<string> attributes(const std::map<std::string, std::string>& gtt);
+	std::vector<string> translations(const std::map<std::string, std::string>& gtt, const std::vector<String>& strings, bool warp_missing, bool verbose);
+	bool ll_CC(const fs::path& in, std::map<std::string, std::string>& langs);
+
+	struct outstream;
+	struct file {
+		uint32_t serial;
+		std::vector<string> attrs;
+		std::vector<string> strings;
+		std::vector<string> keys;
+
+		int write(outstream& os);
+	};
 }

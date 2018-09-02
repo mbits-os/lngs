@@ -22,9 +22,7 @@
  * SOFTWARE.
  */
 
-#include "pch.h"
-
-#include <gettext.hpp>
+#include <lngs/gettext.hpp>
 
 namespace gtt {
 	class GetTextFile {

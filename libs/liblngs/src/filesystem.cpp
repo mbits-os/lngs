@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2015 midnightBITS
+ * Copyright (C) 2015 midnightBITS
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -22,4 +22,25 @@
  * SOFTWARE.
  */
 
-#include "pch.h"
+#include <lngs/filesystem.hpp>
+#include <lngs/utf8.hpp>
+
+namespace fs {
+FILE* fopen(const path& file, char const* mode)
+{
+#if OS(WINDOWS)
+
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable: 4996)
+#endif
+	return ::_wfopen(file.native().c_str(), utf::widen(mode).c_str());
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
+
+#else // OS(WINDOWS)
+	return ::fopen(file.string().c_str(), mode);
+#endif
+}
+}

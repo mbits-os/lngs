@@ -22,13 +22,11 @@
  * SOFTWARE.
  */
 
-#include "pch.h"
-
 #include <assert.h>
 #include <cctype>
 
-#include <streams.hpp>
-#include <strings.hpp>
+#include <lngs/streams.hpp>
+#include <lngs/strings.hpp>
 
 namespace locale {
 	enum tok_t {

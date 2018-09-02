@@ -22,14 +22,12 @@
  * SOFTWARE.
  */
 
-#include "pch.h"
-
 #include <ctime>
 #include <iterator>
 
-#include <filesystem.hpp>
-#include <argparser.hpp>
-#include <strings.hpp>
+#include <lngs/filesystem.hpp>
+#include <lngs/argparser.hpp>
+#include <lngs/strings.hpp>
 
 namespace pot {
 	struct info {

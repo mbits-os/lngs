@@ -21,13 +21,12 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 #pragma once
+#include <map>
+#include <string>
+#include <lngs/filesystem.hpp>
 
-#include "cmakeconfig.h"
-#include "../platform.hpp"
-
-#ifdef CMAKE_HAVE_TS_FILESYSTEM
-#define HAVE_TS_FILESYSTEM 1
-#else
-#define HAVE_TS_FILESYSTEM 0
-#endif
+namespace gtt {
+	std::map<std::string, std::string> open(const fs::path& path);
+}

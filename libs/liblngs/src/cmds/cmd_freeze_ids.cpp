@@ -22,12 +22,10 @@
  * SOFTWARE.
  */
 
-#include "pch.h"
-
-#include <filesystem.hpp>
-#include <argparser.hpp>
-#include <strings.hpp>
-#include <streams.hpp>
+#include <lngs/filesystem.hpp>
+#include <lngs/argparser.hpp>
+#include <lngs/strings.hpp>
+#include <lngs/streams.hpp>
 
 namespace freeze {
 	void write(FILE* out, const locale::Strings& defs, std::vector<char>& data);

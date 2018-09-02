@@ -22,8 +22,7 @@
  * SOFTWARE.
  */
 
-#include "pch.h"
-#include <argparser.hpp>
+#include <lngs/argparser.hpp>
 
 #include <cstdlib>
 

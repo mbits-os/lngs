@@ -22,14 +22,12 @@
  * SOFTWARE.
  */
 
-#include "pch.h"
-
 #include <assert.h>
 #include <cctype>
 
-#include <languages.hpp>
-#include <streams.hpp>
-#include <strings.hpp>
+#include <lngs/languages.hpp>
+#include <lngs/streams.hpp>
+#include <lngs/strings.hpp>
 
 namespace locale {
 
