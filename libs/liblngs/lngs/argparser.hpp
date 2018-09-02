@@ -30,12 +30,6 @@
 #include <lngs/utf8.hpp>
 #include <locale/file.hpp>
 
-#if defined(_MSC_VER)
-#define NORETURN __declspec(noreturn)
-#else
-#define NORETURN [[noreturn]]
-#endif
-
 namespace args {
 
 	class parser;
@@ -183,7 +177,11 @@ namespace args {
 		template <typename C>
 		std::string program_name(const C* arg0) {
 			fs::path name{ arg0 };
+#if defined WIN32 || defined _WIN32
+			return name.stem().string();
+#else
 			return name.filename().string();
+#endif
 		}
 		const char* cstr(const char* ptr) { return ptr; }
 		std::string cstr(const char32_t* ptr) { return utf::as_u8(ptr); }
@@ -222,9 +220,9 @@ namespace args {
 
 		void parse();
 
-		void short_help(FILE* out = stdout);
-		NORETURN void help();
+		void short_help(FILE* out = stdout, bool for_error = false);
+		[[noreturn]] void help();
 		void format_list(const std::vector<std::pair<std::string, std::string>>& info);
-		NORETURN void error(const std::string& msg);
+		[[noreturn]] void error(const std::string& msg);
 	};
 }

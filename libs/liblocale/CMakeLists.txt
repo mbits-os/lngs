@@ -1,3 +1,5 @@
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/version.in.hpp ${CMAKE_CURRENT_BINARY_DIR}/locale/version.hpp @ONLY)
+
 set(locale_SRCS
 	src/expr_parser.cpp
 	src/file.cpp
@@ -6,6 +8,7 @@ set(locale_SRCS
 	src/locale_storage.cpp
 	src/plurals.cpp
 	src/translation.cpp
+	src/version.cpp
 )
 
 set (locale_INCS
@@ -20,6 +23,8 @@ set (locale_INCS
 	src/expr_parser.hpp
 	src/node.hpp
 	src/str.hpp
+	src/version.in.hpp
+	"${CMAKE_CURRENT_BINARY_DIR}/locale/version.hpp"
 )
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)

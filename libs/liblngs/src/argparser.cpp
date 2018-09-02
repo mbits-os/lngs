@@ -23,12 +23,26 @@
  */
 
 #include <lngs/argparser.hpp>
+#include <locale/version.hpp>
 
 #include <cstdlib>
 
-void args::parser::short_help(FILE* out)
+void args::parser::short_help(FILE* out, bool for_error)
 {
-	fprintf(out, "usage: %s", prog_.c_str());
+	fprintf(out, "Locale File Processor %s", locale::version::full);
+	if (locale::version::has_commit)
+		fprintf(out, " (%s)", locale::version::commit);
+	if (auto const current = locale::get_version();
+		current.full != locale::version::full ||
+		current.commit != locale::version::commit)
+	{
+		fprintf(out, "\nUsing liblocale/%.*s", (int)current.full.length(), current.full.data());
+		if (!current.commit.empty())
+			fprintf(out, " (%.*s)", (int)current.commit.length(), current.commit.data());
+	}
+	if (!for_error)
+		fprintf(out, "\n");
+	fprintf(out, "\nusage: %s", prog_.c_str());
 
 	if (!usage_.empty()) {
 		fprintf(out, " %s\n", usage_.c_str());
@@ -121,7 +135,7 @@ void args::parser::format_list(const std::vector<std::pair<std::string, std::str
 
 void args::parser::error(const std::string& msg)
 {
-	short_help(stderr);
+	short_help(stderr, true);
 	fprintf(stderr, "%s: error: %s\n", prog_.c_str(), msg.c_str());
 	std::exit(-1);
 }
