@@ -1,74 +1,106 @@
+/*
+ * Copyright (C) 2015 midnightBITS
+ *
+ * Permission is hereby granted, free of charge, to any person
+ * obtaining a copy of this software and associated documentation
+ * files (the "Software"), to deal in the Software without
+ * restriction, including without limitation the rights to use, copy,
+ * modify, merge, publish, distribute, sublicense, and/or sell copies
+ * of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 #pragma once
 
 namespace plurals { namespace nodes {
-	// symbols:
-	class var : public expr {
-	public:
-		intmax_t eval(intmax_t n) const override { return n; }
+	struct heap_only : expr {
+		heap_only() = default;
+		heap_only(heap_only&&) = delete;
+		heap_only(const heap_only&) = delete;
+		heap_only& operator=(const heap_only&) = delete;
+		heap_only& operator=(heap_only&&) = delete;
 	};
 
-	class value : public expr {
+	// symbols:
+	struct var : heap_only {
+		intmax_t eval(intmax_t n, bool&) const noexcept override { return n; }
+	};
+
+	class value : public heap_only {
 		int m_val = 0;
 	public:
 		value() = default;
 		value(int val) : m_val(val) {}
-		value(value&&) = default;
 
-		value(const value&) = delete;
-		value& operator=(const value&) = delete;
-		value& operator=(value&&) = delete;
-
-		intmax_t eval(intmax_t) const override { return m_val; }
+		intmax_t eval(intmax_t, bool&) const noexcept override { return m_val; }
 	};
 
 	// unary-op
 
-	class logical_not : public expr {
+	class logical_not : public heap_only {
 		std::unique_ptr<expr> m_arg1;
 	public:
 		logical_not() = default;
 		explicit logical_not(std::unique_ptr<expr>&& arg1) : m_arg1(std::move(arg1)) {}
-		logical_not(logical_not&&) = default;
 
-		logical_not(const logical_not&) = delete;
-		logical_not& operator=(const logical_not&) = delete;
-		logical_not& operator=(logical_not&&) = delete;
-
-		intmax_t eval(intmax_t n) const override { return !m_arg1->eval(n); }
+		intmax_t eval(intmax_t n, bool& failed) const noexcept override {
+			const auto op = m_arg1->eval(n, failed);
+			if (failed)
+				return 0;
+			return !op;
+		}
 	};
 
 	// binary-ops
 
-	class binary : public expr {
+	class binary : public heap_only {
 	protected:
 		std::unique_ptr<expr> m_arg1;
 		std::unique_ptr<expr> m_arg2;
 	public:
-		binary() = default;
 		explicit binary(std::unique_ptr<expr>&& arg1, std::unique_ptr<expr>&& arg2) : m_arg1(std::move(arg1)), m_arg2(std::move(arg2)) {}
-		binary(binary&&) = default;
-
-		binary(const binary&) = delete;
-		binary& operator=(const binary&) = delete;
-		binary& operator=(binary&&) = delete;
 	};
 
 	class multiply : public binary {
 	public:
 		using binary::binary;
 
-		intmax_t eval(intmax_t n) const override { return m_arg1->eval(n) * m_arg2->eval(n); }
+		intmax_t eval(intmax_t n, bool& failed) const noexcept override {
+			const auto left = m_arg1->eval(n, failed);
+			if (failed)
+				return 0;
+			const auto right = m_arg2->eval(n, failed);
+			if (failed)
+				return 0;
+			return left * right;
+		}
 	};
 
 	class divide : public binary {
 	public:
 		using binary::binary;
 
-		intmax_t eval(intmax_t n) const override
+		intmax_t eval(intmax_t n, bool& failed) const noexcept override
 		{
-			auto right = m_arg2->eval(n);
-			if (!right) throw false;
-			return m_arg1->eval(n) / right;
+			const auto right = m_arg2->eval(n, failed);
+			if (!right)
+				failed = true;
+			if (failed)
+				return 0;
+			const auto left = m_arg1->eval(n, failed);
+			return left / right;
 		}
 	};
 
@@ -76,11 +108,15 @@ namespace plurals { namespace nodes {
 	public:
 		using binary::binary;
 
-		intmax_t eval(intmax_t n) const override
+		intmax_t eval(intmax_t n, bool& failed) const noexcept override
 		{
-			auto right = m_arg2->eval(n);
-			if (!right) throw false;
-			return m_arg1->eval(n) % right;
+			const auto right = m_arg2->eval(n, failed);
+			if (!right)
+				failed = true;
+			if (failed)
+				return 0;
+			const auto left = m_arg1->eval(n, failed);
+			return left % right;
 		}
 	};
 
@@ -88,75 +124,157 @@ namespace plurals { namespace nodes {
 	public:
 		using binary::binary;
 
-		intmax_t eval(intmax_t n) const override { return m_arg1->eval(n) + m_arg2->eval(n); }
+		intmax_t eval(intmax_t n, bool& failed) const noexcept override {
+			const auto left = m_arg1->eval(n, failed);
+			if (failed)
+				return 0;
+			const auto right = m_arg2->eval(n, failed);
+			if (failed)
+				return 0;
+			return left + right;
+		}
 	};
 
 	class minus : public binary {
 	public:
 		using binary::binary;
 
-		intmax_t eval(intmax_t n) const override { return m_arg1->eval(n) - m_arg2->eval(n); }
+		intmax_t eval(intmax_t n, bool& failed) const noexcept override {
+			const auto left = m_arg1->eval(n, failed);
+			if (failed)
+				return 0;
+			const auto right = m_arg2->eval(n, failed);
+			if (failed)
+				return 0;
+			return left - right;
+		}
 	};
 
 	class less_than : public binary {
 	public:
 		using binary::binary;
 
-		intmax_t eval(intmax_t n) const override { return m_arg1->eval(n) < m_arg2->eval(n); }
+		intmax_t eval(intmax_t n, bool& failed) const noexcept override {
+			const auto left = m_arg1->eval(n, failed);
+			if (failed)
+				return 0;
+			const auto right = m_arg2->eval(n, failed);
+			if (failed)
+				return 0;
+			return left < right;
+		}
 	};
 
 	class greater_than : public binary {
 	public:
 		using binary::binary;
 
-		intmax_t eval(intmax_t n) const override { return m_arg1->eval(n) > m_arg2->eval(n); }
+		intmax_t eval(intmax_t n, bool& failed) const noexcept override {
+			const auto left = m_arg1->eval(n, failed);
+			if (failed)
+				return 0;
+			const auto right = m_arg2->eval(n, failed);
+			if (failed)
+				return 0;
+			return left > right;
+		}
 	};
 
 	class less_than_or_equal : public binary {
 	public:
 		using binary::binary;
 
-		intmax_t eval(intmax_t n) const override { return m_arg1->eval(n) <= m_arg2->eval(n); }
+		intmax_t eval(intmax_t n, bool& failed) const noexcept override {
+			const auto left = m_arg1->eval(n, failed);
+			if (failed)
+				return 0;
+			const auto right = m_arg2->eval(n, failed);
+			if (failed)
+				return 0;
+			return left <= right;
+		}
 	};
 
 	class greater_than_or_equal : public binary {
 	public:
 		using binary::binary;
 
-		intmax_t eval(intmax_t n) const override { return m_arg1->eval(n) >= m_arg2->eval(n); }
+		intmax_t eval(intmax_t n, bool& failed) const noexcept override {
+			const auto left = m_arg1->eval(n, failed);
+			if (failed)
+				return 0;
+			const auto right = m_arg2->eval(n, failed);
+			if (failed)
+				return 0;
+			return left >= right;
+		}
 	};
 
 	class equal : public binary {
 	public:
 		using binary::binary;
 
-		intmax_t eval(intmax_t n) const override { return m_arg1->eval(n) == m_arg2->eval(n); }
+		intmax_t eval(intmax_t n, bool& failed) const noexcept override {
+			const auto left = m_arg1->eval(n, failed);
+			if (failed)
+				return 0;
+			const auto right = m_arg2->eval(n, failed);
+			if (failed)
+				return 0;
+			return left == right;
+		}
 	};
 
 	class not_equal : public binary {
 	public:
 		using binary::binary;
 
-		intmax_t eval(intmax_t n) const override { return m_arg1->eval(n) != m_arg2->eval(n); }
+		intmax_t eval(intmax_t n, bool& failed) const noexcept override {
+			const auto left = m_arg1->eval(n, failed);
+			if (failed)
+				return 0;
+			const auto right = m_arg2->eval(n, failed);
+			if (failed)
+				return 0;
+			return left != right;
+		}
 	};
 
 	class logical_and : public binary {
 	public:
 		using binary::binary;
 
-		intmax_t eval(intmax_t n) const override { return m_arg1->eval(n) && m_arg2->eval(n); }
+		intmax_t eval(intmax_t n, bool& failed) const noexcept override {
+			const auto left = m_arg1->eval(n, failed);
+			if (failed || !left)
+				return 0;
+			const auto right = m_arg2->eval(n, failed);
+			if (failed)
+				return 0;
+			return left && right;
+		}
 	};
 
 	class logical_or : public binary {
 	public:
 		using binary::binary;
 
-		intmax_t eval(intmax_t n) const override { return m_arg1->eval(n) || m_arg2->eval(n); }
+		intmax_t eval(intmax_t n, bool& failed) const noexcept override {
+			const auto left = m_arg1->eval(n, failed);
+			if (failed)
+				return 0;
+			if (left)
+				return 1;
+			const auto right = m_arg2->eval(n, failed);
+			if (failed)
+				return 0;
+			return left || right;
+		}
 	};
 
 	// ternary-op
 
-	class ternary : public expr {
+	class ternary : public heap_only {
 		std::unique_ptr<expr> m_arg1;
 		std::unique_ptr<expr> m_arg2;
 		std::unique_ptr<expr> m_arg3;
@@ -167,12 +285,15 @@ namespace plurals { namespace nodes {
 			, m_arg2(std::move(arg2))
 			, m_arg3(std::move(arg3))
 		{}
-		ternary(ternary&&) = default;
 
-		ternary(const ternary&) = delete;
-		ternary& operator=(const ternary&) = delete;
-		ternary& operator=(ternary&&) = delete;
-
-		intmax_t eval(intmax_t n) const override { return m_arg1->eval(n) ? m_arg2->eval(n) : m_arg3->eval(n); }
+		intmax_t eval(intmax_t n, bool& failed) const noexcept override {
+			const auto left = m_arg1->eval(n, failed);
+			if (failed)
+				return 0;
+			const auto right = (left ? m_arg2 : m_arg3)->eval(n, failed);
+			if (failed)
+				return 0;
+			return right;
+		}
 	};
 }}

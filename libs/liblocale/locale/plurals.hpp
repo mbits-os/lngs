@@ -29,15 +29,15 @@
 
 namespace plurals {
 	struct expr {
-		virtual ~expr() {}
-		virtual intmax_t eval(intmax_t n) const = 0;
+		virtual ~expr() noexcept {}
+		virtual intmax_t eval(intmax_t n, bool& failed) const noexcept = 0;
 	};
 
 	struct lexical {
 		int nplurals;
 		std::unique_ptr<expr> plural;
-		intmax_t eval(intmax_t n) const;
-		explicit operator bool() const { return !!plural; }
+		intmax_t eval(intmax_t n) const noexcept;
+		explicit operator bool() const noexcept { return !!plural; }
 	};
 
 	lexical decode(std::string_view entry);

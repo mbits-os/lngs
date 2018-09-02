@@ -46,14 +46,14 @@ namespace plurals {
 		return std::move(out);
 	}
 
-	intmax_t lexical::eval(intmax_t n) const
+	intmax_t lexical::eval(intmax_t n) const noexcept
 	{
 		if (!plural)
 			return 0;
-		try {
-			return plural->eval(n);
-		} catch (bool) {
+		bool failed = false;
+		const auto ret = plural->eval(n, failed);
+		if (failed)
 			return 0;
-		}
+		return ret;
 	}
 }
