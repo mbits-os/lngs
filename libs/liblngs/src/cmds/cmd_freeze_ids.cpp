@@ -68,10 +68,10 @@ namespace lngs::freeze {
 		offset = defs.serial_offset + to;
 
 		for (auto& str : defs.strings) {
-			auto[from, to] = value_pos(bytes + str.id_offset);
-			out.write(bytes + offset, str.id_offset + from + 1 - offset);
+			auto[str_from, str_to] = value_pos(bytes + str.id_offset);
+			out.write(bytes + offset, str.id_offset + str_from + 1 - offset);
 			out.fmt("{}", str.id);
-			offset = str.id_offset + to;
+			offset = str.id_offset + str_to;
 		}
 
 		out.write(bytes + offset, data.size() - offset);

@@ -189,7 +189,7 @@ namespace lngs {
 		return c;
 	}
 
-	bool ll_code(instream& is, std::string& code, std::string& name, const std::string& fname, bool ret)
+	bool ll_code(instream& is, std::string& code, std::string& name, const std::string& fname, bool& ret)
 	{
 		code.clear();
 		name.clear();
@@ -252,17 +252,6 @@ namespace lngs {
 #define CARRY(ex) do { auto ret = (ex); if (ret) return ret; } while (0)
 
 	namespace {
-		int header(outstream& os, uint32_t& next_offset, std::vector<string>& block)
-		{
-			if (block.empty())
-				return 0;
-
-			WRITE(os, (uint32_t)block.size());
-			WRITE(os, next_offset);
-			next_offset += (uint32_t)(sizeof(locale::string_key) * block.size());
-			return 0;
-		}
-
 		void update_offsets(uint32_t& next_offset, std::vector<string>& block)
 		{
 			for (auto& str : block) {
@@ -347,8 +336,6 @@ namespace lngs {
 
 	int file::write(outstream& os)
 	{
-		constexpr uint32_t header_size = 3 * sizeof(uint32_t);
-
 		locale::file_header hdr;
 		hdr.id = locale::hdrtext_tag;
 		hdr.ints = (sizeof(locale::file_header) - sizeof(locale::section_header)) / sizeof(uint32_t);

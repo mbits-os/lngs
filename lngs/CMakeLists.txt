@@ -1,3 +1,7 @@
+if (LOCALE_WALL_FLAGS)
+  add_definitions(${ADDITIONAL_WALL_FLAGS})
+endif()
+
 file(GLOB PO_FILES strings/*.po)
 add_executable(lngs lngs.cpp ${PO_FILES})
 set_target_properties(lngs PROPERTIES

@@ -115,7 +115,7 @@ namespace gtt {
 		{
 			auto tmp = m_offset;
 			m_offset += sizeof(4);
-			return m_ref.intFromOffset(m_offset);
+			return m_ref.intFromOffset(tmp);
 		}
 
 		size_t tell() const { return m_offset; }

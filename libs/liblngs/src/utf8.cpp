@@ -91,8 +91,8 @@ namespace utf
 		switch (length) {
 		default: return false;
 			/* Everything else falls through when "true"... */
-		case 4: if ((a = ((uint8_t)*--srcptr)) < 0x80 || a > 0xBF) return false;
-		case 3: if ((a = ((uint8_t)*--srcptr)) < 0x80 || a > 0xBF) return false;
+		case 4: if ((a = ((uint8_t)*--srcptr)) < 0x80 || a > 0xBF) return false; [[fallthrough]];
+		case 3: if ((a = ((uint8_t)*--srcptr)) < 0x80 || a > 0xBF) return false; [[fallthrough]];
 		case 2: if ((a = ((uint8_t)*--srcptr)) < 0x80 || a > 0xBF) return false;
 
 			switch ((uint8_t) *source) {
@@ -103,6 +103,7 @@ namespace utf
 			case 0xF4: if (a > 0x8F) return false; break;
 			default:   if (a < 0x80) return false;
 			}
+			[[fallthrough]];
 
 		case 1: if ((uint8_t) *source >= 0x80 && (uint8_t) *source < 0xC2) return false;
 		}
@@ -125,11 +126,11 @@ namespace utf
 		* The cases all fall through. See "Note A" below.
 		*/
 		switch (extraBytesToRead) {
-		case 5: ch += (uint8_t)*source++; ch <<= 6; /* remember, illegal UTF-8 */
-		case 4: ch += (uint8_t)*source++; ch <<= 6; /* remember, illegal UTF-8 */
-		case 3: ch += (uint8_t)*source++; ch <<= 6;
-		case 2: ch += (uint8_t)*source++; ch <<= 6;
-		case 1: ch += (uint8_t)*source++; ch <<= 6;
+		case 5: ch += (uint8_t)*source++; ch <<= 6; [[fallthrough]]; /* remember, illegal UTF-8 */
+		case 4: ch += (uint8_t)*source++; ch <<= 6; [[fallthrough]]; /* remember, illegal UTF-8 */
+		case 3: ch += (uint8_t)*source++; ch <<= 6; [[fallthrough]];
+		case 2: ch += (uint8_t)*source++; ch <<= 6; [[fallthrough]];
+		case 1: ch += (uint8_t)*source++; ch <<= 6; [[fallthrough]];
 		case 0: ch += (uint8_t)*source++;
 		}
 		ch -= offsetsFromUTF8[extraBytesToRead];
@@ -161,7 +162,7 @@ namespace utf
 	}
 
 	using utf32_it = std::u32string_view::const_iterator;
-	static inline char32_t decode(utf32_it& source, utf32_it sourceEnd, bool& ok) {
+	static inline char32_t decode(utf32_it& source, utf32_it /* sourceEnd */, bool& ok) {
 		ok = true;
 		return *source++;
 	}
@@ -182,9 +183,9 @@ namespace utf
 		uint8_t mid[4];
 		uint8_t* midp = mid + sizeof(mid);
 		switch (bytesToWrite) { /* note: everything falls through. */
-		case 4: *--midp = (uint8_t)((ch | byteMark) & byteMask); ch >>= 6;
-		case 3: *--midp = (uint8_t)((ch | byteMark) & byteMask); ch >>= 6;
-		case 2: *--midp = (uint8_t)((ch | byteMark) & byteMask); ch >>= 6;
+		case 4: *--midp = (uint8_t)((ch | byteMark) & byteMask); ch >>= 6; [[fallthrough]];
+		case 3: *--midp = (uint8_t)((ch | byteMark) & byteMask); ch >>= 6; [[fallthrough]];
+		case 2: *--midp = (uint8_t)((ch | byteMark) & byteMask); ch >>= 6; [[fallthrough]];
 		case 1: *--midp = (uint8_t)(ch | firstByteMark[bytesToWrite]);
 		}
 		for (int i = 0; i < bytesToWrite; ++i)

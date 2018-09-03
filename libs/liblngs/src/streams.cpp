@@ -31,10 +31,10 @@ namespace lngs {
 	instream::~instream() = default;
 	void buffered_instream::underflow() noexcept
 	{
-		auto really_read = underflow(buffer);
-		cur = buffer;
-		end = cur + really_read;
-		seen_eof = !really_read;
+		auto really_read = underflow(buffer_);
+		cur_ = buffer_;
+		end_ = cur_ + really_read;
+		seen_eof_ = !really_read;
 	}
 
 	std::size_t buffered_instream::read(void* data, std::size_t length) noexcept
@@ -42,19 +42,19 @@ namespace lngs {
 		auto dst = reinterpret_cast<char*>(data);
 		auto size = length;
 		while (size) {
-			if (end == cur)
+			if (end_ == cur_)
 				underflow();
 
-			std::size_t chunk = end - cur;
+			std::size_t chunk = end_ - cur_;
 			if (chunk > size)
 				chunk = size;
 
 			if (!chunk)
 				break;
 
-			std::memcpy(dst, cur, chunk);
+			std::memcpy(dst, cur_, chunk);
 			dst += chunk;
-			cur += chunk;
+			cur_ += chunk;
 			size -= chunk;
 		}
 
@@ -63,15 +63,15 @@ namespace lngs {
 
 	bool buffered_instream::eof() const noexcept
 	{
-		return seen_eof;
+		return seen_eof_;
 	}
 
 	std::byte buffered_instream::peek() noexcept
 	{
-		if (end == cur)
+		if (end_ == cur_)
 			underflow();
 
-		return *cur;
+		return *cur_;
 	}
 
 	size_t std_instream::underflow(std::byte(&buffer)[buf_size]) noexcept

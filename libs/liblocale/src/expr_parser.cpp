@@ -139,7 +139,7 @@ namespace plurals { namespace parser {
 				++c;
 		}
 
-		return std::move(out);
+		return out;
 	}
 
 	template <typename It>
@@ -381,6 +381,6 @@ namespace plurals { namespace parser {
 		if (cur != end)
 			return{};
 
-		return std::move(ret);
+		return ret;
 	}
 }}

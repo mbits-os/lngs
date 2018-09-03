@@ -56,7 +56,7 @@ namespace locale {
 	public:
 		std::string operator()(Enum val, intmax_t count) const noexcept
 		{
-			auto ptr = Storage::get_string((uint32_t)val);
+			auto ptr = Storage::get_string((uint32_t)val, count);
 			return ptr ? ptr : std::string{ };
 		}
 

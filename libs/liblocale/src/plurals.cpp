@@ -43,7 +43,7 @@ namespace plurals {
 				out.plural = parser::parse(value);
 		}
 
-		return std::move(out);
+		return out;
 	}
 
 	intmax_t lexical::eval(intmax_t n) const noexcept

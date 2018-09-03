@@ -42,10 +42,10 @@ namespace lngs {
 	protected:
 		enum { buf_size = 1024 };
 	private:
-		std::byte buffer[buf_size];
-		std::byte* cur = buffer;
-		std::byte* end = buffer;
-		bool seen_eof = false;
+		std::byte buffer_[buf_size];
+		std::byte* cur_ = buffer_;
+		std::byte* end_ = buffer_;
+		bool seen_eof_ = false;
 
 		virtual size_t underflow(std::byte (&buffer)[buf_size]) noexcept = 0;
 		void underflow() noexcept;

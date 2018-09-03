@@ -2,10 +2,19 @@ cmake_minimum_required (VERSION 3.10)
 project (locale)
 
 set(LOCALE_TESTING ON CACHE BOOL "Compile and/or run self-tests")
+set(LOCALE_WALL_FLAGS ON CACHE BOOL "Compile with -Wall/-W4 warning levels")
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+
+if (LOCALE_WALL_FLAGS)
+  if (MSVC)
+    set(ADDITIONAL_WALL_FLAGS /W4 /wd4710 /w44905 /w44906 /w44928 /we4946)
+  else()
+    set(ADDITIONAL_WALL_FLAGS -Wall -Wextra)
+  endif()
+endif()
 
 foreach(MOD lngs locale)
   list(APPEND COVERALLS_DIRS
@@ -23,7 +32,7 @@ find_package(Git)
 
 set(LOCALE_VERSION_MAJOR 0)
 set(LOCALE_VERSION_MINOR 3)
-set(LOCALE_VERSION_PATCH 2)
+set(LOCALE_VERSION_PATCH 3)
 set(LOCALE_VERSION_BUILD 0)
 set(LOCALE_VERSION_STABILITY "-alpha")
 set(LOCALE_VERSION ${LOCALE_VERSION_MAJOR}.${LOCALE_VERSION_MINOR}.${LOCALE_VERSION_PATCH} )

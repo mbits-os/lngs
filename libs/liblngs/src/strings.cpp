@@ -324,8 +324,8 @@ namespace lngs {
 	protected:
 		template <typename Name>
 		attr_base(Name&& attrname, bool required)
-			: name_(std::forward<Name>(attrname))
-			, required_(required)
+			: required_(required)
+			, name_(std::forward<Name>(attrname))
 		{
 		}
 

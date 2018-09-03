@@ -32,9 +32,6 @@ namespace lngs::res {
 		static constexpr size_t row_width = 16;
 		outstream& parent;
 		size_t offset = 0;
-		bool new_string = true;
-		bool seen_strings = false;
-		bool header_printed = false;
 	public:
 		table_outstream(outstream& parent)
 			: parent(parent)
