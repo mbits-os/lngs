@@ -34,20 +34,20 @@ namespace locale {
 		std::string operator()(Enum val) const noexcept
 		{
 			auto ptr = Storage::get_string((uint32_t)val);
-			return ptr ? ptr : std::string{ };
+			return !ptr.empty() ? std::string{ ptr } : std::string{ };
 		}
 
 		template <typename... Args>
 		std::string operator()(Enum val, Args&&... args) const noexcept
 		{
 			auto ptr = Storage::get_string((uint32_t)val);
-			return ptr ? fmt::format(ptr, std::forward<Args>(args)...) : std::string{ };
+			return !ptr.empty() ? fmt::format(ptr, std::forward<Args>(args)...) : std::string{ };
 		}
 
 		std::string attr(v1_0::attr_t val) const noexcept
 		{
 			auto ptr = Storage::get_attr(val);
-			return ptr ? ptr : std::string{ };
+			return !ptr.empty() ? std::string{ ptr } : std::string{ };
 		}
 	};
 
@@ -57,14 +57,14 @@ namespace locale {
 		std::string operator()(Enum val, intmax_t count) const noexcept
 		{
 			auto ptr = Storage::get_string((uint32_t)val, count);
-			return ptr ? ptr : std::string{ };
+			return !ptr.empty() ? std::string{ ptr } : std::string{ };
 		}
 
 		template <typename... Args>
 		std::string operator()(Enum val, intmax_t count, Args&&... args) const noexcept
 		{
 			auto ptr = Storage::get_string((uint32_t)val, count);
-			return ptr ? fmt::format(ptr, std::forward<Args>(args)...) : std::string{ };
+			return !ptr.empty() ? fmt::format(ptr, std::forward<Args>(args)...) : std::string{ };
 		}
 	};
 
@@ -75,14 +75,14 @@ namespace locale {
 		std::string operator()(PEnum val, intmax_t count) const noexcept
 		{
 			auto ptr = SingularStrings<SEnum, Storage>::get_string((uint32_t)val, count);
-			return ptr ? ptr : std::string{ };
+			return !ptr.empty() ? std::string{ ptr } : std::string{ };
 		}
 
 		template <typename... Args>
 		std::string operator()(PEnum val, intmax_t count, Args&&... args) const noexcept
 		{
 			auto ptr = SingularStrings<SEnum, Storage>::get_string((uint32_t)val, count);
-			return ptr ? fmt::format(ptr, std::forward<Args>(args)...) : std::string{ };
+			return !ptr.empty() ? fmt::format(ptr, std::forward<Args>(args)...) : std::string{ };
 		}
 	};
 }

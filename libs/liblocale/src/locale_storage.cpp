@@ -43,7 +43,7 @@
 #include "str.hpp"
 
 namespace locale {
-	static inline bool inside(const std::vector<std::string>& locales, const std::string& key) noexcept
+	static inline bool inside(const std::vector<std::string>& locales, std::string_view key) noexcept
 	{
 		for (auto&& locale : locales) {
 			if (locale == key)
@@ -52,17 +52,17 @@ namespace locale {
 		return false;
 	}
 
-	static void appendLocale(std::vector<std::string>& locales, const std::string & locale)
+	static void appendLocale(std::vector<std::string>& locales, std::string_view locale)
 	{
 		auto candidate = locale;
 		while (true) {
 			if (inside(locales, candidate))
 				break;
 
-			locales.push_back(candidate);
+			locales.push_back({ candidate.data(), candidate.length() });
 
 			auto pos = candidate.find_last_of('-');
-			if (pos == std::string::npos)
+			if (pos == std::string_view::npos)
 				break; // no tags in the language range
 
 			candidate = candidate.substr(0, pos);
@@ -102,9 +102,10 @@ namespace locale {
 
 #elif defined(GNU_LOCALES)
 
-	template <size_t length>
-	static inline bool starts_with(const char* value, size_t len, const char(&test)[length])
+	template <size_t size>
+	static inline bool starts_with(const char* value, size_t len, const char(&test)[size])
 	{
+		constexpr const auto length = size ? size - 1 : 0;
 		// if value == test || value == test + "." + something else
 		if ((length == len || (length > len && value[length] == '.')) && !strncmp(value, test, length))
 			return true;

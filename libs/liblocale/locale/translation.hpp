@@ -75,7 +75,7 @@ namespace locale {
 			fs::path m_base;
 			std::string m_fname;
 		public:
-			explicit ExtensionPath(std::string base, std::string fname)
+			explicit ExtensionPath(fs::path base, std::string fname)
 				: m_base(std::move(base))
 				, m_fname(std::move(fname))
 			{

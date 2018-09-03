@@ -10,7 +10,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 if (LOCALE_WALL_FLAGS)
   if (MSVC)
-    set(ADDITIONAL_WALL_FLAGS /W4 /wd4710 /w44905 /w44906 /w44928 /we4946)
+    set(ADDITIONAL_WALL_FLAGS /permissive- /W4 /wd4710 /w44905 /w44906 /w44928 /we4946)
   else()
     set(ADDITIONAL_WALL_FLAGS -Wall -Wextra)
   endif()

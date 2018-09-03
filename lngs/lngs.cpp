@@ -24,10 +24,12 @@
 
 #include <lngs/argparser.hpp>
 #include <lngs/commands.hpp>
+#include <lngs/diagnostics.hpp>
 #include <lngs/languages.hpp>
 #include <lngs/strings.hpp>
 #include <lngs/streams.hpp>
 #include <locale/translation.hpp>
+#include "dirs.hpp"
 
 #if defined(_WIN32) && defined(_UNICODE)
 using XChar = wchar_t;
@@ -125,7 +127,7 @@ namespace lngs {
 	}
 
 	template <typename Writer>
-	int write_result(const fs::path & outname, Writer writer, print_outname verbose = without_outname) {
+	int write(const fs::path & outname, Writer writer, print_outname verbose = without_outname) {
 		if (outname == "-")
 			return writer(get_stdout());
 
@@ -144,6 +146,77 @@ namespace lngs {
 		foutstream out{ std::move(outf) };
 		return writer(out);
 	}
+
+	template <typename StringsImpl>
+	struct locale_base {
+		idl_strings strings;
+		diagnostics diag;
+		StringsImpl tr;
+
+		~locale_base() {
+			printer_anchor tmp{ get_stdout(), diag, tr };
+		}
+
+		int read_strings(args::parser&, const fs::path& in, bool verbose) {
+			if (!lngs::read_strings(in, strings, verbose)) {
+				fmt::print(stderr, "`{}' is not strings file.\n", in.string());
+				return 1;
+			}
+			return 0;
+		}
+
+		template <typename Writer>
+		int write(args::parser&, const fs::path & outname, Writer writer, print_outname verbose = without_outname) {
+			return lngs::write(outname, std::move(writer), verbose);
+		}
+	};
+
+	struct main_strings : public strings {
+		main_strings() {
+			m_prefix.path_manager<locale::manager::ExtensionPath>(
+				directory_info::prefix, "lngs"
+				);
+			m_build.path_manager<locale::manager::ExtensionPath>(
+				directory_info::build, "lngs"
+				);
+
+			auto system = locale::system_locales();
+			[&] {
+				m_build.init();
+				if (m_prefix.open_first_of(system)) {
+					auto locale = m_prefix.attr(locale::ATTR_CULTURE);
+					if (!locale.empty()) {
+						m_build.open(locale);
+						return;
+					}
+				}
+				m_build.open_first_of(system);
+			} ();
+		}
+		std::string_view get(lng str) const final {
+			auto result = m_prefix.get(str);
+			if (result.empty())
+				result = m_build.get(str);
+			return result;
+		}
+
+	private:
+		struct PrefixStrings : locale::SingularStrings<lng> {
+			std::string_view get(lng str) const noexcept
+			{
+				return get_string(static_cast<identifier>(str));
+			}
+		} m_prefix;
+
+		struct Strings : lngs::Strings {
+			std::string_view get(lng str) const noexcept
+			{
+				return get_string(static_cast<identifier>(str));
+			}
+		} m_build;
+	};
+
+	using locale_setup = locale_base<main_strings>;
 }
 
 namespace lngs::pot {
@@ -161,14 +234,12 @@ namespace lngs::pot {
 		parser.arg(nfo.title, "t", "title").meta("TITLE").help("some descriptive title").opt();
 		parser.parse();
 
-		idl_strings strings;
-		if (!read_strings(inname, strings, verbose)) {
-			fmt::print(stderr, "`{}' is not strings file.\n", inname.string());
-			return 1;
-		}
+		locale_setup setup;
+		if (int res = setup.read_strings(parser, inname, verbose))
+			return res;
 
-		return write_result(outname, [&](outstream& out) {
-			return write(out, strings, nfo);
+		return setup.write(parser, outname, [&](outstream& out) {
+			return write(out, setup.strings, nfo);
 		}, print_if(verbose));
 	}
 }
@@ -186,14 +257,12 @@ namespace lngs::enums {
 		parser.arg(inname, "i", "in").meta("FILE").help("LNGS message file to read");
 		parser.parse();
 
-		idl_strings strings;
-		if (!read_strings(inname, strings, verbose)) {
-			fmt::print(stderr, "`{}' is not strings file.\n", inname.string());
-			return 1;
-		}
+		locale_setup setup;
+		if (int res = setup.read_strings(parser, inname, verbose))
+			return res;
 
-		return write_result(outname, [&](outstream& out) {
-			return write(out, strings, with_resource);
+		return setup.write(parser, outname, [&](outstream& out) {
+			return write(out, setup.strings, with_resource);
 		}, print_if(verbose));
 	}
 }
@@ -209,14 +278,12 @@ namespace lngs::py {
 		parser.arg(inname, "i", "in").meta("FILE").help("LNGS message file to read");
 		parser.parse();
 
-		idl_strings strings;
-		if (!read_strings(inname, strings, verbose)) {
-			fmt::print(stderr, "`{}' is not strings file.\n", inname.string());
-			return 1;
-		}
+		locale_setup setup;
+		if (int res = setup.read_strings(parser, inname, verbose))
+			return res;
 
-		return write_result(outname, [&](outstream& out) {
-			return write(out, strings);
+		return setup.write(parser, outname, [&](outstream& out) {
+			return write(out, setup.strings);
 		}, print_if(verbose));
 	}
 }
@@ -236,13 +303,11 @@ namespace lngs::make {
 		parser.arg(llname, "l", "lang").meta("FILE").help("ATTR_LANGUAGE file with ll_CC names list").opt();
 		parser.parse();
 
-		idl_strings strings;
-		if (!read_strings(inname, strings, verbose)) {
-			fmt::print(stderr, "`{}' is not strings file.\n", inname.string());
-			return 1;
-		}
+		locale_setup setup;
+		if (int res = setup.read_strings(parser, inname, verbose))
+			return res;
 
-		auto file = load_mo(strings, warp_missing, verbose, moname);
+		auto file = load_mo(setup.strings, warp_missing, verbose, moname);
 		if (!fix_attributes(file, llname))
 			return 1;
 
@@ -258,7 +323,8 @@ namespace lngs::make {
 			return 1;
 		}
 
-		fmt::print("{}\n", name.string());
+		if (verbose)
+			fmt::print("{}\n", name.string());
 		foutstream out{ std::move(outf) };
 		return file.write(out);
 	}
@@ -281,19 +347,17 @@ namespace lngs::res {
 		parser.arg(include, "include").meta("FILE").help("File to include for the definition of the Resource class. Defaults to \"<project>.hpp\".").opt();
 		parser.parse();
 
-		idl_strings strings;
-		if (!read_strings(inname, strings, verbose)) {
-			fmt::print(stderr, "`{}' is not strings file.\n", inname.string());
-			return 1;
-		}
+		locale_setup setup;
+		if (int res = setup.read_strings(parser, inname, verbose))
+			return res;
 
 		if (include.empty())
-			include = strings.project + ".hpp";
+			include = setup.strings.project + ".hpp";
 
-		auto file = make_resource(strings, warp_strings, with_keys);
+		auto file = make_resource(setup.strings, warp_strings, with_keys);
 
-		return write_result(outname, [&](outstream& out) {
-			return update_and_write(out, file, include, strings.project);
+		return setup.write(parser, outname, [&](outstream& out) {
+			return update_and_write(out, file, include, setup.strings.project);
 		}, print_if(verbose));
 	}
 }

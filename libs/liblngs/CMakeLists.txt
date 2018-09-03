@@ -6,6 +6,7 @@ set(lngs_SRCS
   src/cmds/cmd_write_pot.cpp
   src/cmds/cmd_write_py.cpp
   src/cmds/cmd_write_res.cpp
+  src/diagnostics.cpp
   src/gettext.cpp
   src/languages.cpp
   src/lang_codes.cpp
@@ -18,6 +19,7 @@ set(lngs_SRCS
 set (lngs_INCS
   lngs/argparser.hpp
   lngs/commands.hpp
+  lngs/diagnostics.hpp
   lngs/gettext.hpp
   lngs/languages.hpp
   lngs/streams.hpp
@@ -51,6 +53,8 @@ set_target_properties(lngs-test PROPERTIES FOLDER tests)
 target_link_libraries(lngs-test lngs_impl gtest gmock ${CMAKE_THREAD_LIBS_INIT})
 
 enable_testing()
+add_test(NAME lngs.source_location COMMAND lngs-test --gtest_filter=source_location.*)
+add_test(NAME lngs.diagnostics COMMAND lngs-test --gtest_filter=*/diag_write.*)
 add_test(NAME lngs.utf COMMAND lngs-test --gtest_filter=*/utf_conv.*)
 
 endif()
