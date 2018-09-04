@@ -9,6 +9,10 @@ namespace lngs {
         SEVERITY_WARNING = 1002, // warning (Name of the severity label for warnings.)
         SEVERITY_ERROR = 1003, // error (Name of the severity label for errors.)
         SEVERITY_FATAL = 1004, // fatal (Name of the severity label for fatals.)
+        ERR_FILE_MISSING = 1005, // could not open `{0}' (Needed file was not found; filename is going to be shown as argument {0}.)
+        ERR_FILE_NOT_FOUND = 1006, // could not open the file (Needed file was not found; filename is going to be shown as source of message.)
+        ERR_NOT_STRINGS_FILE = 1007, // `{0}' is not strings file (Presented as additional message, if input file was not parsed properly.)
+        ERR_NO_NEW_STRINGS = 1008, // no new strings (Shown by lngs freeze.)
     }; // enum class lng
 
     struct Resource {

@@ -127,21 +127,22 @@ namespace lngs {
 	}
 
 	template <typename Writer>
-	int write(const fs::path & outname, Writer writer, print_outname verbose = without_outname) {
+	int write(const std::string& progname, diagnostics& diag, const fs::path & outname, Writer writer, print_outname verbose = without_outname) {
 		if (outname == "-")
 			return writer(get_stdout());
 
 		auto name = outname;
 		name.make_preferred();
 
+		auto src = diag.source(progname);
+		if (verbose == with_outname)
+			diag.push_back(src.position()[severity::verbose] << outname.string());
+
 		auto outf = fs::fopen(outname, "wb");
 		if (!outf) {
-			fmt::print(stderr, "could not open `{}'", name.string());
+			diag.push_back(src.position()[severity::error] << arg(lng::ERR_FILE_MISSING, name.string()));
 			return 1;
 		}
-
-		if (verbose == with_outname)
-			fmt::print("{}\n", name.string());
 
 		foutstream out{ std::move(outf) };
 		return writer(out);
@@ -157,17 +158,13 @@ namespace lngs {
 			printer_anchor tmp{ get_stdout(), diag, tr };
 		}
 
-		int read_strings(args::parser&, const fs::path& in, bool verbose) {
-			if (!lngs::read_strings(in, strings, verbose)) {
-				fmt::print(stderr, "`{}' is not strings file.\n", in.string());
-				return 1;
-			}
-			return 0;
+		int read_strings(args::parser& parser, const fs::path& in, bool verbose) {
+			return lngs::read_strings(parser.program(), in, strings, verbose, diag) ? 0 : 1;
 		}
 
 		template <typename Writer>
-		int write(args::parser&, const fs::path & outname, Writer writer, print_outname verbose = without_outname) {
-			return lngs::write(outname, std::move(writer), verbose);
+		int write(args::parser& parser, const fs::path & outname, Writer writer, print_outname verbose = without_outname) {
+			return lngs::write(parser.program(), diag, outname, std::move(writer), verbose);
 		}
 	};
 
@@ -373,40 +370,21 @@ namespace lngs::freeze {
 		parser.arg(outname, "o", "out").meta("FILE").help("LNGS message file to write; it may be the same as input; if - is used, result is written to standard output");
 		parser.parse();
 
-		inname.make_preferred();
-		if (verbose)
-			fmt::print("{}\n", inname.string());
+		locale_setup setup;
+		if (int res = setup.read_strings(parser, inname, verbose))
+			return res;
 
-		idl_strings strings;
-		std::vector<std::byte> contents;
-
-		{
-			auto inf = fs::fopen(inname, "rb");
-
-			if (!inf) {
-				fmt::print(stderr, "could not open `{}'", inname.string());
-				return -1;
+		if (!freeze::freeze(setup.strings)) {
+			if (verbose) {
+				auto src = setup.diag.source(inname.string()).position();
+				setup.diag.push_back(src[severity::note] << lng::ERR_NO_NEW_STRINGS);
 			}
-			contents = inf.read();
-		}
-
-		{
-			meminstream is{ contents.data(), contents.size() };
-			if (!read_strings(is, inname.string(), strings)) {
-				if (verbose)
-					fmt::print(stderr, "`{}' is not strings file.\n", inname.string().c_str());
-				return -1;
-			}
-		}
-
-		if (!freeze::freeze(strings)) {
-			if (verbose)
-				fmt::print("No new strings found\n");
 			return 0;
 		}
 
-		return write_result(outname, [&](outstream& out) {
-			return write(out, strings, contents);
+		auto contents = setup.diag.source(inname.string()).data();
+		return setup.write(parser, outname, [&](outstream& out) {
+			return write(out, setup.strings, contents);
 		});
 	}
 }

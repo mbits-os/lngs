@@ -25,6 +25,7 @@
 #include <assert.h>
 #include <cctype>
 
+#include <lngs/diagnostics.hpp>
 #include <lngs/streams.hpp>
 #include <lngs/strings.hpp>
 
@@ -79,7 +80,7 @@ namespace lngs {
 	};
 
 	class tokenizer {
-		instream& in;
+		source_file& in;
 		std::string name;
 		size_t line = 1;
 		int file_offset = 0;
@@ -98,9 +99,9 @@ namespace lngs {
 		void ws_comments();
 		void read();
 	public:
-		tokenizer(instream& in, const std::string& name)
+		tokenizer(source_file& in, std::string_view name)
 			: in(in)
-			, name(name)
+			, name(name.data(), name.length())
 		{}
 
 		tokenizer(const tokenizer&) = delete;
@@ -576,9 +577,9 @@ namespace lngs {
 		return true;
 	}
 
-	bool read_strings(instream& in, const std::string& inname, idl_strings& def)
+	bool read_strings(source_file in, idl_strings& def, diagnostics& diag)
 	{
-		tokenizer tok{ in, inname };
+		tokenizer tok{ in, diag.filename(in.position()) };
 
 		if (!tok.expect(SQBRAKET_O, ID)) // '[' or `strings'
 			return false;
@@ -636,25 +637,25 @@ namespace lngs {
 		return true;
 	}
 
-	bool read_strings(const fs::path& in, idl_strings& def, bool verbose)
+	bool read_strings(const std::string& progname, const fs::path& inname, idl_strings& str, bool verbose, diagnostics& diag)
 	{
-		auto inname = in;
-		inname.make_preferred();
+		auto in = inname;
+		in.make_preferred();
 
+		auto src = diag.source(progname).position();
 		if (verbose)
-			printf("%s\n", inname.string().c_str());
+			diag.push_back(src[severity::verbose] << inname.string());
 
-		auto inf = fs::fopen(in, "rb");
+		auto inf = diag.open(inname.string());
 
-		if (!inf) {
-			fprintf(stderr, "could not open `%s'", inname.string().c_str());
+		if (!inf.valid()) {
+			diag.push_back(src[severity::error] << arg(lng::ERR_FILE_MISSING, inname.string()));
 			return false;
 		}
 
-		finstream is{ std::move(inf) };
-		if (!read_strings(is, inname.string(), def)) {
+		if (!read_strings(std::move(inf), str, diag)) {
 			if (verbose)
-				fprintf(stderr, "`%s' is not strings file.\n", inname.string().c_str());
+				diag.push_back(src[severity::error] << arg(lng::ERR_NOT_STRINGS_FILE, inname.string()));
 			return false;
 		}
 

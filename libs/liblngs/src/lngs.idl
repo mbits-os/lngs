@@ -1,7 +1,7 @@
 [
 	project("lngs"),
 	version("0.3"),
-	serial(1)
+	serial(2)
 ] strings {
 	[help("Name of the severity label for notes."), id(1001)]
 	SEVERITY_NOTE = "note";
@@ -11,4 +11,13 @@
 	SEVERITY_ERROR = "error";
 	[help("Name of the severity label for fatals."), id(1004)]
 	SEVERITY_FATAL = "fatal";
+
+	[help("Needed file was not found; filename is going to be shown as argument {0}."), id(1005)]
+	ERR_FILE_MISSING = "could not open `{0}'";
+	[help("Needed file was not found; filename is going to be shown as source of message."), id(1006)]
+	ERR_FILE_NOT_FOUND = "could not open the file";
+	[help("Presented as additional message, if input file was not parsed properly."), id(1007)]
+	ERR_NOT_STRINGS_FILE = "`{0}' is not strings file";
+	[help("Shown by lngs freeze."), id(1008)]
+	ERR_NO_NEW_STRINGS = "no new strings";
 }

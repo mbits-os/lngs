@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: lngs 0.3-0\n"
+"Project-Id-Version: lngs 0.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-09-03 12:03+0200\n"
+"POT-Creation-Date: 2018-09-04 14:36+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,6 +16,26 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+
+#. Needed file was not found; filename is going to be shown as argument {0}.
+msgctxt "ERR_FILE_MISSING"
+msgid "could not open `{0}'"
+msgstr ""
+
+#. Needed file was not found; filename is going to be shown as source of message.
+msgctxt "ERR_FILE_NOT_FOUND"
+msgid "could not open the file"
+msgstr ""
+
+#. Presented as additional message, if input file was not parsed properly.
+msgctxt "ERR_NOT_STRINGS_FILE"
+msgid "`{0}' is not strings file"
+msgstr ""
+
+#. Shown by lngs freeze.
+msgctxt "ERR_NO_NEW_STRINGS"
+msgid "no new strings"
+msgstr ""
 
 #. Name of the severity label for errors.
 msgctxt "SEVERITY_ERROR"
