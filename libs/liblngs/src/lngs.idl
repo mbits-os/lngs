@@ -1,7 +1,7 @@
 [
 	project("lngs"),
 	version("0.3"),
-	serial(2)
+	serial(3)
 ] strings {
 	[help("Name of the severity label for notes."), id(1001)]
 	SEVERITY_NOTE = "note";
@@ -20,4 +20,34 @@
 	ERR_NOT_STRINGS_FILE = "`{0}' is not strings file";
 	[help("Shown by lngs freeze."), id(1008)]
 	ERR_NO_NEW_STRINGS = "no new strings";
+
+	[help("Used for attributes with no value. The argument represents the name of the attribute."), id(1009)]
+	ERR_ATTR_EMPTY = "attribute `{0}' should not be empty";
+	[help("Optional attribute is not present. The argument represents the name of the attribute."), id(1010)]
+	ERR_ATTR_MISSING = "attribute `{0}' is missing";
+	[help("A required attribute is not present. The argument represents the name of the attribute."), id(1011)]
+	ERR_REQ_ATTR_MISSING = "required attribute `{0}' is missing";
+	[help("Hint for IDL authors, when an id attribute is missing."), id(1012)]
+	ERR_ID_MISSING_HINT = "before finalizing a value, use `id(-1)'";
+
+	[help("Information about bad syntax in the stirngs file. The arguments represent the expected and actual token, respectively."), id(1013)]
+	ERR_EXPECTED = "expected {0}, got {1}";
+	[help("Used as first argument for ERR_EXPECTED, as in \"expected unrecognized text\""), id(1014)]
+	ERR_EXPECTED_UNRECOGNIZED = "unrecognized text";
+	[help("Used as first argument for ERR_EXPECTED, as in \"expected EOF\""), id(1015)]
+	ERR_EXPECTED_EOF = "EOF";
+	[help("Used as first argument for ERR_EXPECTED, as in \"expected string\""), id(1016)]
+	ERR_EXPECTED_STRING = "string";
+	[help("Used as first argument for ERR_EXPECTED, as in \"expected number\""), id(1017)]
+	ERR_EXPECTED_NUMBER = "number";
+	[help("Used as first argument for ERR_EXPECTED, as in \"expected identifier\""), id(1018)]
+	ERR_EXPECTED_ID = "identifier";
+	[help("Used as second argument for ERR_EXPECTED, as in \"..., got EOF\""), id(1019)]
+	ERR_EXPECTED_GOT_EOF = "EOF";
+	[help("Used as second argument for ERR_EXPECTED, as in \"..., got string\""), id(1020)]
+	ERR_EXPECTED_GOT_STRING = "string";
+	[help("Used as second argument for ERR_EXPECTED, as in \"..., got number\""), id(1021)]
+	ERR_EXPECTED_GOT_NUMBER = "number";
+	[help("Used as second argument for ERR_EXPECTED, as in \"..., got identifier\""), id(1022)]
+	ERR_EXPECTED_GOT_ID = "identifier";
 }

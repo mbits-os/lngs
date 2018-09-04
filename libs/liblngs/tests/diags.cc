@@ -233,6 +233,11 @@ namespace lngs::testing {
 		{ { "path", 4, 8, severity::warning, "a message", link_type::gcc, false }, "path:4:8: warning: a message\n" },
 		{ { "path", 5, 9, severity::error, "a message", link_type::gcc, false }, "path:5:9: error: a message\n" },
 		{ { "path", 6, 10, severity::fatal, "a message", link_type::gcc, false }, "path:6:10: fatal: a message\n" },
+
+		{ { "path", 1, 11, severity::note, lng::ERR_ID_MISSING_HINT, link_type::gcc, false}, "path:1:11: note: before finalizing a value, use `id(-1)'\n" },
+		{ { "path", 2, 12, severity::note, lng::ERR_ID_MISSING_HINT}, "path:2:12: nnn: ERR_ID_MISSING_HINT\n" },
+		{ { "path", 3, 13, severity::error, str(lng::ERR_EXPECTED, "A", "B"), link_type::gcc, false}, "path:3:13: error: expected A, got B\n" },
+		{ { "path", 4, 14, severity::error, str(lng::ERR_EXPECTED, "A", "B")}, "path:4:14: eee: ERR_EXPECTED(A, B)\n" },
 	};
 
 	INSTANTIATE_TEST_CASE_P(severities, diag_write, ValuesIn(severities));

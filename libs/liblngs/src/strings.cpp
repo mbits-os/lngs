@@ -52,46 +52,93 @@ namespace lngs {
 	struct token {
 		tok_t type;
 		std::string value;
-		std::string source;
-		size_t line;
+		location start_pos;
+		location end_pos;
 		int file_offset;
 
-		void error(const std::string& msg) const { message("error", msg); }
-		void warn(const std::string& msg) const { message("warning", msg); }
-		void message(const std::string& klass, const std::string& msg) const
+		template <typename ... Args>
+		[[nodiscard]] diagnostic error(std::string msg, Args&& ... args) const noexcept
 		{
-			printf("%s(%zu): %s: %s\n", source.c_str(), line, klass.c_str(), msg.c_str());
+			return message(severity::error, std::move(msg), std::forward<Args>(args)...);
+		}
+		template <typename ... Args>
+		[[nodiscard]] diagnostic warn(std::string msg, Args&& ... args) const noexcept
+		{
+			return message(severity::warning, std::move(msg), std::forward<Args>(args)...);
+		}
+		template <typename ... Args>
+		[[nodiscard]] diagnostic message(severity sev, std::string msg, Args&& ... args) const noexcept
+		{
+			return (start_pos/end_pos)[sev] << arg(std::move(msg), std::forward<Args>(args)...);
 		}
 
-		std::string info() const
+		template <typename ... Args>
+		[[nodiscard]] diagnostic error(lng msg, Args&& ... args) const noexcept
+		{
+			return message(severity::error, msg, std::forward<Args>(args)...);
+		}
+		template <typename ... Args>
+		[[nodiscard]] diagnostic warn(lng msg, Args&& ... args) const noexcept
+		{
+			return message(severity::warning, msg, std::forward<Args>(args)...);
+		}
+		template <typename ... Args>
+		[[nodiscard]] diagnostic message(severity sev, lng msg, Args&& ... args) const noexcept
+		{
+			return (start_pos/end_pos)[sev] << arg(msg, std::forward<Args>(args)...);
+		}
+
+		argumented_string info_expected() const
 		{
 			switch (type) {
-			case NONE: return "unrecognized text";
-			case END_OF_FILE: return "EOF";
-			case STRING: return "string";
-			case NUMBER: return "number";
-			case ID: return value.empty() ? "identifier" : "`" + value + "'";
+			case NONE: return lng::ERR_EXPECTED_UNRECOGNIZED;
+			case END_OF_FILE: return lng::ERR_EXPECTED_EOF;
+			case STRING: return lng::ERR_EXPECTED_STRING;
+			case NUMBER: return lng::ERR_EXPECTED_NUMBER;
+			case ID: return value.empty() ? arg(lng::ERR_EXPECTED_ID) : "`" + value + "'";
 			default: break;
 			}
 			char buffer[] = "` '";
 			buffer[1] = (char)type;
-			return buffer;
+			return arg(buffer);
+		}
+
+		argumented_string info_got() const
+		{
+			switch (type) {
+			case NONE: return lng::ERR_EXPECTED_UNRECOGNIZED;
+			case END_OF_FILE: return lng::ERR_EXPECTED_GOT_EOF;
+			case STRING: return lng::ERR_EXPECTED_GOT_STRING;
+			case NUMBER: return lng::ERR_EXPECTED_GOT_NUMBER;
+			case ID: return value.empty() ? arg(lng::ERR_EXPECTED_GOT_ID) : "`" + value + "'";
+			default: break;
+			}
+			char buffer[] = "` '";
+			buffer[1] = (char)type;
+			return arg(buffer);
 		}
 	};
 
 	class tokenizer {
-		source_file& in;
-		std::string name;
-		size_t line = 1;
-		int file_offset = 0;
+		source_file& in_;
+		unsigned line_ = 1;
+		unsigned column_ = 1;
+		int file_offset_ = 0;
 
-		bool peeked = false;
-		token next;
+		bool peeked_ = false;
+		bool eof_ = false;
+		location start_pos_;
+		token next_;
 
 		char nextc() {
 			char c;
-			in.read(&c, 1);
-			++file_offset;
+			auto size = in_.read(&c, 1);
+			if (!size) {
+				eof_ = true;
+				return 0;
+			}
+			++file_offset_;
+			++column_;
 			return c;
 		}
 		void set_next(int offset, tok_t tok);
@@ -99,42 +146,41 @@ namespace lngs {
 		void ws_comments();
 		void read();
 	public:
-		tokenizer(source_file& in, std::string_view name)
-			: in(in)
-			, name(name.data(), name.length())
+		tokenizer(source_file& in)
+			: in_(in)
 		{}
 
 		tokenizer(const tokenizer&) = delete;
 		tokenizer& operator=(const tokenizer&) = delete;
 
-		std::pair<std::string, size_t> position() const {
-			return{ name, line };
+		location position() const {
+			return in_.position(line_, column_);
 		}
 
 		const token& peek();
 		token get();
 
-		bool expect(tok_t type, bool fatal);
-		bool expect(tok_t first, tok_t second);
-		bool expect(tok_t first, tok_t second, tok_t third);
-		bool expect(const std::string& tok, bool fatal);
+		bool expect(tok_t type, bool fatal, diagnostics& diag);
+		bool expect(tok_t first, tok_t second, diagnostics& diag);
+		bool expect(tok_t first, tok_t second, tok_t third, diagnostics& diag);
+		bool expect(const std::string& tok, bool fatal, diagnostics& diag);
 	};
 
 	void tokenizer::set_next(int offset, tok_t tok)
 	{
-		next.source = name;
-		next.line = line;
-		next.file_offset = offset;
-		next.type = tok;
+		next_.type = tok;
+		next_.start_pos = start_pos_;
+		next_.end_pos = position();
+		next_.file_offset = offset;
 	}
 
 	void tokenizer::set_next(int offset, const std::string& value, tok_t tok)
 	{
-		next.source = name;
-		next.line = line;
-		next.file_offset = offset;
-		next.value = value;
-		next.type = tok;
+		next_.type = tok;
+		next_.value = value;
+		next_.start_pos = start_pos_;
+		next_.end_pos = position();
+		next_.file_offset = offset;
 	}
 
 	void tokenizer::ws_comments()
@@ -143,33 +189,37 @@ namespace lngs {
 
 		do {
 			found_comment = false;
-			while (!in.eof() && std::isspace((uint8_t)in.peek())) {
+			while (!eof_ && std::isspace((uint8_t)in_.peek())) {
 				auto c = nextc();
-				if (c == '\n')
-					++line;
+				if (c == '\n') {
+					++line_;
+					column_ = 1;
+				}
 			}
 
-			if (in.eof() || in.peek() != '/'_b)
+			if (eof_ || in_.peek() != '/'_b)
 				break;
 			nextc();
 
-			if (!in.eof() && in.peek() == '/'_b) {
-				while (!in.eof() && in.peek() != '\n'_b)
+			if (!eof_ && in_.peek() == '/'_b) {
+				while (!eof_ && in_.peek() != '\n'_b)
 					nextc();
 
 				found_comment = true;
 			}
 
 		} while (found_comment);
+
+		start_pos_ = position();
 	}
 
 	void tokenizer::read()
 	{
 		ws_comments();
 
-		auto offset = file_offset;
+		auto offset = file_offset_;
 		auto c = nextc();
-		if (in.eof())
+		if (eof_)
 			return set_next(offset, END_OF_FILE);
 
 		switch (c) {
@@ -186,8 +236,10 @@ namespace lngs {
 			bool escaping = false;
 			bool instring = true;
 			std::string s;
-			while (!in.eof() && instring) {
+			while (!eof_ && instring) {
 				c = nextc();
+				if (eof_)
+					break;
 
 				if (escaping) {
 					switch (c) {
@@ -201,8 +253,7 @@ namespace lngs {
 					default: s.push_back(c);
 					};
 					escaping = false;
-				}
-				else {
+				} else {
 					switch (c) {
 					case '\\': escaping = true; break;
 					case '"': instring = false; break;
@@ -217,8 +268,12 @@ namespace lngs {
 			if (std::isdigit((uint8_t)c) || c == '-' || c == '+') {
 				std::string s;
 				s.push_back(c);
-				while (!in.eof() && std::isdigit((uint8_t)in.peek()))
-					s.push_back(nextc());
+				while (!eof_ && std::isdigit((uint8_t)in_.peek())) {
+					c = nextc();
+					if (eof_)
+						break;
+					s.push_back(c);
+				}
 
 				return set_next(offset, s, NUMBER);
 			}
@@ -226,8 +281,12 @@ namespace lngs {
 			if (c == '_' || std::isalpha((uint8_t)c)) {
 				std::string s;
 				s.push_back(c);
-				while (!in.eof() && (std::isalnum((uint8_t)in.peek()) || in.peek() == '_'_b))
-					s.push_back(nextc());
+				while (!eof_ && (std::isalnum((uint8_t)in_.peek()) || in_.peek() == '_'_b)) {
+					c = nextc();
+					if (eof_)
+						break;
+					s.push_back(c);
+				}
 
 				return set_next(offset, s, ID);
 			}
@@ -238,23 +297,23 @@ namespace lngs {
 
 	const token& tokenizer::peek()
 	{
-		if (!peeked)
+		if (!peeked_)
 			read();
 
-		peeked = true;
-		return next;
+		peeked_ = true;
+		return next_;
 	}
 
 	token tokenizer::get()
 	{
-		if (!peeked)
+		if (!peeked_)
 			read();
 
-		peeked = false;
-		return std::move(next);
+		peeked_ = false;
+		return std::move(next_);
 	}
 
-	bool tokenizer::expect(tok_t type, bool fatal)
+	bool tokenizer::expect(tok_t type, bool fatal, diagnostics& diag)
 	{
 		auto& t = peek();
 		if (type == t.type)
@@ -263,13 +322,13 @@ namespace lngs {
 		if (fatal) {
 			token dummy;
 			dummy.type = type;
-			t.error("expected " + dummy.info() + ", got " + t.info());
+			diag.push_back(t.error(lng::ERR_EXPECTED, dummy.info_expected(), t.info_got()));
 		}
 
 		return false;
 	}
 
-	bool tokenizer::expect(tok_t one, tok_t another)
+	bool tokenizer::expect(tok_t one, tok_t another, diagnostics& diag)
 	{
 		auto& t = peek();
 		if (t.type == one || t.type == another)
@@ -277,27 +336,31 @@ namespace lngs {
 
 		token dummy;
 		dummy.type = one;
-		t.error("expected " + dummy.info() + ", got " + t.info());
+		diag.push_back(t.error(lng::ERR_EXPECTED, dummy.info_expected(), t.info_got()));
 
 		return false;
 	}
 
-	bool tokenizer::expect(tok_t first, tok_t second, tok_t third)
+	bool tokenizer::expect(tok_t first, tok_t second, tok_t third, diagnostics& diag)
 	{
 		if (peek().type == third)
 			return true;
 
-		return expect(first, second);
+		return expect(first, second, diag);
 	}
 
-	bool tokenizer::expect(const std::string& tok, bool fatal)
+	bool tokenizer::expect(const std::string& tok, bool fatal, diagnostics& diag)
 	{
 		auto& t = peek();
 		if (ID == t.type && tok == t.value)
 			return true;
 
-		if (fatal)
-			t.error("expected `" + tok + "', got " + t.info());
+		if (fatal) {
+			token dummy;
+			dummy.type = ID;
+			dummy.value = tok;
+			diag.push_back(t.error(lng::ERR_EXPECTED, dummy.info_expected(), t.info_got()));
+		}
 
 		return false;
 	}
@@ -412,12 +475,12 @@ namespace lngs {
 		const std::vector<std::unique_ptr<attr>>& attrs() const { return attrs_; }
 	};
 
-	bool read_attribute(tokenizer& tok, const attr_def& attrs)
+	bool read_attribute(tokenizer& tok, const attr_def& attrs, diagnostics& diag)
 	{
-		if (tok.expect(SQBRAKET_C, false))
+		if (tok.expect(SQBRAKET_C, false, diag))
 			return true;
 
-		if (!tok.expect(ID, true))
+		if (!tok.expect(ID, true, diag))
 			return false;
 		auto name = tok.get();
 
@@ -426,7 +489,7 @@ namespace lngs {
 				continue;
 
 			if (att->needs_arg()) {
-				if (!tok.expect(BRAKET_O, true))
+				if (!tok.expect(BRAKET_O, true, diag))
 					return false;
 
 				tok.get();
@@ -437,22 +500,22 @@ namespace lngs {
 				case NUMBER:
 					att->visit(name, val.value);
 					tok.get();
-					if (!tok.expect(BRAKET_C, true))
+					if (!tok.expect(BRAKET_C, true, diag))
 						return false;
 					tok.get();
 					break;
 				default:
-					tok.expect(STRING, true);
+					tok.expect(STRING, true, diag);
 					return false;
 				}
 			}
 			else
 				att->visit(name);
 
-			if (tok.expect(SQBRAKET_C, false))
+			if (tok.expect(SQBRAKET_C, false, diag))
 				return true;
 
-			if (!tok.expect(COMMA, true))
+			if (!tok.expect(COMMA, true, diag))
 				return false;
 
 			tok.get();
@@ -460,26 +523,26 @@ namespace lngs {
 		}
 
 		tok.get();
-		if (tok.expect(BRAKET_O, false)) {
+		if (tok.expect(BRAKET_O, false, diag)) {
 			tok.get();
 			auto& val = tok.peek();
 			switch (val.type) {
 			case STRING:
 			case NUMBER:
 				tok.get();
-				if (!tok.expect(BRAKET_C, true))
+				if (!tok.expect(BRAKET_C, true, diag))
 					return false;
 				tok.get();
 				break;
 			default:
-				tok.expect(STRING, true);
+				tok.expect(STRING, true, diag);
 				return false;
 			}
 
-			if (tok.expect(SQBRAKET_C, false))
+			if (tok.expect(SQBRAKET_C, false, diag))
 				return true;
 
-			if (!tok.expect(COMMA, true))
+			if (!tok.expect(COMMA, true, diag))
 				return false;
 
 			tok.get();
@@ -487,12 +550,14 @@ namespace lngs {
 		return true;
 	}
 
-	bool read_attributes(tokenizer& tok, const attr_def& attrs)
+	bool read_attributes(tokenizer& tok, const attr_def& attrs, diagnostics& diag)
 	{
-		if (!tok.expect(SQBRAKET_O, false)) {
+		if (!tok.expect(SQBRAKET_O, false, diag)) {
 			for (auto& att : attrs.attrs()) {
 				if (att->required()) {
-					tok.peek().error("required attribute `" + att->name() + "' is missing");
+					diag.push_back(
+						tok.peek().error(lng::ERR_REQ_ATTR_MISSING, att->name())
+					);
 					return false;
 				}
 			}
@@ -501,15 +566,17 @@ namespace lngs {
 
 		tok.get();
 
-		while (!tok.expect(SQBRAKET_C, false)) {
-			if (!read_attribute(tok, attrs))
+		while (!tok.expect(SQBRAKET_C, false, diag)) {
+			if (!read_attribute(tok, attrs, diag))
 				return false;
 		}
 
 		auto closing = tok.get();
 		for (auto& att : attrs.attrs()) {
 			if (att->required() && !att->visited()) {
-				closing.error("required attribute `" + att->name() + "' is missing");
+				diag.push_back(
+					closing.error(lng::ERR_REQ_ATTR_MISSING, att->name())
+				);
 				return false;
 			}
 		}
@@ -517,9 +584,9 @@ namespace lngs {
 		return true;
 	}
 
-	bool read_string(tokenizer& tok, idl_string& str)
+	bool read_string(tokenizer& tok, idl_string& str, diagnostics& diag)
 	{
-		if (!tok.expect(CBRAKET_C, SQBRAKET_O, ID)) // `}', '[' or LNG_ID
+		if (!tok.expect(CBRAKET_C, SQBRAKET_O, ID, diag)) // `}', '[' or LNG_ID
 			return false;
 
 		{
@@ -529,7 +596,7 @@ namespace lngs {
 				.arg(str.plural, "plural", false)
 				.arg(str.id, "id", false); // id - optional here, test below
 
-			if (!read_attributes(tok, defs))
+			if (!read_attributes(tok, defs, diag))
 				return false;
 
 			auto here = tok.peek();
@@ -541,14 +608,19 @@ namespace lngs {
 			assert(id && id->is("id"));
 
 			if (!help->visited()) {
-				here.warn("attribute `help' is missing");
-			}
-			else if (str.help.empty()) {
-				help->visit_pos().warn("attribute `help' should not be empty");
+				diag.push_back(here.warn(lng::ERR_ATTR_MISSING, "help"));
+			} else if (str.help.empty()) {
+				diag.push_back(
+					help->visit_pos().warn(lng::ERR_ATTR_EMPTY, "help")
+				);
 			}
 
 			if (!id->visited()) {
-				here.error("required attribute `id' is missing; before assigning a value, use `id(-1)'");
+				auto err = here.error(lng::ERR_REQ_ATTR_MISSING, "id");
+				err.children.push_back(
+					here.message(severity::note, lng::ERR_ID_MISSING_HINT)
+				);
+				diag.push_back(std::move(err));
 				return false;
 			}
 
@@ -556,21 +628,21 @@ namespace lngs {
 			str.original_id = str.id;
 		}
 
-		if (!tok.expect(ID, true))
+		if (!tok.expect(ID, true, diag))
 			return false;
 		auto name = tok.get();
 		str.key = name.value;
 
-		if (!tok.expect(EQ_SIGN, true))
+		if (!tok.expect(EQ_SIGN, true, diag))
 			return false;
 		tok.get();
 
-		if (!tok.expect(STRING, true))
+		if (!tok.expect(STRING, true, diag))
 			return false;
 		auto value = tok.get();
 		str.value = value.value;
 
-		if (!tok.expect(SEMI, true))
+		if (!tok.expect(SEMI, true, diag))
 			return false;
 		tok.get();
 
@@ -579,10 +651,11 @@ namespace lngs {
 
 	bool read_strings(source_file in, idl_strings& def, diagnostics& diag)
 	{
-		tokenizer tok{ in, diag.filename(in.position()) };
+		tokenizer tok{ in };
 
-		if (!tok.expect(SQBRAKET_O, ID)) // '[' or `strings'
+		if (!tok.expect(SQBRAKET_O, ID, diag)) { // '[' or `strings'
 			return false;
+		}
 
 		{
 			attr_def defs;
@@ -591,7 +664,7 @@ namespace lngs {
 				.arg(def.version, "version", false)
 				.arg(def.serial, "serial");
 
-			if (!read_attributes(tok, defs))
+			if (!read_attributes(tok, defs, diag))
 				return false;
 
 			auto serial = defs.attrs()[2].get();
@@ -599,17 +672,17 @@ namespace lngs {
 			def.serial_offset = serial->visit_pos().file_offset;
 		}
 
-		if (!tok.expect("strings", true))
+		if (!tok.expect("strings", true, diag))
 			return false;
 		tok.get();
 
-		if (!tok.expect(CBRAKET_O, true))
+		if (!tok.expect(CBRAKET_O, true, diag))
 			return false;
 		tok.get();
 
-		while (!tok.expect(CBRAKET_C, false)) {
+		while (!tok.expect(CBRAKET_C, false, diag)) {
 			idl_string str;
-			if (!read_string(tok, str))
+			if (!read_string(tok, str, diag))
 				return false;
 
 			def.strings.push_back(std::move(str));

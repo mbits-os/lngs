@@ -5,10 +5,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: lngs 0.3-0\n"
+"Project-Id-Version: lngs 0.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-09-03 12:03+0200\n"
-"PO-Revision-Date: 2018-09-03 12:01+0200\n"
+"POT-Creation-Date: 2018-09-04 18:33+0200\n"
+"PO-Revision-Date: 2018-09-04 18:43+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: pl\n"
@@ -18,6 +18,96 @@ msgstr ""
 "X-Generator: Poedit 2.1.1\n"
 "Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 "
 "|| n%100>14) ? 1 : 2);\n"
+
+#. Used for attributes with no value. The argument represents the name of the attribute.
+msgctxt "ERR_ATTR_EMPTY"
+msgid "attribute `{0}' should not be empty"
+msgstr "atrybut `{0}' nie powinien być pusty"
+
+#. Optional attribute is not present. The argument represents the name of the attribute.
+msgctxt "ERR_ATTR_MISSING"
+msgid "attribute `{0}' is missing"
+msgstr "brak atrybutu `{0}'"
+
+#. Information about bad syntax in the stirngs file. The arguments represent the expected and actual token, respectively.
+msgctxt "ERR_EXPECTED"
+msgid "expected {0}, got {1}"
+msgstr "oczekiwano {0}, znaleziono {1}"
+
+#. Used as first argument for ERR_EXPECTED, as in "expected EOF"
+msgctxt "ERR_EXPECTED_EOF"
+msgid "EOF"
+msgstr "EOF"
+
+#. Used as second argument for ERR_EXPECTED, as in "..., got EOF"
+msgctxt "ERR_EXPECTED_GOT_EOF"
+msgid "EOF"
+msgstr "EOF"
+
+#. Used as second argument for ERR_EXPECTED, as in "..., got identifier"
+msgctxt "ERR_EXPECTED_GOT_ID"
+msgid "identifier"
+msgstr "identyfikator"
+
+#. Used as second argument for ERR_EXPECTED, as in "..., got number"
+msgctxt "ERR_EXPECTED_GOT_NUMBER"
+msgid "number"
+msgstr "liczbę"
+
+#. Used as second argument for ERR_EXPECTED, as in "..., got string"
+msgctxt "ERR_EXPECTED_GOT_STRING"
+msgid "string"
+msgstr "napis"
+
+#. Used as first argument for ERR_EXPECTED, as in "expected identifier"
+msgctxt "ERR_EXPECTED_ID"
+msgid "identifier"
+msgstr "identyfikatora"
+
+#. Used as first argument for ERR_EXPECTED, as in "expected number"
+msgctxt "ERR_EXPECTED_NUMBER"
+msgid "number"
+msgstr "liczby"
+
+#. Used as first argument for ERR_EXPECTED, as in "expected string"
+msgctxt "ERR_EXPECTED_STRING"
+msgid "string"
+msgstr "napisu"
+
+#. Used as first argument for ERR_EXPECTED, as in "expected unrecognized text"
+msgctxt "ERR_EXPECTED_UNRECOGNIZED"
+msgid "unrecognized text"
+msgstr "nierozpoznany tekst"
+
+#. Needed file was not found; filename is going to be shown as argument {0}.
+msgctxt "ERR_FILE_MISSING"
+msgid "could not open `{0}'"
+msgstr "nie można otworzyć pliku `{0}'"
+
+#. Needed file was not found; filename is going to be shown as source of message.
+msgctxt "ERR_FILE_NOT_FOUND"
+msgid "could not open the file"
+msgstr "nie można otworzyć pliku"
+
+#. Hint for IDL authors, when an id attribute is missing.
+msgctxt "ERR_ID_MISSING_HINT"
+msgid "before finalizing a value, use `id(-1)'"
+msgstr "przed sfinalizowaniem wartości, należy używać `id(-)'"
+
+#. Presented as additional message, if input file was not parsed properly.
+msgctxt "ERR_NOT_STRINGS_FILE"
+msgid "`{0}' is not strings file"
+msgstr "`{0}' nie jest plikiem napisów"
+
+#. Shown by lngs freeze.
+msgctxt "ERR_NO_NEW_STRINGS"
+msgid "no new strings"
+msgstr "brak nowych napisów"
+
+#. A required attribute is not present. The argument represents the name of the attribute.
+msgctxt "ERR_REQ_ATTR_MISSING"
+msgid "required attribute `{0}' is missing"
+msgstr "brak wymaganego atrybutu `{0}'"
 
 #. Name of the severity label for errors.
 msgctxt "SEVERITY_ERROR"
@@ -38,3 +128,7 @@ msgstr "nota"
 msgctxt "SEVERITY_WARNING"
 msgid "warning"
 msgstr "ostrzeżenie"
+
+#~ msgctxt "ERR_EXPECTED_GOT_UNRECOGNIZED"
+#~ msgid "unrecognized text"
+#~ msgstr "nierozpoznany tekst"
