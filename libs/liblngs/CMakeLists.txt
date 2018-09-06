@@ -59,5 +59,6 @@ add_test(NAME lngs.read_idl COMMAND lngs-test --gtest_filter=*/read.*)
 add_test(NAME lngs.freeze COMMAND lngs-test --gtest_filter=*/frozen.*)
 add_test(NAME lngs.res COMMAND lngs-test --gtest_filter=*/res_make.*:*/res_write.*)
 add_test(NAME lngs.utf COMMAND lngs-test --gtest_filter=*/utf_conv.*)
+add_test(NAME lngs.gettext COMMAND lngs-test --gtest_filter=*/gettext.*:*/gtt_attr_*.*:*/gtt_extract.*:*/mo_*.* --data_path=${DATA_DIR})
 
 endif()

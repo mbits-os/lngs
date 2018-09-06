@@ -171,6 +171,16 @@ namespace lngs {
 		void print(outstream& o, const class diagnostics& host, const strings& tr, link_type links = link_type::native, size_t depth = 0) const;
 
 		static std::tuple<std::string, std::size_t, std::size_t> prepare(std::string_view, std::size_t start_col, std::size_t end_col);
+
+		diagnostic& with(std::initializer_list<diagnostic> subs) {
+			children.insert(end(children), begin(subs), end(subs));
+			return *this;
+		}
+
+		diagnostic& with(diagnostic sub) {
+			children.emplace_back(std::move(sub));
+			return *this;
+		}
 	};
 
 	inline diagnostic operator<< (const location_severity& loc_sev, argumented_string msg) {

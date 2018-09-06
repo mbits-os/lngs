@@ -114,13 +114,40 @@ namespace lngs::testing {
 			o << "Missing diagnostics:\n";
 			for (size_t i = data.skip; i < data.diags.size(); ++i) {
 				const auto& diag = data.diags[i];
-				o << "  " << diag.pos.line << ':' << diag.pos.column << '-'
-					<< diag.end_pos.line << ':' << diag.end_pos.column << ' '
-					<< name(diag.sev) << ' ';
+				o << "  " << diag.pos.line << ':' << diag.pos.column << '/'
+					<< diag.end_pos.line << ':' << diag.end_pos.column << '['
+					<< name(diag.sev) << "] << ";
 				UnexpectedDiags::argumented(o, diag.message);
 				o << "\n";
 			}
 			return o;
+		}
+	};
+
+	template <typename ActualTest>
+	struct TestWithDiagnostics : ActualTest {
+	protected:
+		void ExpectDiagsEq(const std::vector<diagnostic>& expected, const std::vector<diagnostic>& actual, unsigned src)
+		{
+			EXPECT_GE(expected.size(), actual.size()) <<
+				UnexpectedDiags{ actual, expected.size() };
+			EXPECT_GE(actual.size(), expected.size()) <<
+				UnexpectedDiags{ expected, actual.size() };
+
+			auto exp_it = begin(expected);
+			auto act_it = begin(actual);
+			auto size = std::min(expected.size(), actual.size());
+			for (decltype(size) i = 0; i < size; ++i, ++exp_it, ++act_it) {
+				const auto& exp_msg = *exp_it;
+				const auto& act_msg = *act_it;
+				if (exp_msg.pos.token)
+					EXPECT_EQ(exp_msg.pos.token, act_msg.pos.token);
+				else
+					EXPECT_EQ(src, act_msg.pos.token);
+				EXPECT_EQ(exp_msg.sev, act_msg.sev);
+				EXPECT_EQ(exp_msg.message, act_msg.message);
+				ExpectDiagsEq(exp_msg.children, act_msg.children, src);
+			}
 		}
 	};
 }

@@ -32,6 +32,7 @@ namespace gtt {
 	class gtt_stream {
 		const std::vector<std::byte>& m_ref;
 		size_t m_offset = 0;
+		bool m_reverse = false;
 	public:
 		gtt_stream(const std::vector<std::byte>& ref) : m_ref { ref }
 		{
@@ -43,6 +44,8 @@ namespace gtt {
 			m_offset += sizeof(4);
 			return intFromOffset(tmp);
 		}
+
+		void reverse() { m_reverse = true; }
 
 		size_t tell() const { return m_offset; }
 
@@ -56,14 +59,16 @@ namespace gtt {
 
 			uint32_t out = 0;
 			auto ptr = m_ref.data() + off;
-#if 0
-			for (size_t b = 0; b < sizeof(uint32_t); ++b, ++ptr) {
-				out <<= 8;
-				out |= std::to_integer<uint32_t>(*ptr);
+
+			if (m_reverse) {
+				for (size_t b = 0; b < sizeof(uint32_t); ++b, ++ptr) {
+					out <<= 8;
+					out |= std::to_integer<uint32_t>(*ptr);
+				}
+			} else {
+				out = *reinterpret_cast<const uint32_t*>(ptr);
 			}
-#else
-			out = *reinterpret_cast<const uint32_t*>(ptr);
-#endif
+
 			return out;
 		}
 
@@ -129,10 +134,17 @@ namespace gtt {
 
 		auto& contents = src.data();
 		gtt_stream in { contents };
-		if ((0x950412de != in.next())
-			|| (0 != in.next()))
-		{
-			return out;
+		auto magic = in.next();
+		if (magic == 0xde120495) {
+			in.reverse();
+			if (0 != in.next())
+				return out;
+		} else {
+			if ((0x950412de != magic)
+				|| (0 != in.next()))
+			{
+				return out;
+			}
 		}
 
 		auto count = in.next();

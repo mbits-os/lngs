@@ -1,0 +1,4 @@
+cy Cymraeg
+pl polski
+de-AT Deutch (Österreich)
+da dansk
