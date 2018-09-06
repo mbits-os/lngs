@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import print_function
-import io, os, sys, argparse, errno, subprocess, json
+import io, os, sys, argparse, errno, subprocess, json, hashlib
 
 parser = argparse.ArgumentParser(description='Gather GCOV data for Coveralls')
 parser.add_argument('--in',    required=True,  help='Coveralls JSON file', dest='json')
@@ -365,7 +365,7 @@ table.listing pre {
 	word-wrap: break-word;
 }
 
-table.stats { border-collapse: collapse; font-size: .9em }
+table.stats { border-collapse: collapse; font-size: .9em; width: 100% }
 table.stats th { font-size: 1.1em }
 table.stats th, table.stats td { padding: 0.2em }
 table.stats th, td.value { text-align: right; padding-left: .5em }
@@ -411,7 +411,27 @@ tr td.cov-ok { background: rgba(255, 255, 0, .1)}
 tr td.cov-good { background: rgba(0, 255, 0, .1)}
 tr td.value.cov-bad { color: #c44 }
 tr td.value.cov-ok { color: #883 }
-tr td.value.cov-good { color: #080 }'''
+tr td.value.cov-good { color: #080 }
+
+table#commit { border-collapse: collapse; width: 100%; margin-bottom: 2em; }
+
+table#commit td.label {
+  color: silver;
+  text-align: right;
+  padding-right: 1em;
+  font-size: .8em;
+  font-weight: bold;
+}
+
+table#commit h4 { padding-top: 1em; }
+
+#author img, #commiter img {
+  border-radius: 50%;
+  box-shadow: 1px 1px 5px 0px rgba(0,0,0,0.5);
+  vertical-align: middle;
+  width: 1em;
+  height: 1em;
+}'''
 
 if args.out is not None:
 	mkdir_p(args.out)
@@ -419,7 +439,25 @@ if args.out is not None:
 	if args.dirty:
 		git_root = output('git', 'rev-parse', '--show-toplevel')
 	with cd(args.out):
-		commit = data['git']['head']['id']
+		head = data['git']['head']
+		commit = head['id']
+		author = (head['author_name'], head['author_email'])
+		commiter = (head['committer_name'], head['committer_email'])
+		message = head['message'].split('\n\n', 1)
+		subject = escape(message[0])
+		try:
+			details = '<pre>{}</pre>'.format(escape(message[1]))
+		except:
+			details = ''
+
+		title_fmt = '<tr><td class="label">{title}</td><td id="{kind}" title="{email}"><img src="https://www.gravatar.com/avatar/{hash}?s=96&d=mp" width="16px" height="16px"/> {name}</td></tr>'
+		author_ = title_fmt.format(title='Author', kind='author', name=escape(author[0]), email=escape(author[1]), hash=hashlib.md5(author[1].lower()).hexdigest())
+		commiter_ = title_fmt.format(title='Commited&nbsp;by', kind='commiter', name=escape(commiter[0]), email=escape(commiter[1]), hash=hashlib.md5(commiter[1].lower()).hexdigest())
+
+		if author == commiter:
+			author_ = ''
+			author_icon = ''
+
 
 		with io.open('index.html', 'w', encoding='utf-8') as out:
 			print(u'''<html>
@@ -430,9 +468,19 @@ if args.out is not None:
 </style>
 </head>
 <body>
-<h1>Coverage</h1>
 <div class="content">
-<table class="stats">'''.format(css=css), file=out)
+<h1>Coverage</h1>
+
+<table id='commit'>
+{author}
+{commiter}
+<tr><td class="label">Commit</td><td>{commit}</td></tr>
+<tr><td class="label">Branch</td><td>{branch}</td></tr>
+<tr><td class="label">&nbsp;</td><td><h4>{subject}</h4>
+{details}</td></tr>
+</table>
+
+<table class="stats">'''.format(css=css, subject=subject, details=details, author=author_, commiter=commiter_, commit=commit, branch=data['git']['branch']), file=out)
 			print(u'<thead><tr><th>Name</th><th>Coverage</th><th>&nbsp;</th><th>Total</th><th>&nbsp;</th><th>Relevant</th><th>&nbsp;</th><th>Covered</th><th>&nbsp;</th><th>Hits/Line</th><th>&nbsp;</th></tr></thead>', file=out)
 			print(curr.html(), file=out)
 			for dname in sorted(curr.dirs.keys()):
