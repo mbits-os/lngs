@@ -382,7 +382,7 @@ namespace lngs::freeze {
 			return 0;
 		}
 
-		auto contents = setup.diag.source(inname.string()).data();
+		auto contents = setup.diag.source(inname.string());
 		return setup.write(parser, outname, [&](outstream& out) {
 			return write(out, setup.strings, contents);
 		});

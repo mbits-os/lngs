@@ -85,9 +85,9 @@ namespace lngs {
 		return utf::as_u8(u32);
 	}
 
-	std::vector<string> translations(const std::map<std::string, std::string>& gtt, const std::vector<idl_string>& strings, bool warp_missing, bool verbose)
+	std::vector<tr_string> translations(const std::map<std::string, std::string>& gtt, const std::vector<idl_string>& strings, bool warp_missing, bool verbose)
 	{
-		std::vector<string> out;
+		std::vector<tr_string> out;
 		out.reserve(gtt.empty() ? 0 : gtt.size() - 1);
 
 		for (auto& str : strings) {
@@ -160,7 +160,7 @@ namespace lngs {
 
 	template <locale::attr_t Name>
 	static inline void copy_attr(const std::map<std::string, std::string, std::less<>>& src,
-		std::vector<string>& dst, std::string_view key) {
+		std::vector<tr_string>& dst, std::string_view key) {
 		auto attr = src.find(key);
 		if (attr == end(src))
 			return;
@@ -170,9 +170,9 @@ namespace lngs {
 			dst.push_back({ Name, attr->second });
 	}
 
-	std::vector<string> attributes(const std::map<std::string, std::string>& gtt)
+	std::vector<tr_string> attributes(const std::map<std::string, std::string>& gtt)
 	{
-		std::vector<string> props;
+		std::vector<tr_string> props;
 		auto it = gtt.find("");
 		auto attrs = attrGTT(it == gtt.end() ? std::string{ } : it->second);
 
@@ -252,7 +252,7 @@ namespace lngs {
 #define CARRY(ex) do { auto ret = (ex); if (ret) return ret; } while (0)
 
 	namespace {
-		void update_offsets(uint32_t& next_offset, std::vector<string>& block)
+		void update_offsets(uint32_t& next_offset, std::vector<tr_string>& block)
 		{
 			for (auto& str : block) {
 				str.key.offset = next_offset;
@@ -261,7 +261,7 @@ namespace lngs {
 			}
 		}
 
-		int list(outstream& os, std::vector<string>& block)
+		int list(outstream& os, std::vector<tr_string>& block)
 		{
 			if (block.empty())
 				return 0;
@@ -272,7 +272,7 @@ namespace lngs {
 			return 0;
 		}
 
-		int data(outstream& os, std::vector<string>& block)
+		int data(outstream& os, std::vector<tr_string>& block)
 		{
 			if (block.empty())
 				return 0;
@@ -285,7 +285,7 @@ namespace lngs {
 			return 0;
 		}
 
-		int section(outstream& os, uint32_t section_id, std::vector<string>& block)
+		int section(outstream& os, uint32_t section_id, std::vector<tr_string>& block)
 		{
 			if (block.empty())
 				return 0;
@@ -328,11 +328,11 @@ namespace lngs {
 		}
 	}
 
-	string::string() = default;
-	string::string(string&&) = default;
-	string& string::operator=(string&&) = default;
-	string::string(const string&) = default;
-	string& string::operator=(const string&) = default;
+	tr_string::tr_string() = default;
+	tr_string::tr_string(tr_string&&) = default;
+	tr_string& tr_string::operator=(tr_string&&) = default;
+	tr_string::tr_string(const tr_string&) = default;
+	tr_string& tr_string::operator=(const tr_string&) = default;
 
 	int file::write(outstream& os)
 	{

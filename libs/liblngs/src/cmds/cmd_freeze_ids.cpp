@@ -26,6 +26,8 @@
 #include <lngs/strings.hpp>
 #include <lngs/streams.hpp>
 
+#include <lngs/diagnostics.hpp>
+
 #include <algorithm>
 
 namespace lngs::freeze {
@@ -58,8 +60,9 @@ namespace lngs::freeze {
 		return{ first, second };
 	}
 
-	int write(outstream& out, const idl_strings& defs, const std::vector<std::byte>& data)
+	int write(outstream& out, const idl_strings& defs, source_file& source)
 	{
+		const auto& data = source.data();
 		const std::byte* bytes = data.data();
 		int offset = 0;
 		auto [from, to] = value_pos(bytes + defs.serial_offset);

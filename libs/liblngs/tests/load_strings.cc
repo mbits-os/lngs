@@ -141,33 +141,33 @@ namespace lngs::testing {
 		}
 	}
 
-	const idl_strings serial_0 = strings(0, 1).make();
-	const idl_strings serial_123 = strings(123, 1).make();
+	const idl_strings serial_0 = test_strings(0, 1).make();
+	const idl_strings serial_123 = test_strings(123, 1).make();
 
-	const idl_strings empty_project_name = strings(
+	const idl_strings empty_project_name = test_strings(
 		ProjectStr{ "project-name" }
 	).make();
 
-	const idl_strings empty_version = strings(
+	const idl_strings empty_version = test_strings(
 		VersionStr{ "version" }
 	).make();
 
-	const idl_strings empty_project_name_version = strings(
+	const idl_strings empty_project_name_version = test_strings(
 		ProjectStr{ "project-name" },
 		VersionStr{ "version" }
 	).make();
 
-	const idl_strings serial_0_project_name = strings(
+	const idl_strings serial_0_project_name = test_strings(
 		ProjectStr{ "project-name" },
 		0, 1
 	).make();
 
-	const idl_strings serial_0_version = strings(
+	const idl_strings serial_0_version = test_strings(
 		VersionStr{ "version" },
 		0, 1
 	).make();
 
-	const idl_strings serial_0_project_name_version = strings(
+	const idl_strings serial_0_project_name_version = test_strings(
 		ProjectStr{ "project-name" },
 		VersionStr{ "version" },
 		0, 1
@@ -301,7 +301,7 @@ namespace lngs::testing {
 
 	INSTANTIATE_TEST_CASE_P(empty, read, ValuesIn(empties));
 
-	const auto basic = strings(0, 1);
+	const auto basic = test_strings(0, 1);
 
 	static const compilation_result singles[] = {
 		{
@@ -310,7 +310,7 @@ namespace lngs::testing {
 				{ "", 1, 32, severity::warning, str(lng::ERR_ATTR_MISSING, str("help")) },
 			},
 			true,
-			basic.make(string(1001, -1, "ID", "value").offset(23))
+			basic.make(test_string(1001, -1, "ID", "value").offset(23))
 		},
 		{
 			R"([serial(0)] strings { [id(-1), help("")] ID = "value"; })",
@@ -318,13 +318,13 @@ namespace lngs::testing {
 				{ "", 1, 32, severity::warning, str(lng::ERR_ATTR_EMPTY, str("help")) },
 			},
 			true,
-			basic.make(string(1001, -1, "ID", "value").offset(23))
+			basic.make(test_string(1001, -1, "ID", "value").offset(23))
 		},
 		{
 			R"([serial(0)] strings { [id(-1), help("help string")] ID = "value"; })",
 			{},
 			true,
-			basic.make(string(1001, -1, "ID", "value", HelpStr{ "help string" }).offset(23))
+			basic.make(test_string(1001, -1, "ID", "value", HelpStr{ "help string" }).offset(23))
 		},
 		{
 			R"([serial(0)] strings { [id(-1), plural("values")] ID = "value"; })",
@@ -332,19 +332,19 @@ namespace lngs::testing {
 				{ "", 1, 50, severity::warning, str(lng::ERR_ATTR_MISSING, str("help")) },
 			},
 			true,
-			basic.make(string(1001, -1, "ID", "value", PluralStr{ "values" }).offset(23))
+			basic.make(test_string(1001, -1, "ID", "value", PluralStr{ "values" }).offset(23))
 		},
 		{
 			R"([serial(0)] strings { [id(-1), help("help string"), plural("values")] ID = "value"; })",
 			{},
 			true,
-			basic.make(string(1001, -1, "ID", "value", HelpStr{ "help string" }, PluralStr{ "values" }).offset(23))
+			basic.make(test_string(1001, -1, "ID", "value", HelpStr{ "help string" }, PluralStr{ "values" }).offset(23))
 		},
 		{
 			R"([serial(0)] strings { [id(-1), plural("values"), help("help string")] ID = "value"; })",
 			{},
 			true,
-			basic.make(string(1001, -1, "ID", "value", HelpStr{ "help string" }, PluralStr{ "values" }).offset(23))
+			basic.make(test_string(1001, -1, "ID", "value", HelpStr{ "help string" }, PluralStr{ "values" }).offset(23))
 		},
 	};
 
@@ -361,9 +361,9 @@ strings {
 			{},
 			true,
 			basic.make(
-				string(1001, -1, "ID", "value", HelpStr{ "help string" }, PluralStr{ "values" }).offset(24),
-				string(1002, -1, "ID", "value", HelpStr{ "help string" }, PluralStr{ "values" }).offset(87),
-				string(1003, -1, "ID2", "value2", HelpStr{ "help string" }).offset(150)
+				test_string(1001, -1, "ID", "value", HelpStr{ "help string" }, PluralStr{ "values" }).offset(24),
+				test_string(1002, -1, "ID", "value", HelpStr{ "help string" }, PluralStr{ "values" }).offset(87),
+				test_string(1003, -1, "ID2", "value2", HelpStr{ "help string" }).offset(150)
 			)
 		},
 		{
@@ -376,9 +376,9 @@ strings {
 			{},
 			true,
 			basic.make(
-				string(1002, -1, "ID", "value", HelpStr{ "help string" }, PluralStr{ "values" }).offset(24),
-				string(1001, "ID2", "value2", HelpStr{ "help string" }, PluralStr{ "values" }).offset(87),
-				string(1003, -1, "ID3", "value3", HelpStr{ "help string" }).offset(154)
+				test_string(1002, -1, "ID", "value", HelpStr{ "help string" }, PluralStr{ "values" }).offset(24),
+				test_string(1001, "ID2", "value2", HelpStr{ "help string" }, PluralStr{ "values" }).offset(87),
+				test_string(1003, -1, "ID3", "value3", HelpStr{ "help string" }).offset(154)
 			)
 		},
 		{
@@ -391,9 +391,9 @@ strings {
 			{},
 			true,
 			basic.make(
-				string(1010, "ID", "value", HelpStr{ "help string" }, PluralStr{ "values" }).offset(24),
-				string(1100, "ID2", "value2", HelpStr{ "help string" }, PluralStr{ "values" }).offset(89),
-				string(1101, -1, "ID3", "value3", HelpStr{ "help string" }).offset(156)
+				test_string(1010, "ID", "value", HelpStr{ "help string" }, PluralStr{ "values" }).offset(24),
+				test_string(1100, "ID2", "value2", HelpStr{ "help string" }, PluralStr{ "values" }).offset(89),
+				test_string(1101, -1, "ID3", "value3", HelpStr{ "help string" }).offset(156)
 			)
 		},
 		{
@@ -406,9 +406,9 @@ strings {
 			{},
 			true,
 			basic.make(
-				string(1010, "ID", "value", HelpStr{ "help string" }, PluralStr{ "values" }).offset(24),
-				string(1100, "ID2", "value2", HelpStr{ "help string" }, PluralStr{ "values" }).offset(89),
-				string(123456789, "ID3", "value3", HelpStr{ "help string" }).offset(156)
+				test_string(1010, "ID", "value", HelpStr{ "help string" }, PluralStr{ "values" }).offset(24),
+				test_string(1100, "ID2", "value2", HelpStr{ "help string" }, PluralStr{ "values" }).offset(89),
+				test_string(123456789, "ID3", "value3", HelpStr{ "help string" }).offset(156)
 			)
 		},
 	};

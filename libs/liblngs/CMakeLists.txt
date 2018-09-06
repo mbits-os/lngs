@@ -56,6 +56,8 @@ enable_testing()
 add_test(NAME lngs.source_location COMMAND lngs-test --gtest_filter=source_location.*)
 add_test(NAME lngs.diagnostics COMMAND lngs-test --gtest_filter=*/diag_write.*)
 add_test(NAME lngs.read_idl COMMAND lngs-test --gtest_filter=*/read.*)
+add_test(NAME lngs.freeze COMMAND lngs-test --gtest_filter=*/frozen.*)
+add_test(NAME lngs.res COMMAND lngs-test --gtest_filter=*/res_make.*:*/res_write.*)
 add_test(NAME lngs.utf COMMAND lngs-test --gtest_filter=*/utf_conv.*)
 
 endif()

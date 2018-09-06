@@ -48,8 +48,6 @@ public:
 
 	using parent_t::operator bool;
 
-	FILE* handle() const noexcept { return get(); }
-
 	void close() noexcept { reset(); }
 	void open(const path& fname, char const* mode = "r") noexcept { reset(fopen(fname, mode)); }
 

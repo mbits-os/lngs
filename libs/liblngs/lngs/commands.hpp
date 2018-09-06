@@ -33,6 +33,8 @@ namespace lngs {
 	struct file;
 	struct outstream;
 	struct idl_strings;
+	class source_file;
+	class diagnostics;
 
 	static inline std::string straighten(std::string str) {
 		for (auto& c : str)
@@ -71,5 +73,5 @@ namespace lngs::res {
 
 namespace lngs::freeze {
 	bool freeze(idl_strings& defs);
-	int write(outstream& out, const idl_strings& defs, const std::vector<std::byte>& data);
+	int write(outstream& out, const idl_strings& defs, source_file& data);
 }
