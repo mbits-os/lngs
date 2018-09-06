@@ -135,11 +135,7 @@ namespace lngs {
 		bool eof_{ false };
 	public:
 		source_view(diagnostics::bucket_item* item) : item_{ item } {}
-		void open() { file_.open(item_->path); }
-
-		std::string_view name() const noexcept {
-			return item_->path;
-		}
+		void open(const char* mode) { file_.open(item_->path, mode); }
 
 		unsigned key() const noexcept {
 			return item_->key;
@@ -243,19 +239,6 @@ namespace lngs {
 				std::memcpy(buffer, content_.data() + at, rest);
 			return rest;
 		}
-
-		std::vector<std::byte> read(size_t at) {
-			{
-				size_t buff = at;
-				while (!eof_) {
-					buff += 8192;
-					ensure(buff);
-				}
-			}
-			if (at >= content_.size())
-				return {};
-			return { next(begin(content_), at), end(content_) };
-		}
 	};
 
 	source_file::~source_file() = default;
@@ -268,12 +251,6 @@ namespace lngs {
 		auto read = view_->read(position_, buffer, length);
 		position_ += read;
 		return read;
-	}
-
-	std::vector<std::byte> source_file::read() {
-		auto ret = view_->read(position_);
-		position_ += ret.size();
-		return ret;
 	}
 
 	bool source_file::eof() const noexcept {
@@ -290,10 +267,6 @@ namespace lngs {
 
 	std::string_view source_file::line(unsigned no) noexcept {
 		return view_->line(no);
-	}
-
-	std::string_view source_file::name() noexcept {
-		return view_->name();
 	}
 
 	location source_file::position(unsigned line, unsigned column) {
@@ -455,10 +428,10 @@ namespace lngs {
 		return {};
 	}
 
-	source_file diagnostics::open(const std::string& path) {
+	source_file diagnostics::open(const std::string& path, const char* mode) {
 		auto item = lookup(path);
 		if (!item->contents) {
-			(item->contents = std::make_shared<source_file::source_view>(item))->open();
+			(item->contents = std::make_shared<source_file::source_view>(item))->open(mode);
 		}
 		return item->contents;
 	}

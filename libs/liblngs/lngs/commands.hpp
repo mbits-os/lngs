@@ -62,8 +62,8 @@ namespace lngs::py {
 }
 
 namespace lngs::make {
-	file load_mo(const idl_strings& defs, bool warp_missing, bool verbose, const fs::path& path);
-	bool fix_attributes(file& file, const fs::path& ll_CCs);
+	file load_mo(const idl_strings& defs, bool warp_missing, bool verbose, source_file data, diagnostics& diags);
+	bool fix_attributes(file& file, source_file& mo_file, const std::string& ll_CCs, diagnostics& diags);
 }
 
 namespace lngs::res {

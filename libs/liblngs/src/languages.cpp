@@ -25,6 +25,7 @@
 #include <assert.h>
 #include <cctype>
 
+#include <lngs/diagnostics.hpp>
 #include <lngs/languages.hpp>
 #include <lngs/streams.hpp>
 #include <lngs/strings.hpp>
@@ -85,7 +86,10 @@ namespace lngs {
 		return utf::as_u8(u32);
 	}
 
-	std::vector<tr_string> translations(const std::map<std::string, std::string>& gtt, const std::vector<idl_string>& strings, bool warp_missing, bool verbose)
+	std::vector<tr_string> translations(const std::map<std::string, std::string>& gtt,
+	                                    const std::vector<idl_string>& strings,
+	                                    bool warp_missing, bool verbose,
+	                                    source_file& src, diagnostics& diags)
 	{
 		std::vector<tr_string> out;
 		out.reserve(gtt.empty() ? 0 : gtt.size() - 1);
@@ -93,8 +97,12 @@ namespace lngs {
 		for (auto& str : strings) {
 			auto it = gtt.find(str.key);
 			if (it == gtt.end()) {
-				if (verbose)
-					printf("warning: translation for `%s' missing.\n", str.key.c_str());
+				if (verbose) {
+					diags.push_back(
+						src.position()[severity::warning]
+							<< arg(lng::ERR_MSGS_TRANSLATION_MISSING, str.key)
+					);
+				}
 				if (warp_missing)
 					out.emplace_back(str.id, warp(str.value));
 				continue;
@@ -189,62 +197,92 @@ namespace lngs {
 		return c;
 	}
 
-	bool ll_code(instream& is, std::string& code, std::string& name, const std::string& fname, bool& ret)
-	{
-		code.clear();
-		name.clear();
+	struct ll_parse {
+		std::map<std::string, std::string>& names;
+		source_file is;
+		diagnostics& diags;
 
-		while (!is.eof() && std::isspace((uint8_t)is.peek()))
-			nextc(is);
+		unsigned line = 1;
+		unsigned column = 1;
 
-		if (is.eof())
-			return false;
+		enum result {
+			next,
+			done,
+			error
+		};
 
-		while (!is.eof() && !std::isspace((uint8_t)is.peek()))
-			code.push_back(nextc(is));
-
-		while (!is.eof() && std::isspace((uint8_t)is.peek())) {
-			auto c = nextc(is);
+		void adv(const char c) {
+			++column;
 			if (c == '\n') {
-				fprintf(stderr, "error: `%s' does not contain name in %s\n", code.c_str(), fname.c_str());
-				ret = false;
-				return false;
+				++line;
+				column = 1;
 			}
 		}
 
-		while (!is.eof() && is.peek() != (std::byte)'\n')
-			name.push_back(nextc(is));
+		result next_code() {
+			std::string code;
+			std::string name;
 
-		if (!is.eof())
-			nextc(is);
+			while (!is.eof() && std::isspace((uint8_t)is.peek()))
+				adv(nextc(is));
 
-		auto len = name.length();
-		while (len > 0 && std::isspace((uint8_t)name[len - 1]))
-			--len;
-		if (len != name.length())
-			name = name.substr(0, len);
+			if (is.eof())
+				return done;
 
-		return true;
-	}
+			const auto pos = is.position(line, column);
 
-	bool ll_CC(const fs::path& in, std::map<std::string, std::string>& langs)
+			while (!is.eof() && !std::isspace((uint8_t)is.peek())) {
+				const auto c = nextc(is);
+				code.push_back(c);
+				adv(c);
+			}
+
+			const auto end_pos = is.position(line, column);
+
+			while (!is.eof() && std::isspace((uint8_t)is.peek())) {
+				auto c = nextc(is);
+				if (c == '\n') {
+					diags.push_back(
+						(pos/end_pos)[severity::error]
+							<< arg(lng::ERR_UNANMED_LOCALE, code)
+					);
+					return error;
+				}
+			}
+
+			while (!is.eof() && is.peek() != (std::byte)'\n') {
+				const auto c = nextc(is);
+				name.push_back(c);
+				adv(c);
+			}
+
+			if (!is.eof())
+				adv(nextc(is));
+
+			auto len = name.length();
+			while (len > 0 && std::isspace((uint8_t)name[len - 1]))
+				--len;
+			if (len != name.length())
+				name = name.substr(0, len);
+
+			names[std::move(code)] = std::move(name);
+			return next;
+		}
+	};
+
+	bool ll_CC(source_file is, diagnostics& diags, std::map<std::string, std::string>& langs)
 	{
-		auto inname = in;
-		inname.make_preferred();
-
-		auto inf = fs::fopen(in, "rb");
-		if (!inf) {
-			fprintf(stderr, "could not open `%s'", inname.string().c_str());
+		if (!is.valid()) {
+			diags.push_back(is.position()[severity::error] << lng::ERR_FILE_NOT_FOUND);
 			return false;
 		}
 
-		finstream is{ std::move(inf) };
-		std::string code, name;
-		bool ret = true;
-		while (ll_code(is, code, name, inname.string(), ret) && ret)
-			langs[code] = name;
+		ll_parse parser{ langs, std::move(is), diags };
+		ll_parse::result res = ll_parse::done;
 
-		return ret;
+		while (!(res = parser.next_code()));
+
+		return res != ll_parse::error;
 	}
 
 #define WRITE(os, I) if (!os.write(I)) return -1;
@@ -263,9 +301,6 @@ namespace lngs {
 
 		int list(outstream& os, std::vector<tr_string>& block)
 		{
-			if (block.empty())
-				return 0;
-
 			for (auto& str : block)
 				WRITE(os, str.key);
 
@@ -274,9 +309,6 @@ namespace lngs {
 
 		int data(outstream& os, std::vector<tr_string>& block)
 		{
-			if (block.empty())
-				return 0;
-
 			for (auto& str : block) {
 				WRITESTR(os, str.value);
 				WRITE(os, '\0');

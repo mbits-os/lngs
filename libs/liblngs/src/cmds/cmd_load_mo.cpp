@@ -23,6 +23,7 @@
  */
 
 #include <lngs/commands.hpp>
+#include <lngs/diagnostics.hpp>
 #include <lngs/streams.hpp>
 #include <lngs/strings.hpp>
 #include <lngs/languages.hpp>
@@ -35,31 +36,35 @@ namespace lngs {
 }
 
 namespace lngs::make {
-	file load_mo(const idl_strings& defs, bool warp_missing, bool verbose, const fs::path& path) {
+	file load_mo(const idl_strings& defs, bool warp_missing, bool verbose, source_file data, diagnostics& diags) {
 		file file;
 		file.serial = defs.serial;
-		auto map = gtt::open(path);
-		file.strings = translations(map, defs.strings, warp_missing, verbose);
+		auto map = gtt::open(data, diags);
+		file.strings = translations(map, defs.strings, warp_missing, verbose, data, diags);
 		file.attrs = attributes(map);
 		return file;
 	}
 
-	bool fix_attributes(file& file, const fs::path& ll_CCs) {
+	bool fix_attributes(file& file, source_file& mo_file, const std::string& ll_CCs, diagnostics& diags) {
 		auto prop = find_if(begin(file.attrs), end(file.attrs), [](auto& item) { return item.key.id == locale::ATTR_CULTURE; });
 		if (prop == end(file.attrs) || prop->value.empty()) {
-			printf("warning: message file does not contain Language attribute.\n");
+			const auto pos = mo_file.position();
+			diags.push_back(pos[severity::warning] << lng::ERR_MSGS_ATTR_LANG_MISSING);
 		} else {
 			bool lang_set = false;
 
 			if (!ll_CCs.empty()) {
+				auto is = diags.source(ll_CCs);
+				const auto pos = is.position();
+
 				std::map<std::string, std::string> names;
-				if (!ll_CC(ll_CCs, names))
+				if (!ll_CC(std::move(is), diags, names))
 					return false;
 
 				auto it = names.find(prop->value);
-				if (it == names.end())
-					printf("warning: no %s in %s\n", prop->value.c_str(), ll_CCs.string().c_str());
-				else {
+				if (it == names.end()) {
+					diags.push_back(pos[severity::warning] << arg(lng::ERR_LOCALE_MISSING, prop->value));
+				} else {
 					file.attrs.emplace_back(locale::ATTR_LANGUAGE, it->second);
 					lang_set = true;
 				}

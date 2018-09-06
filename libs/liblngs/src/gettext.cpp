@@ -23,91 +23,17 @@
  */
 
 #include <lngs/gettext.hpp>
+#include <lngs/diagnostics.hpp>
+#include <string_view>
 
 namespace gtt {
-	class GetTextFile {
-		std::unique_ptr<char[]> m_content;
-		size_t m_size;
-	public:
-		~GetTextFile()
-		{
-			close();
-		}
-		bool open(const fs::path& path)
-		{
-			close();
-			fs::error_code ec;
-			auto st = fs::status(path, ec);
-			if (ec || !fs::is_regular_file(st))
-				return false;
-
-			m_size = (size_t)fs::file_size(path, ec);
-			if (ec)
-				return false;
-
-			m_content.reset(new char[m_size]);
-
-			auto inf = fs::fopen(path, "rb");
-			size_t read = inf.load(m_content.get(), m_size);
-			return read == m_size;
-		}
-
-		void close()
-		{
-			m_size = 0;
-			m_content.reset();
-		}
-
-		uint32_t intFromOffset(size_t off)
-		{
-			if (off + sizeof(uint32_t) > m_size)
-				return 0;
-
-			return *(uint32_t*)(m_content.get() + off);
-		}
-
-		uint32_t offsetsValid(size_t off, size_t count, uint32_t hashtop)
-		{
-			for (size_t i = 0; i < count; ++i) {
-				auto chunk = off + i * 8;
-				auto length = intFromOffset(chunk);
-				auto offset = intFromOffset(chunk + 4);
-				char c = 0;
-				if (length > 0)
-					c = m_content[offset + length];
-				if (offset < hashtop || offset > m_size)
-					return false;
-				if (m_size - offset < length || c != 0)
-					return false;
-			}
-
-			return true;
-		}
-
-		std::vector<char> getString(size_t off, size_t i) {
-			auto chunk = off + i * 8;
-			auto length = intFromOffset(chunk);
-			auto offset = intFromOffset(chunk + 4);
-			return{ m_content.get() + offset, m_content.get() + offset + length };
-		}
-	};
-
-	std::string gtt_key(const std::vector<char>& val)
-	{
-		auto b = std::begin(val);
-		auto e = std::end(val);
-		auto c = b;
-
-		while (c != e && *c != 0x04) ++c;
-
-		return{ b, c };
-	}
+	using namespace lngs;
 
 	class gtt_stream {
-		GetTextFile& m_ref;
+		const std::vector<std::byte>& m_ref;
 		size_t m_offset = 0;
 	public:
-		gtt_stream(GetTextFile& ref) : m_ref { ref }
+		gtt_stream(const std::vector<std::byte>& ref) : m_ref { ref }
 		{
 		}
 
@@ -115,23 +41,99 @@ namespace gtt {
 		{
 			auto tmp = m_offset;
 			m_offset += sizeof(4);
-			return m_ref.intFromOffset(tmp);
+			return intFromOffset(tmp);
 		}
 
 		size_t tell() const { return m_offset; }
+
+		uint32_t intFromOffset(size_t off) const noexcept
+		{
+			const auto length = m_ref.size();
+			const auto rest = length >= off ? length - off : 0;
+
+			if (rest < sizeof(uint32_t))
+				return 0;
+
+			uint32_t out = 0;
+			auto ptr = m_ref.data() + off;
+#if 0
+			for (size_t b = 0; b < sizeof(uint32_t); ++b, ++ptr) {
+				out <<= 8;
+				out |= std::to_integer<uint32_t>(*ptr);
+			}
+#else
+			out = *reinterpret_cast<const uint32_t*>(ptr);
+#endif
+			return out;
+		}
+
+		static bool gtt_error(lng code, source_file& src, diagnostics& diags) {
+			auto diag = src.position()[severity::error] << lng::ERR_GETTEXT_FORMAT;
+			diag.children.push_back(src.position()[severity::note] << code);
+			diags.push_back(std::move(diag));
+			return false;
+		}
+
+		bool offsetsValid(size_t off, size_t count, uint32_t hashtop, source_file& src, diagnostics& diags) const noexcept
+		{
+			const auto size = m_ref.size();
+
+			for (size_t i = 0; i < count; ++i) {
+				auto chunk = off + i * 8;
+				auto length = intFromOffset(chunk);
+				auto offset = intFromOffset(chunk + 4);
+				if (offset < hashtop)
+					return gtt_error(lng::ERR_GETTEXT_STRING_OUTSIDE, src, diags);
+
+				if (offset > size)
+					return gtt_error(lng::ERR_GETTEXT_FILE_TRUNCATED, src, diags);
+
+				const auto rest = size >= offset ? size - offset : 0;
+				if (rest < length)
+					return gtt_error(lng::ERR_GETTEXT_FILE_TRUNCATED, src, diags);
+				if (length > 0) {
+					if (rest == length)
+						return gtt_error(lng::ERR_GETTEXT_NOT_ASCIIZ, src, diags);
+					auto c = std::to_integer<unsigned>(m_ref[offset + length]);
+					if (c != 0)
+						return gtt_error(lng::ERR_GETTEXT_NOT_ASCIIZ, src, diags);
+				}
+			}
+
+			return true;
+		}
+
+		std::string_view getString(size_t off, size_t i) const noexcept
+		{
+			auto chunk = off + i * 8;
+			auto length = intFromOffset(chunk);
+			auto offset = intFromOffset(chunk + 4);
+			return{ (const char*)m_ref.data() + offset, length };
+		}
 	};
 
-	std::map<std::string, std::string> open(const fs::path& path)
+	static std::string gtt_key(const std::string_view& val) noexcept
 	{
-		using s2s = std::map<std::string, std::string>;
+		auto pos = val.find(0x04);
+		return { val.data(), pos == std::string_view::npos ? val.length() : pos };
+	}
 
-		GetTextFile gtt;
-		if (!gtt.open(path))
-			return s2s { };
+	std::map<std::string, std::string> open(source_file& src, diagnostics& diags)
+	{
+		std::map<std::string, std::string> out;
 
-		gtt_stream in { gtt };
-		if (0x950412de != in.next()) return s2s { };
-		if (0 != in.next()) return s2s { };
+		if (!src.valid()) {
+			diags.push_back(src.position()[severity::error] << lng::ERR_FILE_NOT_FOUND);
+			return {};
+		}
+
+		auto& contents = src.data();
+		gtt_stream in { contents };
+		if ((0x950412de != in.next())
+			|| (0 != in.next()))
+		{
+			return out;
+		}
 
 		auto count = in.next();
 		auto originals = in.next();
@@ -139,19 +141,29 @@ namespace gtt {
 		auto hashsize = in.next();
 		auto hashpos = in.next();
 
-		if (originals < in.tell()) return s2s { };
-		if (translation < originals) return s2s { };
-		if (hashpos < translation) return s2s { };
-		if (translation - originals < count * 4) return s2s { };
-		if (hashpos - translation < count * 4) return s2s { };
+		if ((originals < in.tell())
+			|| (translation < originals)
+			|| (hashpos < translation))
+		{
+			gtt_stream::gtt_error(lng::ERR_GETTEXT_BLOCKS_OVERLAP, src, diags);
+			return {};
+		}
+		if (((translation - originals) < (count * 2 * sizeof(uint32_t)))
+			|| ((hashpos - translation) < (count * 2 * sizeof(uint32_t))))
+		{
+			gtt_stream::gtt_error(lng::ERR_GETTEXT_FILE_TRUNCATED, src, diags);
+			return {};
+		}
 
-		if (!gtt.offsetsValid(originals, count, hashpos + hashsize)) return s2s { };
-		if (!gtt.offsetsValid(translation, count, hashpos + hashsize)) return s2s { };
+		if (!in.offsetsValid(originals, count, hashpos + hashsize, src, diags)
+			|| !in.offsetsValid(translation, count, hashpos + hashsize, src, diags))
+		{
+			return out;
+		}
 
-		s2s out;
 		for (size_t i = 0; i < count; ++i) {
-			auto orig = gtt.getString(originals, i);
-			auto trans = gtt.getString(translation, i);
+			auto orig = in.getString(originals, i);
+			auto trans = in.getString(translation, i);
 			out[gtt_key(orig)] = { trans.begin(), trans.end() };
 		}
 		return out;

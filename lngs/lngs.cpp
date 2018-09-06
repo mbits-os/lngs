@@ -288,7 +288,8 @@ namespace lngs::py {
 namespace lngs::make {
 	int call(args::parser& parser)
 	{
-		fs::path moname, inname, outname, llname;
+		fs::path inname, outname;
+		std::string moname, llname;
 		bool verbose = false;
 		bool warp_missing = false;
 
@@ -304,26 +305,19 @@ namespace lngs::make {
 		if (int res = setup.read_strings(parser, inname, verbose))
 			return res;
 
-		auto file = load_mo(setup.strings, warp_missing, verbose, moname);
-		if (!fix_attributes(file, llname))
+		auto file = load_mo(setup.strings, warp_missing, verbose, setup.diag.open(moname, "rb"), setup.diag);
+		if (setup.diag.has_errors())
 			return 1;
 
-		if (outname == "-")
-			return file.write(get_stdout());
+		if (!llname.empty())
+			setup.diag.open(llname);
 
-		auto name = outname;
-		name.make_preferred();
-
-		auto outf = fs::fopen(outname, "wb");
-		if (!outf) {
-			fmt::print(stderr, "could not open `{}'", name.string());
+		if (auto mo = setup.diag.source(moname); !fix_attributes(file, mo, llname, setup.diag))
 			return 1;
-		}
 
-		if (verbose)
-			fmt::print("{}\n", name.string());
-		foutstream out{ std::move(outf) };
-		return file.write(out);
+		return setup.write(parser, outname, [&](outstream& out) {
+			return file.write(out);
+		}, print_if(verbose));
 	}
 }
 

@@ -198,13 +198,11 @@ namespace lngs {
 		[[nodiscard]] bool valid() const noexcept;
 
 		std::size_t read(void* buffer, std::size_t length) noexcept final;
-		std::vector<std::byte> read();
 		bool eof() const noexcept final;
 		std::byte peek() noexcept final;
 		const std::vector<std::byte>& data() const noexcept;
 		std::string_view line(unsigned no) noexcept;
 
-		std::string_view name() noexcept;
 		location position(unsigned line = 0, unsigned column = 0);
 	};
 
@@ -233,7 +231,7 @@ namespace lngs {
 		const bucket_item* lookup(const Key& path) const;
 	public:
 		std::string_view filename(const location&) const;
-		source_file open(const std::string& path);
+		source_file open(const std::string& path, const char* mode = "r");
 		source_file source(const std::string_view& path);
 		source_file source(const std::string_view& path) const;
 		void set_contents(const std::string& path, std::vector<std::byte> data);

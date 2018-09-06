@@ -47,11 +47,17 @@ namespace lngs {
 	};
 
 	struct idl_string;
+	class source_file;
+	class diagnostics;
 
 	std::string warp(const std::string& s);
+	std::map<std::string, std::string, std::less<>> attrGTT(std::string_view attrs);
 	std::vector<tr_string> attributes(const std::map<std::string, std::string>& gtt);
-	std::vector<tr_string> translations(const std::map<std::string, std::string>& gtt, const std::vector<idl_string>& strings, bool warp_missing, bool verbose);
-	bool ll_CC(const fs::path& in, std::map<std::string, std::string>& langs);
+	std::vector<tr_string> translations(const std::map<std::string, std::string>& gtt,
+	                                    const std::vector<idl_string>& strings,
+	                                    bool warp_missing, bool verbose,
+	                                    source_file& src, diagnostics& diags);
+	bool ll_CC(source_file is, diagnostics& diags, std::map<std::string, std::string>& langs);
 
 	struct outstream;
 	struct file {

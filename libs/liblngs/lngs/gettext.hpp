@@ -27,6 +27,10 @@
 #include <string>
 #include <locale/file.hpp>
 
+namespace lngs {
+	class source_file;
+	class diagnostics;
+}
 namespace gtt {
-	std::map<std::string, std::string> open(const fs::path& path);
+	std::map<std::string, std::string> open(lngs::source_file& src, lngs::diagnostics& diags);
 }
