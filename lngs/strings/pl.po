@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: lngs 0.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-09-04 18:33+0200\n"
-"PO-Revision-Date: 2018-09-04 18:43+0200\n"
+"POT-Creation-Date: 2018-09-06 16:57+0200\n"
+"PO-Revision-Date: 2018-09-06 16:59+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: pl\n"
@@ -89,10 +89,50 @@ msgctxt "ERR_FILE_NOT_FOUND"
 msgid "could not open the file"
 msgstr "nie można otworzyć pliku"
 
+#. Detail of what was wrong with the contents
+msgctxt "ERR_GETTEXT_BLOCKS_OVERLAP"
+msgid "two or more blocks occupy the same space"
+msgstr "dwa lub więcej bloków zajmuje tą samą przestrzeń"
+
+#. Detail of what was wrong with the contents
+msgctxt "ERR_GETTEXT_FILE_TRUNCATED"
+msgid "file truncated; data missing"
+msgstr "plik obcięty; brak oczekiwanych danych"
+
+#. The MO file has unexpected contents
+msgctxt "ERR_GETTEXT_FORMAT"
+msgid "gettext file format error"
+msgstr "błąd formatu pliku gettext"
+
+#. Detail of what was wrong with the contents
+msgctxt "ERR_GETTEXT_NOT_ASCIIZ"
+msgid "strings must end with a zero"
+msgstr "napisy muszą kończyć się zerem"
+
+#. Detail of what was wrong with the contents
+msgctxt "ERR_GETTEXT_STRING_OUTSIDE"
+msgid "string not contained inside the block"
+msgstr "nais nie zawiera się wewnątrz bloku"
+
 #. Hint for IDL authors, when an id attribute is missing.
 msgctxt "ERR_ID_MISSING_HINT"
 msgid "before finalizing a value, use `id(-1)'"
 msgstr "przed sfinalizowaniem wartości, należy używać `id(-)'"
+
+#. Message for missing locale in file with locale/culture name pairs.
+msgctxt "ERR_LOCALE_MISSING"
+msgid "no {0} locale on the list"
+msgstr "nazwy dla ustawień regionalnych {0} nie ma na liście"
+
+#. The gettext MO file has no attribute for language-REGION pair. The word "Language" is not to be translated.
+msgctxt "ERR_MSGS_ATTR_LANG_MISSING"
+msgid "message file does not contain Language attribute"
+msgstr "plik wiadomości nie zawiera atrybutu Language"
+
+#. Warning for a missing string. The argument will be replaced by identifier with missing translation.
+msgctxt "ERR_MSGS_TRANSLATION_MISSING"
+msgid "message file does not contain translation for \"{0}\""
+msgstr "plik wiadomości nie zawiera tłumaczenia dla \"{0}\""
 
 #. Presented as additional message, if input file was not parsed properly.
 msgctxt "ERR_NOT_STRINGS_FILE"
@@ -108,6 +148,11 @@ msgstr "brak nowych napisów"
 msgctxt "ERR_REQ_ATTR_MISSING"
 msgid "required attribute `{0}' is missing"
 msgstr "brak wymaganego atrybutu `{0}'"
+
+#. Message for missing name for a locale with no name for the culture in file with locale/name pairs.
+msgctxt "ERR_UNANMED_LOCALE"
+msgid "locale {0} has no name"
+msgstr "ustawienia regionalne {0} nie mają nazwy"
 
 #. Name of the severity label for errors.
 msgctxt "SEVERITY_ERROR"

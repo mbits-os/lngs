@@ -1,7 +1,7 @@
 [
 	project("lngs"),
 	version("0.3"),
-	serial(3)
+	serial(4)
 ] strings {
 	[help("Name of the severity label for notes."), id(1001)]
 	SEVERITY_NOTE = "note";
@@ -50,4 +50,24 @@
 	ERR_EXPECTED_GOT_NUMBER = "number";
 	[help("Used as second argument for ERR_EXPECTED, as in \"..., got identifier\""), id(1022)]
 	ERR_EXPECTED_GOT_ID = "identifier";
+
+	[help("Warning for a missing string. The argument will be replaced by identifier with missing translation."), id(1023)]
+	ERR_MSGS_TRANSLATION_MISSING = "message file does not contain translation for \"{0}\"";
+	[help("The gettext MO file has no attribute for language-REGION pair. The word \"Language\" is not to be translated."), id(1024)]
+	ERR_MSGS_ATTR_LANG_MISSING = "message file does not contain Language attribute";
+	[help("Message for missing name for a locale with no name for the culture in file with locale/name pairs."), id(1025)]
+	ERR_UNANMED_LOCALE = "locale {0} has no name";
+	[help("Message for missing locale in file with locale/culture name pairs."), id(1026)]
+	ERR_LOCALE_MISSING = "no {0} locale on the list";
+
+	[help("The MO file has unexpected contents"), id(1027)]
+	ERR_GETTEXT_FORMAT = "gettext file format error";
+	[help("Detail of what was wrong with the contents"), id(1028)]
+	ERR_GETTEXT_BLOCKS_OVERLAP = "two or more blocks occupy the same space";
+	[help("Detail of what was wrong with the contents"), id(1029)]
+	ERR_GETTEXT_STRING_OUTSIDE = "string not contained inside the block";
+	[help("Detail of what was wrong with the contents"), id(1030)]
+	ERR_GETTEXT_FILE_TRUNCATED = "file truncated; data missing";
+	[help("Detail of what was wrong with the contents"), id(1031)]
+	ERR_GETTEXT_NOT_ASCIIZ = "strings must end with a zero";
 }

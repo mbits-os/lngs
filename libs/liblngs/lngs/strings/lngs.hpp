@@ -27,6 +27,15 @@ namespace lngs {
         ERR_EXPECTED_GOT_STRING = 1020, // string (Used as second argument for ERR_EXPECTED, as in "..., got string")
         ERR_EXPECTED_GOT_NUMBER = 1021, // number (Used as second argument for ERR_EXPECTED, as in "..., got number")
         ERR_EXPECTED_GOT_ID = 1022, // identifier (Used as second argument for ERR_EXPECTED, as in "..., got identifier")
+        ERR_MSGS_TRANSLATION_MISSING = 1023, // message file does not contain translation for "{0}" (Warning for a missing string. The argument will be replaced by identifier with missing translation.)
+        ERR_MSGS_ATTR_LANG_MISSING = 1024, // message file does not contain Language attribute (The gettext MO file has no attribute for language-REGION pair. The word "Language" is not to be translated.)
+        ERR_UNANMED_LOCALE = 1025, // locale {0} has no name (Message for missing name for a locale with no name for the culture in file with locale/name pairs.)
+        ERR_LOCALE_MISSING = 1026, // no {0} locale on the list (Message for missing locale in file with locale/culture name pairs.)
+        ERR_GETTEXT_FORMAT = 1027, // gettext file format error (The MO file has unexpected contents)
+        ERR_GETTEXT_BLOCKS_OVERLAP = 1028, // two or more blocks occupy the same space (Detail of what was wrong with the contents)
+        ERR_GETTEXT_STRING_OUTSIDE = 1029, // string not contained inside the block (Detail of what was wrong with the contents)
+        ERR_GETTEXT_FILE_TRUNCATED = 1030, // file truncated; data missing (Detail of what was wrong with the contents)
+        ERR_GETTEXT_NOT_ASCIIZ = 1031, // strings must end with a zero (Detail of what was wrong with the contents)
     }; // enum class lng
 
     struct Resource {

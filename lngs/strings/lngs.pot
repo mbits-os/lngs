@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: lngs 0.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-09-04 18:33+0200\n"
+"POT-Creation-Date: 2018-09-06 16:57+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -87,9 +87,49 @@ msgctxt "ERR_FILE_NOT_FOUND"
 msgid "could not open the file"
 msgstr ""
 
+#. Detail of what was wrong with the contents
+msgctxt "ERR_GETTEXT_BLOCKS_OVERLAP"
+msgid "two or more blocks occupy the same space"
+msgstr ""
+
+#. Detail of what was wrong with the contents
+msgctxt "ERR_GETTEXT_FILE_TRUNCATED"
+msgid "file truncated; data missing"
+msgstr ""
+
+#. The MO file has unexpected contents
+msgctxt "ERR_GETTEXT_FORMAT"
+msgid "gettext file format error"
+msgstr ""
+
+#. Detail of what was wrong with the contents
+msgctxt "ERR_GETTEXT_NOT_ASCIIZ"
+msgid "strings must end with a zero"
+msgstr ""
+
+#. Detail of what was wrong with the contents
+msgctxt "ERR_GETTEXT_STRING_OUTSIDE"
+msgid "string not contained inside the block"
+msgstr ""
+
 #. Hint for IDL authors, when an id attribute is missing.
 msgctxt "ERR_ID_MISSING_HINT"
 msgid "before finalizing a value, use `id(-1)'"
+msgstr ""
+
+#. Message for missing locale in file with locale/culture name pairs.
+msgctxt "ERR_LOCALE_MISSING"
+msgid "no {0} locale on the list"
+msgstr ""
+
+#. The gettext MO file has no attribute for language-REGION pair. The word "Language" is not to be translated.
+msgctxt "ERR_MSGS_ATTR_LANG_MISSING"
+msgid "message file does not contain Language attribute"
+msgstr ""
+
+#. Warning for a missing string. The argument will be replaced by identifier with missing translation.
+msgctxt "ERR_MSGS_TRANSLATION_MISSING"
+msgid "message file does not contain translation for \"{0}\""
 msgstr ""
 
 #. Presented as additional message, if input file was not parsed properly.
@@ -105,6 +145,11 @@ msgstr ""
 #. A required attribute is not present. The argument represents the name of the attribute.
 msgctxt "ERR_REQ_ATTR_MISSING"
 msgid "required attribute `{0}' is missing"
+msgstr ""
+
+#. Message for missing name for a locale with no name for the culture in file with locale/name pairs.
+msgctxt "ERR_UNANMED_LOCALE"
+msgid "locale {0} has no name"
 msgstr ""
 
 #. Name of the severity label for errors.

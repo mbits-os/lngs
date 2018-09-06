@@ -1,3 +1,4 @@
+#include <gtest/gtest.h>
 #include "diag_helper.h"
 
 namespace lngs::testing {
@@ -25,6 +26,15 @@ namespace lngs::testing {
 		case lng::ERR_EXPECTED_GOT_STRING: return "string";
 		case lng::ERR_EXPECTED_GOT_NUMBER: return "number";
 		case lng::ERR_EXPECTED_GOT_ID: return "identifier";
+		case lng::ERR_MSGS_TRANSLATION_MISSING: return "message file does not contain translation for \"{0}\"";
+		case lng::ERR_MSGS_ATTR_LANG_MISSING: return "message file does not contain Language attribute";
+		case lng::ERR_UNANMED_LOCALE: return "locale {0} has no name";
+		case lng::ERR_LOCALE_MISSING: return "no {0} locale on the list";
+		case lng::ERR_GETTEXT_FORMAT: return "gettext file format error";
+		case lng::ERR_GETTEXT_BLOCKS_OVERLAP: return "two or more blocks occupy the same space";
+		case lng::ERR_GETTEXT_STRING_OUTSIDE: return "string not contained inside the block";
+		case lng::ERR_GETTEXT_FILE_TRUNCATED: return "file truncated; data missing";
+		case lng::ERR_GETTEXT_NOT_ASCIIZ: return "strings must end with a zero";
 		}
 		return "";
 	};
@@ -53,6 +63,15 @@ namespace lngs::testing {
 		case lng::ERR_EXPECTED_GOT_STRING: return "ERR_EXPECTED_GOT_STRING";
 		case lng::ERR_EXPECTED_GOT_NUMBER: return "ERR_EXPECTED_GOT_NUMBER";
 		case lng::ERR_EXPECTED_GOT_ID: return "ERR_EXPECTED_GOT_ID";
+		case lng::ERR_MSGS_TRANSLATION_MISSING: return "ERR_MSGS_TRANSLATION_MISSING({0})";
+		case lng::ERR_MSGS_ATTR_LANG_MISSING: return "ERR_MSGS_ATTR_LANG_MISSING";
+		case lng::ERR_UNANMED_LOCALE: return "ERR_UNANMED_LOCALE({0})";
+		case lng::ERR_LOCALE_MISSING: return "ERR_LOCALE_MISSING({0})";
+		case lng::ERR_GETTEXT_FORMAT: return "ERR_GETTEXT_FORMAT";
+		case lng::ERR_GETTEXT_BLOCKS_OVERLAP: return "ERR_GETTEXT_BLOCKS_OVERLAP";
+		case lng::ERR_GETTEXT_STRING_OUTSIDE: return "ERR_GETTEXT_STRING_OUTSIDE";
+		case lng::ERR_GETTEXT_FILE_TRUNCATED: return "ERR_GETTEXT_FILE_TRUNCATED";
+		case lng::ERR_GETTEXT_NOT_ASCIIZ: return "ERR_GETTEXT_NOT_ASCIIZ";
 		}
 		return "";
 	};
@@ -82,6 +101,15 @@ namespace lngs::testing {
 			NAME(ERR_EXPECTED_GOT_STRING);
 			NAME(ERR_EXPECTED_GOT_NUMBER);
 			NAME(ERR_EXPECTED_GOT_ID);
+			NAME(ERR_MSGS_TRANSLATION_MISSING);
+			NAME(ERR_MSGS_ATTR_LANG_MISSING);
+			NAME(ERR_UNANMED_LOCALE);
+			NAME(ERR_LOCALE_MISSING);
+			NAME(ERR_GETTEXT_FORMAT);
+			NAME(ERR_GETTEXT_BLOCKS_OVERLAP);
+			NAME(ERR_GETTEXT_STRING_OUTSIDE);
+			NAME(ERR_GETTEXT_FILE_TRUNCATED);
+			NAME(ERR_GETTEXT_NOT_ASCIIZ);
 #undef NAME
 		};
 		return "???";
