@@ -142,6 +142,9 @@ namespace lngs {
 		}
 
 		void ensure(size_t size) {
+			if (!valid())
+				eof_ = true;
+
 			std::byte buffer[8192];
 			while (!eof_ && content_.size() < size) {
 				auto read = file_.load(buffer, sizeof(buffer));
@@ -183,17 +186,20 @@ namespace lngs {
 
 			while (no >= endlines_.size()) {
 				auto current = endlines_.empty() ? 0u : (endlines_.back() + 1);
-				auto data = content_.data() + current;
-				auto end = content_.data() + content_.size();
-				auto it = std::find(data, end, endline);
+				if (current < content_.size()) {
+					auto data = content_.data() + current;
+					auto end = content_.data() + content_.size();
+					auto it = std::find(data, end, endline);
 
-				if (it != end) {
-					endlines_.push_back(it - content_.data());
-					continue;
+					if (it != end) {
+						endlines_.push_back(it - content_.data());
+						continue;
+					}
 				}
 
 				if (eof_) {
-					endlines_.push_back(it - content_.data());
+					if (endlines_.empty() || endlines_.back() != content_.size())
+						endlines_.push_back(content_.size());
 					break;
 				}
 
@@ -270,13 +276,15 @@ namespace lngs {
 	}
 
 	location source_file::position(unsigned line, unsigned column) {
-		return { view_->key(), line, column };
+		return { view_ ? view_->key() : 0u, line, column };
 	}
 
 	void diagnostic::print(outstream& o, const class diagnostics& host, const strings& tr, link_type links, size_t depth) const {
-		for (size_t i = 0; i < depth; ++i) {
-			static constexpr const char pre[] = "    ";
-			o.write(pre, sizeof(pre) - 1);
+		if (links == link_type::vc) {
+			for (size_t i = 0; i < depth; ++i) {
+				static constexpr const char pre[] = "    ";
+				o.write(pre, sizeof(pre) - 1);
+			}
 		}
 
 		if (sev != severity::verbose) {
@@ -328,8 +336,10 @@ namespace lngs {
 					for (unsigned i = 0; i < start_col; ++i)
 						o.write(' ');
 					o.write('^');
-					for (unsigned i = start_col + 1; i < end_col; ++i)
-						o.write('~');
+					if (end_pos.column) {
+						for (unsigned i = start_col + 1; i < end_col; ++i)
+							o.write('~');
+					}
 					o.write('\n');
 				}
 			}
@@ -339,42 +349,47 @@ namespace lngs {
 			child.print(o, host, tr, links, depth + 1);
 	}
 
-	template <std::size_t tab> constexpr std::size_t tabbed(std::size_t in) {
-		return ((in + tab) / tab) * tab;
-	}
-
-	template <std::size_t tab> constexpr std::size_t tabbed_len(std::string_view line, std::size_t col) {
-		std::size_t tabbed_col = 0;
-
-		for (auto b = begin(line), e = b + std::min(col, line.length()); b != e; ++b) {
-			if (*b == '\t')
-				tabbed_col = tabbed<tab>(tabbed_col);
-			else
-				++tabbed_col;
-		}
-
-		return tabbed_col;
-	}
-
 	std::tuple<std::string, std::size_t, std::size_t> diagnostic::prepare(std::string_view line, std::size_t start_col, std::size_t end_col) {
-		constexpr std::size_t tab_depth = 3;
-		auto dec = [](auto val) { return val ? val - 1 : val; };
-		std::size_t tabbed_col = dec(tabbed_len<tab_depth>(line, start_col));
-		std::size_t tabbed_end = dec(tabbed_len<tab_depth>(line, end_col));
-		std::size_t tabbed_length = tabbed_len<tab_depth>(line, line.length());
+		struct index {
+			size_t raw, mapped{ 0 };
+		} col{ start_col }, col_end{ end_col };
+
+		size_t len = 0;
+		size_t pos = 0;
+
+		for (auto c : line) {
+			++len;
+			++pos;
+			if (col.raw == pos)
+				col.mapped = len;
+			if (col_end.raw == pos)
+				col_end.mapped = len;
+			if (c == '\t') {
+				while (len % diagnostic::tab_size) {
+					++len;
+				}
+			}
+		}
+		if (col.raw && !col.mapped)
+			col.mapped = len + (col.raw - pos);
+		if (col_end.raw && !col_end.mapped)
+			col_end.mapped = len + (col_end.raw - pos);
 
 		std::string s;
-		s.reserve(tabbed_length);
+		s.reserve(len);
+		len = 0;
 		for (auto c : line) {
+			++len;
 			if (c == '\t') {
-				tabbed_length = tabbed<tab_depth>(s.length());
-				while (s.length() < tabbed_length)
+				s.push_back(' ');
+				while (len % diagnostic::tab_size) {
+					++len;
 					s.push_back(' ');
-			} else
-				s.push_back(c);
+				}
+			} else s.push_back(c);
 		}
 
-		return { s, tabbed_col, tabbed_end };
+		return { s, col.mapped - 1, col_end.mapped - 1 };
 	}
 
 	template <typename Key>

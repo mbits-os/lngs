@@ -138,6 +138,7 @@ namespace lngs {
 		std::string str(const strings& tr) const;
 
 		bool operator==(const argumented_string& rhs) const noexcept;
+		bool operator!=(const argumented_string& rhs) const noexcept { return !(*this == rhs); }
 	};
 
 	template <typename ... Args>
@@ -167,6 +168,8 @@ namespace lngs {
 		severity sev{ severity::note };
 		argumented_string message;
 		std::vector<diagnostic> children;
+
+		static constexpr const size_t tab_size = 3;
 
 		void print(outstream& o, const class diagnostics& host, const strings& tr, link_type links = link_type::native, size_t depth = 0) const;
 

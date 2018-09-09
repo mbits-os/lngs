@@ -89,13 +89,18 @@ namespace lngs::testing {
 		diagnostic_str message{ };
 		link_type link{ link_type::gcc };
 		bool use_alt_tr{ true };
+		unsigned column_end{ 0 };
+		std::vector<expected_diagnostic> subs{ };
 	};
 
 	inline std::ostream& operator<<(std::ostream& o, const expected_diagnostic& diag) {
-		return o
-			<< "{\"" << diag.filename << "\","
+		o	<< "{\"" << diag.filename << "\","
 			<< diag.line << ','
-			<< diag.column << ','
+			<< diag.column;
+		if (diag.column_end)
+			o << ':' << diag.column_end;
+		return o
+			<< ','
 			<< (int)diag.sev << ","
 			<< diag.message << ","
 			<< (diag.link == link_type::gcc ? "gcc" : "vc") << ","
