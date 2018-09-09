@@ -30,12 +30,10 @@
 	[help("Hint for IDL authors, when an id attribute is missing."), id(1012)]
 	ERR_ID_MISSING_HINT = "before finalizing a value, use `id(-1)'";
 
-	[help("Information about bad syntax in the stirngs file. The arguments represent the expected and actual token, respectively."), id(1013)]
+	[help("Information about bad syntax in the strings file. The arguments represent the expected and actual token, respectively."), id(1013)]
 	ERR_EXPECTED = "expected {0}, got {1}";
-	[help("Used as first argument for ERR_EXPECTED, as in \"expected unrecognized text\""), id(1014)]
-	ERR_EXPECTED_UNRECOGNIZED = "unrecognized text";
-	[help("Used as first argument for ERR_EXPECTED, as in \"expected EOF\""), id(1015)]
-	ERR_EXPECTED_EOF = "EOF";
+	[help("Used as second argument for ERR_EXPECTED, as in \"..., got unrecognized text\""), id(1014)]
+	ERR_EXPECTED_GOT_UNRECOGNIZED = "unrecognized text";
 	[help("Used as first argument for ERR_EXPECTED, as in \"expected string\""), id(1016)]
 	ERR_EXPECTED_STRING = "string";
 	[help("Used as first argument for ERR_EXPECTED, as in \"expected number\""), id(1017)]

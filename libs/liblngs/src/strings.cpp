@@ -91,13 +91,12 @@ namespace lngs {
 		argumented_string info_expected() const
 		{
 			switch (type) {
-			case NONE: return lng::ERR_EXPECTED_UNRECOGNIZED;
-			case END_OF_FILE: return lng::ERR_EXPECTED_EOF;
 			case STRING: return lng::ERR_EXPECTED_STRING;
 			case NUMBER: return lng::ERR_EXPECTED_NUMBER;
 			case ID: return value.empty() ? arg(lng::ERR_EXPECTED_ID) : "`" + value + "'";
 			default: break;
 			}
+			assert(type != NONE && type != END_OF_FILE);
 			char buffer[] = "` '";
 			buffer[1] = (char)type;
 			return arg(buffer);
@@ -106,7 +105,7 @@ namespace lngs {
 		argumented_string info_got() const
 		{
 			switch (type) {
-			case NONE: return lng::ERR_EXPECTED_UNRECOGNIZED;
+			case NONE: return lng::ERR_EXPECTED_GOT_UNRECOGNIZED;
 			case END_OF_FILE: return lng::ERR_EXPECTED_GOT_EOF;
 			case STRING: return lng::ERR_EXPECTED_GOT_STRING;
 			case NUMBER: return lng::ERR_EXPECTED_GOT_NUMBER;

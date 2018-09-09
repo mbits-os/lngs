@@ -17,8 +17,7 @@ namespace lngs::testing {
 		case lng::ERR_REQ_ATTR_MISSING: return "required attribute `{0}' is missing";
 		case lng::ERR_ID_MISSING_HINT: return "before finalizing a value, use `id(-1)'";
 		case lng::ERR_EXPECTED: return "expected {0}, got {1}";
-		case lng::ERR_EXPECTED_UNRECOGNIZED: return "unrecognized text";
-		case lng::ERR_EXPECTED_EOF: return "EOF";
+		case lng::ERR_EXPECTED_GOT_UNRECOGNIZED: return "unrecognized text";
 		case lng::ERR_EXPECTED_STRING: return "string";
 		case lng::ERR_EXPECTED_NUMBER: return "number";
 		case lng::ERR_EXPECTED_ID: return "identifier";
@@ -54,8 +53,7 @@ namespace lngs::testing {
 		case lng::ERR_REQ_ATTR_MISSING: return "ERR_REQ_ATTR_MISSING({0})";
 		case lng::ERR_ID_MISSING_HINT: return "ERR_ID_MISSING_HINT";
 		case lng::ERR_EXPECTED: return "ERR_EXPECTED({0}, {1})";
-		case lng::ERR_EXPECTED_UNRECOGNIZED: return "ERR_EXPECTED_UNRECOGNIZED";
-		case lng::ERR_EXPECTED_EOF: return "ERR_EXPECTED_EOF";
+		case lng::ERR_EXPECTED_GOT_UNRECOGNIZED: return "ERR_EXPECTED_GOT_UNRECOGNIZED";
 		case lng::ERR_EXPECTED_STRING: return "ERR_EXPECTED_STRING";
 		case lng::ERR_EXPECTED_NUMBER: return "ERR_EXPECTED_NUMBER";
 		case lng::ERR_EXPECTED_ID: return "ERR_EXPECTED_ID";
@@ -92,8 +90,7 @@ namespace lngs::testing {
 			NAME(ERR_REQ_ATTR_MISSING);
 			NAME(ERR_ID_MISSING_HINT);
 			NAME(ERR_EXPECTED);
-			NAME(ERR_EXPECTED_UNRECOGNIZED);
-			NAME(ERR_EXPECTED_EOF);
+			NAME(ERR_EXPECTED_GOT_UNRECOGNIZED);
 			NAME(ERR_EXPECTED_STRING);
 			NAME(ERR_EXPECTED_NUMBER);
 			NAME(ERR_EXPECTED_ID);

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: lngs 0.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-09-06 16:57+0200\n"
+"POT-Creation-Date: 2018-09-10 00:00+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -27,14 +27,9 @@ msgctxt "ERR_ATTR_MISSING"
 msgid "attribute `{0}' is missing"
 msgstr ""
 
-#. Information about bad syntax in the stirngs file. The arguments represent the expected and actual token, respectively.
+#. Information about bad syntax in the strings file. The arguments represent the expected and actual token, respectively.
 msgctxt "ERR_EXPECTED"
 msgid "expected {0}, got {1}"
-msgstr ""
-
-#. Used as first argument for ERR_EXPECTED, as in "expected EOF"
-msgctxt "ERR_EXPECTED_EOF"
-msgid "EOF"
 msgstr ""
 
 #. Used as second argument for ERR_EXPECTED, as in "..., got EOF"
@@ -57,6 +52,11 @@ msgctxt "ERR_EXPECTED_GOT_STRING"
 msgid "string"
 msgstr ""
 
+#. Used as second argument for ERR_EXPECTED, as in "..., got unrecognized text"
+msgctxt "ERR_EXPECTED_GOT_UNRECOGNIZED"
+msgid "unrecognized text"
+msgstr ""
+
 #. Used as first argument for ERR_EXPECTED, as in "expected identifier"
 msgctxt "ERR_EXPECTED_ID"
 msgid "identifier"
@@ -70,11 +70,6 @@ msgstr ""
 #. Used as first argument for ERR_EXPECTED, as in "expected string"
 msgctxt "ERR_EXPECTED_STRING"
 msgid "string"
-msgstr ""
-
-#. Used as first argument for ERR_EXPECTED, as in "expected unrecognized text"
-msgctxt "ERR_EXPECTED_UNRECOGNIZED"
-msgid "unrecognized text"
 msgstr ""
 
 #. Needed file was not found; filename is going to be shown as argument {0}.

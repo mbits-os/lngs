@@ -426,7 +426,7 @@ namespace lngs::testing {
 		{ ""s, lng::ERR_FILE_MISSING },
 		{ lng::ERR_EXPECTED, ""s },
 		{ arg(lng::ERR_FILE_MISSING, "path"s), lng::ERR_FILE_MISSING },
-		{ arg(lng::ERR_FILE_MISSING, lng::ERR_EXPECTED_EOF), arg(lng::ERR_FILE_MISSING, "EOF"s) }
+		{ arg(lng::ERR_FILE_MISSING, lng::ERR_EXPECTED_GOT_EOF), arg(lng::ERR_FILE_MISSING, "EOF"s) }
 	};
 
 	INSTANTIATE_TEST_CASE_P(neq, diag_ne, ValuesIn(neq));
