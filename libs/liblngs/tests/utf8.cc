@@ -6,10 +6,21 @@ namespace utf::testing {
 	using ::testing::TestWithParam;
 	using ::testing::ValuesIn;
 
+	enum class op {
+		none,
+		utf8to16,
+		utf8to32,
+		utf16to8,
+		utf16to32,
+		utf32to8,
+		utf32to16,
+	};
+
 	struct string_convert {
 		const std::string utf8;
 		const std::u16string utf16;
 		const std::u32string utf32;
+		op oper{ op::none };
 	};
 
 	template <typename Out> struct utf_helper;
@@ -39,22 +50,50 @@ namespace utf::testing {
 		}
 	};
 
+	struct utf_errors : utf_conv {};
+
 	TEST_P(utf_conv, utf8) {
-		auto[u8, u16, u32] = GetParam();
+		auto[u8, u16, u32, ign] = GetParam();
 		ExpectUtfEq(u8, u16);
 		ExpectUtfEq(u8, u32);
 	}
 
 	TEST_P(utf_conv, utf16) {
-		auto[u8, u16, u32] = GetParam();
+		auto[u8, u16, u32, ign] = GetParam();
 		ExpectUtfEq(u16, u8);
 		ExpectUtfEq(u16, u32);
 	}
 
 	TEST_P(utf_conv, utf32) {
-		auto[u8, u16, u32] = GetParam();
+		auto[u8, u16, u32, ign] = GetParam();
 		ExpectUtfEq(u32, u8);
 		ExpectUtfEq(u32, u16);
+	}
+
+	TEST_P(utf_errors, check) {
+		auto[u8, u16, u32, oper] = GetParam();
+		switch (oper) {
+		case op::utf8to16:
+			ExpectUtfEq(u16, u8);
+			break;
+		case op::utf8to32:
+			ExpectUtfEq(u32, u8);
+			break;
+		case op::utf16to8:
+			ExpectUtfEq(u8, u16);
+			break;
+		case op::utf16to32:
+			ExpectUtfEq(u32, u16);
+			break;
+		case op::utf32to8:
+			ExpectUtfEq(u8, u32);
+			break;
+		case op::utf32to16:
+			ExpectUtfEq(u16, u32);
+			break;
+		default:
+			break;
+		};
 	}
 
 	template <class ... Char>
@@ -66,6 +105,12 @@ namespace utf::testing {
 	template <class ... Char>
 	std::u16string utf16(Char ... chars) {
 		char16_t data[] = { char16_t(chars)..., 0u };
+		return data;
+	}
+
+	template <class ... Char>
+	std::string utf8(Char ... chars) {
+		char data[] = { (char)(unsigned char)(chars)..., 0u };
 		return data;
 	}
 
@@ -94,4 +139,26 @@ namespace utf::testing {
 	};
 
 	INSTANTIATE_TEST_CASE_P(strings, utf_conv, ValuesIn(strings));
+
+	const string_convert bad[] = {
+		{ utf8('a', 'b', 0xe0, 0x9f, 0x9f), {}, {}, op::utf8to32 },
+		{ utf8('a', 'b', 0xed, 0xa0, 0xa0), {}, {}, op::utf8to32 },
+		{ utf8('a', 'b', 0xf0, 0x8f, 0x8f, 0x8f), {}, {}, op::utf8to32 },
+		{ utf8('a', 'b', 0xf4, 0x90, 0x90, 0x90), {}, {}, op::utf8to32 },
+
+		{ utf8('a', 'b', 0xef, 0xbf, 0xbd, 'c', 'd'), {}, utf32('a', 'b', 0x00110000u, 'c', 'd'), op::utf32to8 },
+		{ {}, utf16('a', 'b', 0xFFFD, 'c', 'd'), utf32('a', 'b', 0x00110000u, 'c', 'd'), op::utf32to16 },
+		{ utf8('a', 'b', 0xf4, 0x8f, 0xbf, 0xbf, 'c', 'd'), {}, utf32('a', 'b', 0x0010FFFFu, 'c', 'd'), op::utf32to8 },
+		{ {}, utf16('a', 'b', 0xDBFF, 0xDFFF, 'c', 'd'), utf32('a', 'b', 0x0010FFFFu, 'c', 'd'), op::utf32to16 },
+		{ utf8('a', 'b', 0xef, 0xbf, 0xbd, 'c', 'd'), {}, utf32('a', 'b', 0xD811, 'c', 'd'), op::utf32to8 },
+		{ {}, utf16('a', 'b', 0xFFFD, 'c', 'd'), utf32('a', 'b', 0xD811, 'c', 'd'), op::utf32to16 },
+		{ utf8('a', 'b', 0xef, 0xbf, 0xbd, 'c', 'd'), {}, utf32('a', 'b', 0x00110000u, 'c', 'd'), op::utf32to8 },
+
+		// timer clock: U+23F2 E2:8F:B2
+		{ utf8('a', 'b', 0xe2, 0x8f), {}, {}, op::utf8to32 },
+		{ utf8('a', 'b', 0xe2, 0x8f, '-'), {}, {}, op::utf8to32 },
+		{ utf8('a', 'b', 0xfe, '-', '-', '-', '-', '-'), {}, {}, op::utf8to32 },
+	};
+
+	INSTANTIATE_TEST_CASE_P(bad, utf_errors, ValuesIn(bad));
 }

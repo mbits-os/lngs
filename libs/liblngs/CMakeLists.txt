@@ -61,7 +61,7 @@ add_test(NAME lngs.res COMMAND lngs-test --gtest_filter=*/res_make.*:*/res_write
 add_test(NAME lngs.enums COMMAND lngs-test --gtest_filter=*/enums.*)
 add_test(NAME lngs.python COMMAND lngs-test --gtest_filter=*/python.*)
 add_test(NAME lngs.pot COMMAND lngs-test --gtest_filter=*/pot.*)
-add_test(NAME lngs.utf COMMAND lngs-test --gtest_filter=*/utf_conv.*)
+add_test(NAME lngs.utf COMMAND lngs-test --gtest_filter=*/utf_conv.*:*/utf_errors.*)
 add_test(NAME lngs.gettext COMMAND lngs-test --gtest_filter=*/gettext.*:*/gtt_attr_*.*:*/gtt_extract.*:*/mo_*.* --data_path=${DATA_DIR})
 
 endif()

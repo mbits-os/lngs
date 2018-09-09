@@ -126,8 +126,7 @@ namespace utf
 		* The cases all fall through. See "Note A" below.
 		*/
 		switch (extraBytesToRead) {
-		case 5: ch += (uint8_t)*source++; ch <<= 6; [[fallthrough]]; /* remember, illegal UTF-8 */
-		case 4: ch += (uint8_t)*source++; ch <<= 6; [[fallthrough]]; /* remember, illegal UTF-8 */
+		// 4 and 5 extra bytes are not passed through by isLegalUTF8
 		case 3: ch += (uint8_t)*source++; ch <<= 6; [[fallthrough]];
 		case 2: ch += (uint8_t)*source++; ch <<= 6; [[fallthrough]];
 		case 1: ch += (uint8_t)*source++; ch <<= 6; [[fallthrough]];
@@ -173,8 +172,11 @@ namespace utf
 		/* Figure out how many bytes the result will require */
 		if (ch < (char32_t)0x80) bytesToWrite = 1;
 		else if (ch < (char32_t)0x800) bytesToWrite = 2;
-		else if (ch < (char32_t)0x10000) bytesToWrite = 3;
-		else if (ch < UNI_MAX_LEGAL_UTF32) bytesToWrite = 4;
+		else if (ch >= UNI_SUR_HIGH_START && ch <= UNI_SUR_LOW_END) {
+			bytesToWrite = 3;
+			ch = UNI_REPLACEMENT_CHAR;
+		} else if (ch < (char32_t)0x10000) bytesToWrite = 3;
+		else if (ch <= UNI_MAX_LEGAL_UTF32) bytesToWrite = 4;
 		else {
 			bytesToWrite = 3;
 			ch = UNI_REPLACEMENT_CHAR;
@@ -214,20 +216,23 @@ namespace utf
 	}
 
 	static inline void encode(char32_t ch, std::back_insert_iterator<std::u32string>& target) {
-		if (ch <= UNI_MAX_LEGAL_UTF32) {
-			/*
-			 * UTF-16 surrogate values are illegal in UTF-32, and anything
-			 * over Plane 17 (> 0x10FFFF) is illegal.
-			 */
-			if (ch >= UNI_SUR_HIGH_START && ch <= UNI_SUR_LOW_END) {
-				*target++ = UNI_REPLACEMENT_CHAR;
+		if constexpr (false) {
+			// This code will only have sense with some sort of UTF32-to-UTF32 validation
+			if (ch <= UNI_MAX_LEGAL_UTF32) {
+				/*
+				 * UTF-16 surrogate values are illegal in UTF-32, and anything
+				 * over Plane 17 (> 0x10FFFF) is illegal.
+				 */
+				if (ch >= UNI_SUR_HIGH_START && ch <= UNI_SUR_LOW_END) {
+					*target++ = UNI_REPLACEMENT_CHAR;
+					return;
+				}
+				*target++ = ch; /* normal case */
 				return;
 			}
+			*target++ = UNI_REPLACEMENT_CHAR;
+		} else
 			*target++ = ch; /* normal case */
-			return;
-		}
-
-		*target++ = UNI_REPLACEMENT_CHAR;
 	}
 
 	template <class String, class StringView>
@@ -272,14 +277,5 @@ namespace utf
 
 	std::u16string as_u16(std::u32string_view src) {
 		return convert<std::u16string>(src);
-	}
-
-	const char* next_char(const char* src) noexcept
-	{
-		if (!src)
-			return src;
-
-		const auto trailing = trailingBytesForUTF8[(uint8_t)*src];
-		return src + 1 + trailing;
 	}
 }

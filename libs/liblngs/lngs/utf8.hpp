@@ -34,5 +34,4 @@ namespace utf
 	std::u32string as_u32(std::u16string_view src);
 	std::u16string as_u16(std::u32string_view src);
 	std::string as_u8(std::u32string_view src);
-	const char* next_char(const char* src) noexcept;
 }
