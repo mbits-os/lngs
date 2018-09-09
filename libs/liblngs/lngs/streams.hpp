@@ -38,49 +38,6 @@ namespace lngs {
 		virtual std::byte peek() noexcept = 0;
 	};
 
-	class buffered_instream : public instream {
-	protected:
-		enum { buf_size = 1024 };
-	private:
-		std::byte buffer_[buf_size];
-		std::byte* cur_ = buffer_;
-		std::byte* end_ = buffer_;
-		bool seen_eof_ = false;
-
-		virtual size_t underflow(std::byte (&buffer)[buf_size]) noexcept = 0;
-		void underflow() noexcept;
-	public:
-		std::size_t read(void* data, std::size_t length) noexcept override;
-		bool eof() const noexcept override;
-		std::byte peek() noexcept override;
-	};
-
-	class std_instream final : public buffered_instream {
-		std::FILE* ptr;
-		size_t underflow(std::byte(&buffer)[buf_size]) noexcept final;
-	public:
-		std_instream(std::FILE* ptr) noexcept : ptr(ptr) {}
-	};
-
-	class finstream final : public buffered_instream {
-		fs::file file;
-		size_t underflow(std::byte(&buffer)[buf_size]) noexcept final;
-	public:
-		finstream(fs::file file) noexcept : file(std::move(file)) {}
-	};
-
-	class meminstream : public instream {
-		const std::byte* ptr;
-		size_t length;
-		const std::byte* cur = ptr;
-		const std::byte* end = ptr + length;
-	public:
-		meminstream(const std::byte* ptr, std::size_t length) noexcept : ptr(ptr), length(length) {}
-		std::size_t read(void* data, std::size_t length) noexcept override;
-		bool eof() const noexcept override;
-		std::byte peek() noexcept override;
-	};
-
 	struct outstream {
 		virtual ~outstream();
 		virtual std::size_t write(const void* buffer, std::size_t length) noexcept = 0;
