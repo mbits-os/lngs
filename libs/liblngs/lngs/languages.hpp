@@ -34,6 +34,7 @@ namespace lngs {
 		std::string value;
 
 		tr_string();
+		~tr_string();
 		tr_string(tr_string&&);
 		tr_string& operator=(tr_string&&);
 		tr_string(const tr_string&);

@@ -2,6 +2,8 @@
 #include "diag_helper.h"
 #include "strings_helper.h"
 
+extern std::string LOCALE_data_path;
+
 namespace lngs::testing {
 	using namespace ::std::literals;
 	using ::testing::Test;
@@ -14,9 +16,10 @@ namespace lngs::testing {
 
 	struct compilation_result {
 		const std::string_view text;
-		const std::initializer_list<expected_diagnostic> msgs;
+		const std::initializer_list<diagnostic> msgs;
 		bool result{ false };
 		const idl_strings results{};
+		bool verbose{ false };
 
 		friend std::ostream& operator<<(std::ostream& o, const compilation_result& res) {
 			o << '"';
@@ -36,32 +39,87 @@ namespace lngs::testing {
 
 	class read : public TestWithParam<compilation_result> {
 	public:
-		void compare(const argumented_string& lhs, const diagnostic_str& rhs) {
-			EXPECT_EQ(
-				std::holds_alternative<std::string>(lhs.value),
-				rhs.use_string);
+		void strings(const idl_strings& expected, const idl_strings& actual)
+		{
+#define COMPARE_EQ(fld) EXPECT_EQ(expected.fld, actual.fld)
+			COMPARE_EQ(project);
+			COMPARE_EQ(version);
+			COMPARE_EQ(serial);
+			COMPARE_EQ(serial_offset);
+			COMPARE_EQ(has_new);
+			COMPARE_EQ(strings.size());
+#undef COMPARE_EQ
 
-			if (rhs.use_string) {
-				if (std::holds_alternative<std::string>(lhs.value))
-					EXPECT_EQ(std::get<std::string>(lhs.value), rhs.str);
-				else
-					EXPECT_STREQ("", rhs.str) << "Unexpected lng::" << UnexpectedDiags::name(std::get<lng>(lhs.value));
-			} else {
-				if (std::holds_alternative<lng>(lhs.value))
-					EXPECT_EQ(std::get<lng>(lhs.value), rhs.id);
-				else
-					EXPECT_EQ(std::get<std::string>(lhs.value), "") << "Unexpected lng::" << UnexpectedDiags::name(rhs.id);
+			{
+				auto left = begin(expected.strings);
+				auto left_end = end(expected.strings);
+				auto right = begin(actual.strings);
+				auto right_end = end(actual.strings);
+				for (; left != left_end && right != right_end; ++left, ++right) {
+					auto const & expected_str = *left;
+					auto const & actual_str = *right;
+
+#define COMPARE_EQ(fld) EXPECT_EQ(expected_str.fld, actual_str.fld)
+					COMPARE_EQ(key);
+					COMPARE_EQ(value);
+					COMPARE_EQ(help);
+					COMPARE_EQ(plural);
+					COMPARE_EQ(id);
+					COMPARE_EQ(original_id);
+					COMPARE_EQ(id_offset);
+#undef COMPARE_EQ
+				}
+			}
+		}
+
+		template <typename Collection>
+		void messages(const Collection& expected_msgs, const std::vector<diagnostic>& actual_msgs, unsigned src, unsigned src1 = 0)
+		{
+			if (actual_msgs.size() > expected_msgs.size()) {
+				EXPECT_EQ(expected_msgs.size(), actual_msgs.size()) << UnexpectedDiags{ actual_msgs, expected_msgs.size() };
+			}
+			else {
+				EXPECT_EQ(expected_msgs.size(), actual_msgs.size());
 			}
 
-			EXPECT_EQ(lhs.args.size(), rhs.args.size());
+			{
+				auto left = begin(actual_msgs);
+				auto left_end = end(actual_msgs);
+				auto right = begin(expected_msgs);
+				auto right_end = end(expected_msgs);
 
-			auto left = begin(lhs.args);
-			auto left_end = end(lhs.args);
-			auto right = begin(rhs.args);
-			auto right_end = end(rhs.args);
-			for (; left != left_end && right != right_end; ++left, ++right) {
-				compare(*left, *right);
+				for (; left != left_end && right != right_end; ++left, ++right) {
+					auto const & actual = *left;
+					auto const & expected = *right;
+
+					if (!src1 || actual.pos.token != src1) {
+						EXPECT_EQ(src, actual.pos.token);
+					}
+					EXPECT_EQ(expected.pos.line, actual.pos.line);
+					EXPECT_EQ(expected.pos.column, actual.pos.column);
+					EXPECT_EQ(expected.sev, actual.sev);
+					EXPECT_EQ(expected.message, actual.message);
+				}
 			}
+		}
+	};
+
+	class read_file : public read {
+	public:
+		static void fix_datapath(argumented_string& msg) {
+			if (std::holds_alternative<std::string>(msg.value)) {
+				auto& val = std::get<std::string>(msg.value);
+				if (val.compare(0, 11, "$DATA_PATH/") == 0) {
+					val = (fs::path{ LOCALE_data_path } / val.substr(11)).string();
+				}
+			}
+			for (auto& arg : msg.args)
+				fix_datapath(arg);
+		}
+
+		static void fix_datapath(std::vector<diagnostic>& set) {
+			for (auto& diag : set)
+				fix_datapath(diag.message);
 		}
 	};
 
@@ -71,74 +129,32 @@ namespace lngs::testing {
 		diagnostics diag;
 		diag.set_contents(source_filename, param.text);
 
-		idl_strings output;
-		auto result = read_strings(diag.source(source_filename), output, diag);
+		idl_strings actual;
+		auto result = read_strings(diag.source(source_filename), actual, diag);
+
+		const auto src = diag.source(source_filename).position().token;
 
 		EXPECT_EQ(result, param.result);
+		strings(param.results, actual);
+		messages(param.msgs, diag.diagnostic_set(), src);
+	}
 
-		//////////////////////////////////////////////////////////////////////
-		// STRINGS
+	TEST_P(read_file, strings) {
+		auto const& param = GetParam();
 
-#define COMPARE_EQ(fld) EXPECT_EQ(output.fld, param.results.fld)
-		COMPARE_EQ(project);
-		COMPARE_EQ(version);
-		COMPARE_EQ(serial);
-		COMPARE_EQ(serial_offset);
-		COMPARE_EQ(has_new);
-		COMPARE_EQ(strings.size());
-#undef COMPARE_EQ
+		auto src_name = fs::path{ LOCALE_data_path } / param.text;
+		diagnostics diag;
+		idl_strings actual;
+		auto result = read_strings("prog", src_name, actual, param.verbose, diag);
 
-		{
-			auto left = begin(output.strings);
-			auto left_end = end(output.strings);
-			auto right = begin(param.results.strings);
-			auto right_end = end(param.results.strings);
-			for (; left != left_end && right != right_end; ++left, ++right) {
-				auto const & lhs_str = *left;
-				auto const & rhs_str = *right;
+		const auto src = diag.source(src_name.string()).position().token;
+		const auto src1 = diag.source("prog").position().token;
 
-#define COMPARE_EQ(fld) EXPECT_EQ(lhs_str.fld, rhs_str.fld)
-				COMPARE_EQ(key);
-				COMPARE_EQ(value);
-				COMPARE_EQ(help);
-				COMPARE_EQ(plural);
-				COMPARE_EQ(id);
-				COMPARE_EQ(original_id);
-				COMPARE_EQ(id_offset);
-#undef COMPARE_EQ
-			}
-		}
-
-		//////////////////////////////////////////////////////////////////////
-		// MESSAGES
-
-		const auto& diags = diag.diagnostic_set();
-		if (diags.size() > param.msgs.size()) {
-			EXPECT_EQ(diags.size(), param.msgs.size()) << UnexpectedDiags{ diags, param.msgs.size() };
-		}
-		else {
-			EXPECT_EQ(diags.size(), param.msgs.size());
-		}
-
-		{
-			auto left = begin(diags);
-			auto left_end = end(diags);
-			auto right = begin(param.msgs);
-			auto right_end = end(param.msgs);
-			auto source_file = diag.source(source_filename).position().token;
-
-			for (; left != left_end && right != right_end; ++left, ++right) {
-				auto const & lhs_diag = *left;
-				auto const & rhs_diag = *right;
-
-				EXPECT_EQ(lhs_diag.pos.token, source_file);
-				EXPECT_EQ(lhs_diag.pos.line, rhs_diag.line);
-				EXPECT_EQ(lhs_diag.pos.column, rhs_diag.column);
-				EXPECT_EQ(lhs_diag.sev, rhs_diag.sev);
-
-				compare(lhs_diag.message, rhs_diag.message);
-			}
-		}
+		EXPECT_EQ(result, param.result);
+		strings(param.results, actual);
+		auto set = std::vector(param.msgs);
+		fix_datapath(set);
+		messages(set, diag.diagnostic_set(), src, src1);
 	}
 
 	const idl_strings serial_0 = test_strings(0, 1).make();
@@ -173,29 +189,37 @@ namespace lngs::testing {
 		0, 1
 	).make();
 
+	constexpr location pos(unsigned line, unsigned col) { return { 0u, line, col }; }
+
 	static const compilation_result bad[] = {
 		{
 			{},
 			{
-				{ "", 1, 1, severity::error, str(lng::ERR_EXPECTED, str("`['"), str(lng::ERR_EXPECTED_GOT_EOF)) }
+				pos(1,1)[severity::error] << arg(lng::ERR_EXPECTED, "`['", lng::ERR_EXPECTED_GOT_EOF)
 			}
 		},
 		{
 			R"([] strings {})",
 			{
-				{ "", 1, 2, severity::error, str(lng::ERR_REQ_ATTR_MISSING, str("serial")) }
+				pos(1,2)[severity::error] << arg(lng::ERR_REQ_ATTR_MISSING, "serial")
+			}
+		},
+		{
+			R"(strings {})",
+			{
+				pos(1,1)[severity::error] << arg(lng::ERR_REQ_ATTR_MISSING, "serial")
 			}
 		},
 		{
 			R"([project(""), version("")] strings {})",
 			{
-				{ "", 1, 26, severity::error, str(lng::ERR_REQ_ATTR_MISSING, str("serial")) }
+				pos(1,26)[severity::error] << arg(lng::ERR_REQ_ATTR_MISSING, "serial")
 			}
 		},
 		{
 			R"([project("project-name"), version("")] strings {})",
 			{
-				{ "", 1, 38, severity::error, str(lng::ERR_REQ_ATTR_MISSING, str("serial")) }
+				pos(1,38)[severity::error] << arg(lng::ERR_REQ_ATTR_MISSING, "serial")
 			},
 			false,
 			empty_project_name
@@ -203,7 +227,7 @@ namespace lngs::testing {
 		{
 			R"([project(""), version("version")] strings {})",
 			{
-				{ "", 1, 33, severity::error, str(lng::ERR_REQ_ATTR_MISSING, str("serial")) }
+				pos(1,33)[severity::error] << arg(lng::ERR_REQ_ATTR_MISSING, "serial")
 			},
 			false,
 			empty_version
@@ -211,7 +235,7 @@ namespace lngs::testing {
 		{
 			R"([project("project-name"), version("version")] strings {})",
 			{
-				{ "", 1, 45, severity::error, str(lng::ERR_REQ_ATTR_MISSING, str("serial")) }
+				pos(1,45)[severity::error] << arg(lng::ERR_REQ_ATTR_MISSING, "serial")
 			},
 			false,
 			empty_project_name_version
@@ -219,13 +243,13 @@ namespace lngs::testing {
 		{
 			R"([serial(abc)] strings {})",
 			{
-				{ "", 1, 9, severity::error, str(lng::ERR_EXPECTED, str(lng::ERR_EXPECTED_STRING), str("`abc'")) }
+				pos(1,9)[severity::error] << arg(lng::ERR_EXPECTED, lng::ERR_EXPECTED_NUMBER, "`abc'")
 			}
 		},
 		{
 			R"([serial(0)] strings {)",
 			{
-				{ "", 1, 22, severity::error, str(lng::ERR_EXPECTED, str("`}'"), str(lng::ERR_EXPECTED_GOT_EOF)) }
+				pos(1,22)[severity::error] << arg(lng::ERR_EXPECTED, "`}'", lng::ERR_EXPECTED_GOT_EOF)
 			},
 			false,
 			serial_0
@@ -233,8 +257,8 @@ namespace lngs::testing {
 		{
 			R"([serial(0)] strings { ID = "value"; })",
 			{
-				{ "", 1, 23, severity::warning, str(lng::ERR_ATTR_MISSING, str("help")) },
-				{ "", 1, 23, severity::error, str(lng::ERR_REQ_ATTR_MISSING, str("id")) },
+				pos(1,23)[severity::warning] << arg(lng::ERR_ATTR_MISSING, "help"),
+				pos(1,23)[severity::error] << arg(lng::ERR_REQ_ATTR_MISSING, "id")
 			},
 			false,
 			serial_0
@@ -242,8 +266,8 @@ namespace lngs::testing {
 		{
 			R"([serial(0)] strings { [help("")] ID = "value"; })",
 			{
-				{ "", 1, 24, severity::warning, str(lng::ERR_ATTR_EMPTY, str("help")) },
-				{ "", 1, 34, severity::error, str(lng::ERR_REQ_ATTR_MISSING, str("id")) },
+				pos(1,24)[severity::warning] << arg(lng::ERR_ATTR_EMPTY, "help"),
+				pos(1,34)[severity::error] << arg(lng::ERR_REQ_ATTR_MISSING, "id")
 			},
 			false,
 			serial_0
@@ -251,11 +275,180 @@ namespace lngs::testing {
 		{
 			R"([serial(0)] strings { [help()] ID = "value"; })",
 			{
-				{ "", 1, 29, severity::error, str(lng::ERR_EXPECTED, str(lng::ERR_EXPECTED_STRING), str("`)'")) },
+				pos(1,29)[severity::error] << arg(lng::ERR_EXPECTED, lng::ERR_EXPECTED_STRING, "`)'")
 			},
 			false,
 			serial_0
-		}
+		},
+		{
+			R"([serial(0)] strings { [help] ID = "value"; })",
+			{
+				pos(1,28)[severity::error] << arg(lng::ERR_EXPECTED, "`('", "`]'")
+			},
+			false,
+			serial_0
+		},
+		{
+			R"(%)",
+			{
+				pos(1,1)[severity::error] << arg(lng::ERR_EXPECTED, "`['", lng::ERR_EXPECTED_GOT_UNRECOGNIZED)
+			},
+			false,
+			test_strings(0, -1).make()
+		},
+		{
+			R"([string)",
+			{
+				pos(1,8)[severity::error] << arg(lng::ERR_EXPECTED, lng::ERR_EXPECTED_ID, lng::ERR_EXPECTED_GOT_EOF)
+			},
+			false,
+			test_strings(0, -1).make()
+		},
+		{
+			R"([serial(+1000)",
+			{
+				pos(1,14)[severity::error] << arg(lng::ERR_EXPECTED, "`)'", lng::ERR_EXPECTED_GOT_EOF)
+			},
+			false,
+			test_strings(1000, -1).make()
+		},
+		{
+			R"("string")",
+			{
+				pos(1,1)[severity::error] << arg(lng::ERR_EXPECTED, "`['", lng::ERR_EXPECTED_GOT_STRING)
+			},
+			false,
+			test_strings(0, -1).make()
+		},
+		{
+			R"(123)",
+			{
+				pos(1,1)[severity::error] << arg(lng::ERR_EXPECTED, "`['", lng::ERR_EXPECTED_GOT_NUMBER)
+			},
+			false,
+			test_strings(0, -1).make()
+		},
+		{
+			R"([)",
+			{
+				pos(1,2)[severity::error] << arg(lng::ERR_EXPECTED, lng::ERR_EXPECTED_ID, lng::ERR_EXPECTED_GOT_EOF)
+			},
+			false,
+			test_strings(0, -1).make()
+		},
+		{
+			R"([help("not finished)",
+			{
+				pos(1,20)[severity::error] << arg(lng::ERR_EXPECTED, "`)'", lng::ERR_EXPECTED_GOT_EOF)
+			},
+			false,
+			test_strings(0, -1).make()
+		},
+		{
+			R"([id(+)",
+			{
+				pos(1,5)[severity::error] << arg(lng::ERR_EXPECTED, lng::ERR_EXPECTED_STRING, lng::ERR_EXPECTED_GOT_UNRECOGNIZED)
+			},
+			false,
+			test_strings(0, -1).make()
+		},
+		{
+			R"([dummy(value)])",
+			{
+				pos(1,8)[severity::error] << arg(lng::ERR_EXPECTED, lng::ERR_EXPECTED_STRING, "`value'")
+			},
+			false,
+			test_strings(0, -1).make()
+		},
+		{
+			R"([serial(0)] ropes {})",
+			{
+				pos(1,13)[severity::error] << arg(lng::ERR_EXPECTED, "`strings'", "`ropes'")
+			},
+			false,
+			serial_0
+		},
+		{
+			R"([serial(0)] strings ())",
+			{
+				pos(1,21)[severity::error] << arg(lng::ERR_EXPECTED, "`{'", "`('")
+			},
+			false,
+			serial_0
+		},
+		{
+			R"([serial(0)] strings { ID="value";})",
+			{
+				pos(1,23)[severity::warning] << arg(lng::ERR_ATTR_MISSING, "help"),
+				pos(1,23)[severity::error] << arg(lng::ERR_REQ_ATTR_MISSING, "id")
+			},
+			false,
+			serial_0
+		},
+		{
+			R"([serial(0)] strings { [help("help"})",
+			{
+				pos(1,35)[severity::error] << arg(lng::ERR_EXPECTED, "`)'", "`}'")
+			},
+			false,
+			serial_0
+		},
+		{
+			R"([serial(0)] strings { [help("help") })",
+			{
+				pos(1,37)[severity::error] << arg(lng::ERR_EXPECTED, "`,'", "`}'")
+			},
+			false,
+			serial_0
+		},
+		{
+			R"([serial(0)] strings { [help("help"), id(0})",
+			{
+				pos(1,42)[severity::error] << arg(lng::ERR_EXPECTED, "`)'", "`}'")
+			},
+			false,
+			serial_0
+		},
+		{
+			R"([serial(0)] strings { [help("help"), id(0), dummy("value") dummy2})",
+			{
+				pos(1,60)[severity::error] << arg(lng::ERR_EXPECTED, "`,'", "`dummy2'")
+			},
+			false,
+			serial_0
+		},
+		{
+			R"([serial(0)] strings { [help("help"), id(0)]; })",
+			{
+				pos(1,44)[severity::error] << arg(lng::ERR_EXPECTED, lng::ERR_EXPECTED_ID, "`;'")
+			},
+			false,
+			serial_0
+		},
+		{
+			R"([serial(0)] strings { [help("help"), id(0)] ID; })",
+			{
+				pos(1,47)[severity::error] << arg(lng::ERR_EXPECTED, "`='", "`;'")
+			},
+			false,
+			serial_0
+		},
+		{
+			R"([serial(0)] strings { [help("help"), id(0)] ID=; })",
+			{
+				pos(1,48)[severity::error] << arg(lng::ERR_EXPECTED, lng::ERR_EXPECTED_STRING, "`;'")
+			},
+			false,
+			serial_0
+		},
+		{
+			R"([serial(0)] strings { [help("help"), id(0)] ID="value" })",
+			{
+				pos(1,56)[severity::error] << arg(lng::ERR_EXPECTED, "`;'", "`}'")
+			},
+			false,
+			serial_0
+		},
 	};
 
 	INSTANTIATE_TEST_CASE_P(bad, read, ValuesIn(bad));
@@ -297,6 +490,19 @@ namespace lngs::testing {
 			true,
 			serial_0_project_name_version
 		},
+		{
+			R"(// line-end comment...
+[serial(0)] strings {})",
+			{},
+			true,
+			test_strings(0, 24).make()
+		},
+		{
+			R"([serial(0), dummy1("project-name"), dummy2(5)] strings {})",
+			{},
+			true,
+			serial_0
+		},
 	};
 
 	INSTANTIATE_TEST_CASE_P(empty, read, ValuesIn(empties));
@@ -307,7 +513,7 @@ namespace lngs::testing {
 		{
 			R"([serial(0)] strings { [id(-1)] ID = "value"; })",
 			{
-				{ "", 1, 32, severity::warning, str(lng::ERR_ATTR_MISSING, str("help")) },
+				pos(1, 32)[severity::warning] << arg(lng::ERR_ATTR_MISSING, "help")
 			},
 			true,
 			basic.make(test_string(1001, -1, "ID", "value").offset(23))
@@ -315,7 +521,7 @@ namespace lngs::testing {
 		{
 			R"([serial(0)] strings { [id(-1), help("")] ID = "value"; })",
 			{
-				{ "", 1, 32, severity::warning, str(lng::ERR_ATTR_EMPTY, str("help")) },
+				pos(1, 32)[severity::warning] << arg(lng::ERR_ATTR_EMPTY, "help")
 			},
 			true,
 			basic.make(test_string(1001, -1, "ID", "value").offset(23))
@@ -329,7 +535,7 @@ namespace lngs::testing {
 		{
 			R"([serial(0)] strings { [id(-1), plural("values")] ID = "value"; })",
 			{
-				{ "", 1, 50, severity::warning, str(lng::ERR_ATTR_MISSING, str("help")) },
+				pos(1, 50)[severity::warning] << arg(lng::ERR_ATTR_MISSING, "help")
 			},
 			true,
 			basic.make(test_string(1001, -1, "ID", "value", PluralStr{ "values" }).offset(23))
@@ -414,4 +620,38 @@ strings {
 	};
 
 	INSTANTIATE_TEST_CASE_P(multiple, read, ValuesIn(multiple));
+
+	static const compilation_result files[] = {
+		{
+			"no-such.idl", { pos(0, 0)[severity::error] << arg(lng::ERR_FILE_MISSING, "$DATA_PATH/no-such.idl"s) }, false, { }, false
+		},
+		{
+			"no-such.idl", {
+				pos(0, 0)[severity::verbose] << "$DATA_PATH/no-such.idl"s,
+				pos(0, 0)[severity::error] << arg(lng::ERR_FILE_MISSING, "$DATA_PATH/no-such.idl"s)
+			}, false, { }, true
+		},
+		{
+			"bad.idl", { pos(1,2)[severity::error] << arg(lng::ERR_REQ_ATTR_MISSING, "serial") }, false, { }, false
+		},
+		{
+			"bad.idl", {
+				pos(0, 0)[severity::verbose] << "$DATA_PATH/bad.idl"s,
+				pos(1, 2)[severity::error] << arg(lng::ERR_REQ_ATTR_MISSING, "serial"),
+				pos(0, 0)[severity::error] << arg(lng::ERR_NOT_STRINGS_FILE, "$DATA_PATH/bad.idl")
+			}, false, { }, true
+		},
+		{
+			"empty.idl", { }, true, test_strings(ProjectStr{"testing"}, 0, 1).make(), false
+		},
+		{
+			"empty.idl",
+			{ pos(0, 0)[severity::verbose] << "$DATA_PATH/empty.idl"s },
+			true,
+			test_strings(ProjectStr{"testing"}, 0, 1).make(),
+			true
+		},
+	};
+
+	INSTANTIATE_TEST_CASE_P(files, read_file, ValuesIn(files));
 }

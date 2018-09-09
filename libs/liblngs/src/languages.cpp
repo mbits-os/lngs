@@ -361,6 +361,7 @@ namespace lngs {
 	}
 
 	tr_string::tr_string() = default;
+	tr_string::~tr_string() = default;
 	tr_string::tr_string(tr_string&&) = default;
 	tr_string& tr_string::operator=(tr_string&&) = default;
 	tr_string::tr_string(const tr_string&) = default;

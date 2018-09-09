@@ -265,13 +265,16 @@ namespace lngs {
 		}
 		default:
 			if (std::isdigit((uint8_t)c) || c == '-' || c == '+') {
+				if (c == '-' || c == '+') {
+					if (eof_ || !std::isdigit((uint8_t)in_.peek()))
+						break;
+				}
+
 				std::string s;
 				s.push_back(c);
+
 				while (!eof_ && std::isdigit((uint8_t)in_.peek())) {
-					c = nextc();
-					if (eof_)
-						break;
-					s.push_back(c);
+					s.push_back(nextc());
 				}
 
 				return set_next(offset, s, NUMBER);
@@ -281,10 +284,7 @@ namespace lngs {
 				std::string s;
 				s.push_back(c);
 				while (!eof_ && (std::isalnum((uint8_t)in_.peek()) || in_.peek() == '_'_b)) {
-					c = nextc();
-					if (eof_)
-						break;
-					s.push_back(c);
+					s.push_back(nextc());
 				}
 
 				return set_next(offset, s, ID);
@@ -364,21 +364,32 @@ namespace lngs {
 		return false;
 	}
 
-
+#define USE_SET_ATTR 0 // no set-attributes now, untestable
 	struct attr {
 		virtual ~attr() {}
 		virtual bool required() const = 0;
-		virtual void required(bool value) = 0;
+#if USE_SET_ATTR
 		virtual bool needs_arg() const = 0;
-		virtual void visit(const token& tok) = 0;
-		virtual void visit(const token& tok, const std::string& /*arg*/) = 0;
+#endif
 		virtual bool visited() const = 0;
 		virtual const token& visit_pos() const = 0;
 		virtual bool is(const std::string& name) const = 0;
 		virtual const std::string& name() const = 0;
 	};
 
-	class attr_base : public attr {
+	struct store_attr_base : attr {
+		virtual tok_t primary() const noexcept = 0;
+		virtual void visit(const token& tok, const std::string& /*arg*/) = 0;
+	};
+
+#if USE_SET_ATTR
+	struct set_attr_base : attr {
+		virtual void visit(const token& tok) = 0;
+	};
+#endif
+
+	template <typename Base>
+	class attr_base : public Base {
 		bool visited_ = false;
 		bool required_ = true;
 		std::string name_;
@@ -394,11 +405,8 @@ namespace lngs {
 
 		void visited(const token& tok, bool val) { visited_ = val; tok_ = tok; }
 	public:
-		void required(bool value) override { required_ = value; }
 		bool required() const override { return required_; }
 
-		void visit(const token& tok) override { visited(tok, true); }
-		void visit(const token& tok, const std::string& /*arg*/) override { visited(tok, true); }
 		bool visited() const override { return visited_; }
 		const token& visit_pos() const override { return tok_; }
 
@@ -427,13 +435,23 @@ namespace lngs {
 	}
 
 	template <typename T>
-	class store_attr : public attr_base {
+	class store_attr : public attr_base<store_attr_base> {
 		T* ptr;
 	public:
 		template <typename Name>
 		explicit store_attr(T* dst, Name&& name, bool required) : attr_base(std::forward<Name>(name), required), ptr(dst) {}
 
+#if USE_SET_ATTR
 		bool needs_arg() const override { return true; }
+#endif
+		tok_t primary() const noexcept override
+		{
+			if constexpr (std::is_integral_v<T>)
+				return NUMBER;
+			else
+				return STRING;
+		}
+
 		void visit(const token& tok, const std::string& arg) override
 		{
 			store(*ptr, arg);
@@ -441,8 +459,9 @@ namespace lngs {
 		}
 	};
 
+#if USE_SET_ATTR
 	template <typename T, typename Value>
-	class set_attr : public attr_base {
+	class set_attr : public attr_base<set_attr_base> {
 		T* ptr;
 	public:
 		template <typename Name>
@@ -455,6 +474,7 @@ namespace lngs {
 			visited(tok, true);
 		}
 	};
+#endif
 
 	class attr_def {
 		std::vector<std::unique_ptr<attr>> attrs_;
@@ -466,8 +486,12 @@ namespace lngs {
 		}
 
 		template <typename Value, typename T, typename Name>
-		attr_def& set(T& dst, Name&& name, bool required = true) {
+		attr_def& set([[maybe_unused]] T& dst, [[maybe_unused]] Name&& name, [[maybe_unused]] bool required = true) {
+#if USE_SET_ATTR
 			attrs_.push_back(std::make_unique<set_attr<T, Value>>(&dst, std::forward<Name>(name), required));
+#else
+			static_assert(std::is_same_v<T, void>, "attr_def::set needs support from USE_SET_ATTR");
+#endif
 			return *this;
 		}
 
@@ -476,9 +500,6 @@ namespace lngs {
 
 	bool read_attribute(tokenizer& tok, const attr_def& attrs, diagnostics& diag)
 	{
-		if (tok.expect(SQBRAKET_C, false, diag))
-			return true;
-
 		if (!tok.expect(ID, true, diag))
 			return false;
 		auto name = tok.get();
@@ -487,9 +508,14 @@ namespace lngs {
 			if (att->name() != name.value)
 				continue;
 
-			if (att->needs_arg()) {
+#if USE_SET_ATTR
+			if (att->needs_arg())
+#endif
+			{
 				if (!tok.expect(BRAKET_O, true, diag))
 					return false;
+
+				auto& store = ((store_attr_base&)*att);
 
 				tok.get();
 
@@ -497,19 +523,21 @@ namespace lngs {
 				switch (val.type) {
 				case STRING:
 				case NUMBER:
-					att->visit(name, val.value);
+					store.visit(name, val.value);
 					tok.get();
 					if (!tok.expect(BRAKET_C, true, diag))
 						return false;
 					tok.get();
 					break;
 				default:
-					tok.expect(STRING, true, diag);
+					tok.expect(store.primary(), true, diag);
 					return false;
 				}
 			}
+#if USE_SET_ATTR
 			else
-				att->visit(name);
+				((set_attr_base&)*att).visit(name);
+#endif
 
 			if (tok.expect(SQBRAKET_C, false, diag))
 				return true;
@@ -521,7 +549,6 @@ namespace lngs {
 			return true;
 		}
 
-		tok.get();
 		if (tok.expect(BRAKET_O, false, diag)) {
 			tok.get();
 			auto& val = tok.peek();
