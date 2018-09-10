@@ -32,6 +32,12 @@
 
 namespace lngs {
 	struct instream {
+		instream();
+		instream(const instream&) = delete;
+		instream(instream&&);
+		instream& operator=(const instream&) = delete;
+		instream& operator=(instream&&);
+
 		virtual ~instream();
 		virtual std::size_t read(void* buffer, std::size_t length) noexcept = 0;
 		virtual bool eof() const noexcept = 0;
@@ -39,6 +45,12 @@ namespace lngs {
 	};
 
 	struct outstream {
+		outstream();
+		outstream(const outstream&) = delete;
+		outstream(outstream&&);
+		outstream& operator=(const outstream&) = delete;
+		outstream& operator=(outstream&&);
+
 		virtual ~outstream();
 		virtual std::size_t write(const void* buffer, std::size_t length) noexcept = 0;
 
@@ -71,15 +83,11 @@ namespace lngs {
 	class std_outstream : public outstream {
 		std::FILE* ptr;
 	public:
-		std_outstream(std::FILE* ptr) noexcept : ptr(ptr) {}
-		std::size_t write(const void* data, std::size_t length) noexcept final
-		{
-			return std::fwrite(data, 1, length, ptr);
-		}
+		std_outstream(std::FILE* ptr) noexcept;
+		std::size_t write(const void* data, std::size_t length) noexcept final;
 	};
 
 	std_outstream& get_stdout();
-	std_outstream& get_stderr();
 
 	class foutstream : public outstream {
 		fs::file file;

@@ -52,6 +52,10 @@ add_executable(lngs-test "${CMAKE_SOURCE_DIR}/googletest.cpp" ${TEST_SRCS})
 set_target_properties(lngs-test PROPERTIES FOLDER tests)
 target_link_libraries(lngs-test lngs_impl gtest gmock ${CMAKE_THREAD_LIBS_INIT})
 
+add_executable(args-test tests/args-test.cpp)
+set_target_properties(args-test PROPERTIES FOLDER tests)
+target_link_libraries(args-test lngs_impl)
+
 enable_testing()
 add_test(NAME lngs.source_location COMMAND lngs-test --gtest_filter=source_location.*)
 add_test(NAME lngs.diagnostics COMMAND lngs-test --gtest_filter=*diag_write.*:*/diag_ne.* --data_path=${DATA_DIR})
@@ -63,5 +67,6 @@ add_test(NAME lngs.python COMMAND lngs-test --gtest_filter=*/python.*)
 add_test(NAME lngs.pot COMMAND lngs-test --gtest_filter=*/pot.*)
 add_test(NAME lngs.utf COMMAND lngs-test --gtest_filter=*/utf_conv.*:*/utf_errors.*)
 add_test(NAME lngs.gettext COMMAND lngs-test --gtest_filter=*/gettext.*:*/gtt_attr_*.*:*/gtt_extract.*:*/mo_*.* --data_path=${DATA_DIR})
+add_test(NAME lngs.args COMMAND python "${CMAKE_CURRENT_SOURCE_DIR}/tests/args-test.py" "$<TARGET_FILE:args-test>")
 
 endif()

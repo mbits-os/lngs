@@ -35,7 +35,7 @@ namespace args {
 	class parser;
 
 	struct action {
-		virtual ~action() {}
+		virtual ~action();
 		virtual bool required() const = 0;
 		virtual void required(bool value) = 0;
 		virtual bool needs_arg() const = 0;
@@ -49,6 +49,13 @@ namespace args {
 		virtual bool is(const std::string& name) const = 0;
 		virtual bool is(char name) const = 0;
 		virtual const std::vector<std::string>& names() const = 0;
+
+	protected:
+		action();
+		action(const action&) = delete;
+		action(action&&);
+		action& operator=(const action&) = delete;
+		action& operator=(action&&);
 	};
 
 	class action_base : public action {

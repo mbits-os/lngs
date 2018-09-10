@@ -378,8 +378,7 @@ td.same, td.up, td.down { padding-right: .83333em; padding-left: .33333em; font-
 .ind-up:before { content: "\\25b2" }
 .ind-down:before { content: "\\25bc" }
 
-td.same .ind { font-size: 1em; display: inline-block }
-td.same .ind .ind-up, td.same .ind .ind-down { float:left; clear:both }
+td.same .ind { display: none }
 
 td.up { color: green }
 td.down { color: red }

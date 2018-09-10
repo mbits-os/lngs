@@ -27,6 +27,11 @@
 
 #include <cstdlib>
 
+args::action::~action() = default;
+args::action::action() = default;
+args::action::action(action&&) = default;
+args::action& args::action::operator=(action&&) = default;
+
 void args::parser::short_help(FILE* out, bool for_error)
 {
 	fprintf(out, "Locale File Processor %s", locale::version::full);
