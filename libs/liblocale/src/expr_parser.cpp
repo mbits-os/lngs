@@ -175,6 +175,8 @@ namespace plurals { namespace parser {
 		case tok_bang: {
 			++cur;
 			auto content = simple(cur, end);
+			if (!content)
+				return {};
 			return std::make_unique<nodes::logical_not>(std::move(content));
 		}
 		case tok_variable:
@@ -193,7 +195,7 @@ namespace plurals { namespace parser {
 		auto left = simple(cur, end);
 		decltype(left) right;
 
-		if (cur == end)
+		if (!left || cur == end)
 			return left;
 
 		switch (cur->type) {
@@ -228,7 +230,7 @@ namespace plurals { namespace parser {
 		auto left = muldiv(cur, end);
 		decltype(left) right;
 
-		if (cur == end)
+		if (!left || cur == end)
 			return left;
 
 		switch (cur->type) {
@@ -257,7 +259,7 @@ namespace plurals { namespace parser {
 		auto left = addsub(cur, end);
 		decltype(left) right;
 
-		if (cur == end)
+		if (!left || cur == end)
 			return left;
 
 		switch (cur->type) {
@@ -298,7 +300,7 @@ namespace plurals { namespace parser {
 		auto left = relation(cur, end);
 		decltype(left) right;
 
-		if (cur == end)
+		if (!left || cur == end)
 			return left;
 
 		switch (cur->type) {
@@ -327,7 +329,7 @@ namespace plurals { namespace parser {
 		auto left = compare(cur, end);
 		decltype(left) right;
 
-		if (cur == end)
+		if (!left || cur == end)
 			return left;
 
 		switch (cur->type) {
@@ -354,10 +356,10 @@ namespace plurals { namespace parser {
 	std::unique_ptr<expr> trenary(It& cur, It end)
 	{
 		auto first = andor(cur, end);
+		if (!first)
+			return{};
 		if (cur == end || cur->type != tok_question)
 			return first;
-		if (!first || cur == end)
-			return{};
 
 		++cur;
 		auto second = trenary(cur, end);

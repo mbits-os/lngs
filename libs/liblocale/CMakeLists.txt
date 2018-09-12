@@ -60,3 +60,23 @@ install(TARGETS locale
 	RUNTIME DESTINATION bin)
 install(DIRECTORY locale/ DESTINATION include/locale)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/locale/version.hpp DESTINATION include/locale)
+
+##################################################################
+##  TESTING
+##################################################################
+
+if (LOCALE_TESTING)
+
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/tests)
+
+file(GLOB TEST_SRCS tests/*.cc)
+
+add_executable(locale-test "${CMAKE_SOURCE_DIR}/googletest.cpp" ${TEST_SRCS})
+set_target_properties(locale-test PROPERTIES FOLDER tests)
+target_link_libraries(locale-test locale gtest gmock ${CMAKE_THREAD_LIBS_INIT})
+
+
+enable_testing()
+add_test(NAME locale.plurals COMMAND locale-test --gtest_filter=*/plurals.*:*/plural_ops.*)
+
+endif()
