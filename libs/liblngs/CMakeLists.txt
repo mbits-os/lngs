@@ -44,7 +44,10 @@ target_link_libraries(lngs_impl locale)
 if (LOCALE_TESTING)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/tests)
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
 set(DATA_DIR ${CMAKE_CURRENT_SOURCE_DIR}/test-data)
+configure_file(${PROJECT_SOURCE_DIR}/default_data_path.in.hpp ${CMAKE_CURRENT_BINARY_DIR}/default_data_path.hpp @ONLY)
+message(STATUS "${CMAKE_CURRENT_BINARY_DIR}/default_data_path.hpp")
 
 file(GLOB TEST_SRCS tests/*.cc)
 

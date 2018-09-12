@@ -66,8 +66,16 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
+#if __has_include(<default_data_path.hpp>)
+#include <default_data_path.hpp>
+#define HAS_DEFAULT_DATA_PATH
+#endif
 
+#ifdef HAS_DEFAULT_DATA_PATH
+std::string LOCALE_data_path{ lngs::testing::directory_info::sources };
+#else
 std::string LOCALE_data_path{};
+#endif
 
 namespace {
 	// Parses a string as a command line flag.  The string should have
