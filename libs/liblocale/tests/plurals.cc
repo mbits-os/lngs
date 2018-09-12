@@ -133,8 +133,34 @@ namespace plurals::testing {
 	};
 
 	static const lex_program exception[] = {
-		{"plural=3/n"sv, { R(0) <= 0, R(1) <= 3, R(2,4) <= 1, R(4,100) <= 0 } },
+		{"plural=3/n"sv, { R(0) <= 0, R(1,100).map([](intmax_t n) { return 3 / n; }) } },
 		{"plural=3%n"sv, { R(0,1) <= 0, R(2,100).map([](intmax_t n) { return 3 % n; }) } },
+		{"plural=!(3/n)"sv, { R(0) <= 0, R(1,4) <= 0, R(4,100) <= 1 } },
+		{"plural=(3/n)*5"sv, { R(0) <= 0, R(1,100).map([](intmax_t n) { return (3 / n) * 5; }) } },
+		{"plural=5*(3/n)"sv, { R(0) <= 0, R(1,100).map([](intmax_t n) { return 5 * (3 / n); }) } },
+		{"plural=(3/n)+5"sv, { R(0) <= 0, R(1,100).map([](intmax_t n) { return (3 / n) + 5; }) } },
+		{"plural=5+(3/n)"sv, { R(0) <= 0, R(1,100).map([](intmax_t n) { return 5 + (3 / n); }) } },
+		{"plural=(3/n)-5"sv, { R(0) <= 0, R(1,100).map([](intmax_t n) { return (3 / n) - 5; }) } },
+		{"plural=5-(3/n)"sv, { R(0) <= 0, R(1,100).map([](intmax_t n) { return 5 - (3 / n); }) } },
+		{"plural=(3/n)<5"sv, { R(0) <= 0, R(1,100).map([](intmax_t n) -> intmax_t { return (3 / n) < 5; }) } },
+		{"plural=5<(3/n)"sv, { R(0) <= 0, R(1,100).map([](intmax_t n) -> intmax_t { return 5 < (3 / n); }) } },
+		{"plural=(3/n)<=5"sv, { R(0) <= 0, R(1,100).map([](intmax_t n) -> intmax_t { return (3 / n) <= 5; }) } },
+		{"plural=5<=(3/n)"sv, { R(0) <= 0, R(1,100).map([](intmax_t n) -> intmax_t { return 5 <= (3 / n); }) } },
+		{"plural=(3/n)>5"sv, { R(0) <= 0, R(1,100).map([](intmax_t n) -> intmax_t { return (3 / n) > 5; }) } },
+		{"plural=5>(3/n)"sv, { R(0) <= 0, R(1,100).map([](intmax_t n) -> intmax_t { return 5 > (3 / n); }) } },
+		{"plural=(3/n)>=5"sv, { R(0) <= 0, R(1,100).map([](intmax_t n) -> intmax_t { return (3 / n) >= 5; }) } },
+		{"plural=5>=(3/n)"sv, { R(0) <= 0, R(1,100).map([](intmax_t n) -> intmax_t { return 5 >= (3 / n); }) } },
+		{"plural=(3/n)==5"sv, { R(0) <= 0, R(1,100).map([](intmax_t n) -> intmax_t { return (3 / n) == 5; }) } },
+		{"plural=5==(3/n)"sv, { R(0) <= 0, R(1,100).map([](intmax_t n) -> intmax_t { return 5 == (3 / n); }) } },
+		{"plural=(3/n)!=5"sv, { R(0) <= 0, R(1,100).map([](intmax_t n) -> intmax_t { return (3 / n) != 5; }) } },
+		{"plural=5!=(3/n)"sv, { R(0) <= 0, R(1,100).map([](intmax_t n) -> intmax_t { return 5 != (3 / n); }) } },
+		{"plural=(3/n)&&5"sv, { R(0) <= 0, R(1,100).map([](intmax_t n) -> intmax_t { return (3 / n) && 5; }) } },
+		{"plural=5&&(3/n)"sv, { R(0) <= 0, R(1,100).map([](intmax_t n) -> intmax_t { return 5 && (3 / n); }) } },
+		{"plural=(3/n)||5"sv, { R(0) <= 0, R(1,100).map([](intmax_t n) -> intmax_t { return (3 / n) || 5; }) } },
+		{"plural=0||(3/n)"sv, { R(0) <= 0, R(1,100).map([](intmax_t n) -> intmax_t { return 0 || (3 / n); }) } },
+		{"plural=(3/n)?1:0"sv, { R(0) <= 0, R(1,100).map([](intmax_t n) -> intmax_t { return (3 / n) ? 1 : 0; }) } },
+		{"plural=1?(3/n):0"sv, { R(0) <= 0, R(1,100).map([](intmax_t n) -> intmax_t { return 1 ? (3 / n) : 0; }) } },
+		{"plural=0?0:(3/n)"sv, { R(0) <= 0, R(1,100).map([](intmax_t n) -> intmax_t { return 0 ? 0 : (3 / n); }) } },
 	};
 
 	static const lex_program bad[] = {
