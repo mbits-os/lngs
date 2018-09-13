@@ -195,31 +195,38 @@ namespace plurals { namespace parser {
 		auto left = simple(cur, end);
 		decltype(left) right;
 
-		if (!left || cur == end)
+		if (!left)
 			return left;
 
-		switch (cur->type) {
-		case tok_mul:
-			++cur;
-			right = muldiv(cur, end);
-			if (!right)
-				return{};
-			return std::make_unique<nodes::multiply>(std::move(left), std::move(right));
-		case tok_div:
-			++cur;
-			right = muldiv(cur, end);
-			if (!right)
-				return{};
-			return std::make_unique<nodes::divide>(std::move(left), std::move(right));
-		case tok_mod:
-			++cur;
-			right = muldiv(cur, end);
-			if (!right)
-				return{};
-			return std::make_unique<nodes::modulo>(std::move(left), std::move(right));
-		default:
-			break;
-		};
+		bool should_carry_on = true;
+		while (cur != end && should_carry_on) {
+			switch (cur->type) {
+			case tok_mul:
+				++cur;
+				right = simple(cur, end);
+				if (!right)
+					return{};
+				left = std::make_unique<nodes::multiply>(std::move(left), std::move(right));
+				break;
+			case tok_div:
+				++cur;
+				right = simple(cur, end);
+				if (!right)
+					return{};
+				left = std::make_unique<nodes::divide>(std::move(left), std::move(right));
+				break;
+			case tok_mod:
+				++cur;
+				right = simple(cur, end);
+				if (!right)
+					return{};
+				left = std::make_unique<nodes::modulo>(std::move(left), std::move(right));
+				break;
+			default:
+				should_carry_on = false;
+				break;
+			};
+		}
 
 		return left;
 	}
@@ -230,25 +237,31 @@ namespace plurals { namespace parser {
 		auto left = muldiv(cur, end);
 		decltype(left) right;
 
-		if (!left || cur == end)
+		if (!left)
 			return left;
 
-		switch (cur->type) {
-		case tok_plus:
-			++cur;
-			right = addsub(cur, end);
-			if (!right)
-				return{};
-			return std::make_unique<nodes::plus>(std::move(left), std::move(right));
-		case tok_minus:
-			++cur;
-			right = addsub(cur, end);
-			if (!right)
-				return{};
-			return std::make_unique<nodes::minus>(std::move(left), std::move(right));
-		default:
-			break;
-		};
+		bool should_carry_on = true;
+		while (cur != end && should_carry_on) {
+			switch (cur->type) {
+			case tok_plus:
+				++cur;
+				right = muldiv(cur, end);
+				if (!right)
+					return{};
+				left = std::make_unique<nodes::plus>(std::move(left), std::move(right));
+				break;
+			case tok_minus:
+				++cur;
+				right = muldiv(cur, end);
+				if (!right)
+					return{};
+				left = std::make_unique<nodes::minus>(std::move(left), std::move(right));
+				break;
+			default:
+				should_carry_on = false;
+				break;
+			};
+		}
 
 		return left;
 	}
@@ -259,37 +272,45 @@ namespace plurals { namespace parser {
 		auto left = addsub(cur, end);
 		decltype(left) right;
 
-		if (!left || cur == end)
+		if (!left)
 			return left;
 
-		switch (cur->type) {
-		case tok_lt:
-			++cur;
-			right = relation(cur, end);
-			if (!right)
-				return{};
-			return std::make_unique<nodes::less_than>(std::move(left), std::move(right));
-		case tok_le:
-			++cur;
-			right = relation(cur, end);
-			if (!right)
-				return{};
-			return std::make_unique<nodes::less_than_or_equal>(std::move(left), std::move(right));
-		case tok_gt:
-			++cur;
-			right = relation(cur, end);
-			if (!right)
-				return{};
-			return std::make_unique<nodes::greater_than>(std::move(left), std::move(right));
-		case tok_ge:
-			++cur;
-			right = relation(cur, end);
-			if (!right)
-				return{};
-			return std::make_unique<nodes::greater_than_or_equal>(std::move(left), std::move(right));
-		default:
-			break;
-		};
+		bool should_carry_on = true;
+		while (cur != end && should_carry_on) {
+			switch (cur->type) {
+			case tok_lt:
+				++cur;
+				right = addsub(cur, end);
+				if (!right)
+					return{};
+				left = std::make_unique<nodes::less_than>(std::move(left), std::move(right));
+				break;
+			case tok_le:
+				++cur;
+				right = addsub(cur, end);
+				if (!right)
+					return{};
+				left = std::make_unique<nodes::less_than_or_equal>(std::move(left), std::move(right));
+				break;
+			case tok_gt:
+				++cur;
+				right = addsub(cur, end);
+				if (!right)
+					return{};
+				left = std::make_unique<nodes::greater_than>(std::move(left), std::move(right));
+				break;
+			case tok_ge:
+				++cur;
+				right = addsub(cur, end);
+				if (!right)
+					return{};
+				left = std::make_unique<nodes::greater_than_or_equal>(std::move(left), std::move(right));
+				break;
+			default:
+				should_carry_on = false;
+				break;
+			};
+		}
 
 		return left;
 	}
@@ -300,54 +321,87 @@ namespace plurals { namespace parser {
 		auto left = relation(cur, end);
 		decltype(left) right;
 
-		if (!left || cur == end)
+		if (!left)
 			return left;
 
-		switch (cur->type) {
-		case tok_eq:
-			++cur;
-			right = compare(cur, end);
-			if (!right)
-				return{};
-			return std::make_unique<nodes::equal>(std::move(left), std::move(right));
-		case tok_ne:
-			++cur;
-			right = compare(cur, end);
-			if (!right)
-				return{};
-			return std::make_unique<nodes::not_equal>(std::move(left), std::move(right));
-		default:
-			break;
-		};
+		bool should_carry_on = true;
+		while (cur != end && should_carry_on) {
+			switch (cur->type) {
+			case tok_eq:
+				++cur;
+				right = relation(cur, end);
+				if (!right)
+					return{};
+				left = std::make_unique<nodes::equal>(std::move(left), std::move(right));
+				break;
+			case tok_ne:
+				++cur;
+				right = relation(cur, end);
+				if (!right)
+					return{};
+				left = std::make_unique<nodes::not_equal>(std::move(left), std::move(right));
+				break;
+			default:
+				should_carry_on = false;
+				break;
+			};
+		}
 
 		return left;
 	}
 
 	template <typename It>
-	std::unique_ptr<expr> andor(It& cur, It end)
+	std::unique_ptr<expr> logical_and(It& cur, It end)
 	{
 		auto left = compare(cur, end);
 		decltype(left) right;
 
-		if (!left || cur == end)
+		if (!left)
 			return left;
 
-		switch (cur->type) {
-		case tok_ampamp:
-			++cur;
-			right = andor(cur, end);
-			if (!right)
-				return{};
-			return std::make_unique<nodes::logical_and>(std::move(left), std::move(right));
-		case tok_pipepipe:
-			++cur;
-			right = andor(cur, end);
-			if (!right)
-				return{};
-			return std::make_unique<nodes::logical_or>(std::move(left), std::move(right));
-		default:
-			break;
-		};
+		bool should_carry_on = true;
+		while (cur != end && should_carry_on) {
+			switch (cur->type) {
+			case tok_ampamp:
+				++cur;
+				right = compare(cur, end);
+				if (!right)
+					return{};
+				left = std::make_unique<nodes::logical_and>(std::move(left), std::move(right));
+				break;
+			default:
+				should_carry_on = false;
+				break;
+			};
+		}
+
+		return left;
+	}
+
+	template <typename It>
+	std::unique_ptr<expr> logical_or(It& cur, It end)
+	{
+		auto left = logical_and(cur, end);
+		decltype(left) right;
+
+		if (!left)
+			return left;
+
+		bool should_carry_on = true;
+		while (cur != end && should_carry_on) {
+			switch (cur->type) {
+			case tok_pipepipe:
+				++cur;
+				right = logical_and(cur, end);
+				if (!right)
+					return{};
+				left = std::make_unique<nodes::logical_or>(std::move(left), std::move(right));
+				break;
+			default:
+				should_carry_on = false;
+				break;
+			};
+		}
 
 		return left;
 	}
@@ -355,7 +409,7 @@ namespace plurals { namespace parser {
 	template <typename It>
 	std::unique_ptr<expr> trenary(It& cur, It end)
 	{
-		auto first = andor(cur, end);
+		auto first = logical_or(cur, end);
 		if (!first)
 			return{};
 		if (cur == end || cur->type != tok_question)

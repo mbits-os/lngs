@@ -177,8 +177,18 @@ namespace plurals::testing {
 
 	static const lex_program good[] = {
 		{"plural=n*3"sv, { R(0, 100).map([](intmax_t n) { return n * 3; }) } },
+		{"plural=n*3/5*4"sv, { R(0, 3).map([](intmax_t n) { return n * 3 / 5 * 4; }) } },
 		{"plural=n+3"sv, { R(0, 100).map([](intmax_t n) { return n + 3; }) } },
 		{"plural=n-3"sv, { R(0, 100).map([](intmax_t n) { return n - 3; }) } },
+		{"plural=n+3-5+10*3/4"sv, { R(0, 3).map([](intmax_t n) { return n + 3 -5 + 10 * 3 / 4; }) } },
+		// The parens around 'n > 5' and later on around &&s are placed due to -Wparentheses warnings
+		// Those tests are here to test just that: left-to-rightness of operators and precedence of
+		// logical AND over logical OR.
+		{"plural=n<5<2*n"sv, { R(0, 3).map([](intmax_t n) -> intmax_t { return (n < 5) < 2 * n; }) } },
+		{"plural=n<5<2*n<n*n"sv, { R(0, 3).map([](intmax_t n) -> intmax_t { return ((n < 5) < 2 * n) < n * n; }) } },
+		{"plural=n==5!=0*n"sv, { R(0, 6).map([](intmax_t n) -> intmax_t { return (n == 5) != 0; }) } },
+		{"plural=n&&n<2||n>5&&10>n"sv, { R(0, 10).map([](intmax_t n) -> intmax_t { return (n && n < 2) || (n > 5 && 10 > n); }) } },
+		{"plural=n||n<2&&n>5||10>n"sv, { R(0, 10).map([](intmax_t n) -> intmax_t { return n || (n < 2 && n > 5) || 10 > n; }) } },
 		{"plural=n!=1?!n:n"sv, { R(0,1) <= 1, R(2,100) <= 0 } },
 	};
 
