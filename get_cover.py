@@ -184,6 +184,11 @@ class file_info:
 		if line is None: line = covered
 		if line is None: line = 0
 
+		if self.digest is None:
+			return u'<tr class="file"><td class="name"><del>{1}</del></td>{0}</tr>'.format(
+				self.coverage.html(self.prev), escape(os.path.basename(name))
+				)
+
 		return u'<tr class="file"><td class="name"><a href="{2}#L{3}">{1}</a></td>{0}</tr>'.format(
 			self.coverage.html(self.prev), escape(os.path.basename(name)), escape(self.digest) + '.html', line+1
 			)
@@ -389,12 +394,17 @@ td.up .ind-down, td.down .ind-up { display: none }
 
 tr.total td.name { font-style: italic }
 tr.filler td { padding-top: .5em; padding-bottom: .5em; }
-tr.file td.name a {
-    color: inherit;
+tr.file td.name a, tr.file td.name del {
     padding-left: 2.2em;
-    text-decoration: none;
     display: inline-block;
     min-width: 100%
+}
+tr.file td.name a {
+    color: inherit;
+    text-decoration: none;
+}
+tr.file td.name del {
+    color: #555;
 }
 tr.file td.name a:hover { text-decoration: underline; }
 

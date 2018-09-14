@@ -30,6 +30,14 @@
 #include <lngs/strings.hpp>
 #include <lngs/streams.hpp>
 
+namespace lngs {
+	std::string straighten(std::string str) {
+		for (auto& c : str)
+			if (c == '\n') c = ' ';
+		return str;
+	}
+}
+
 namespace lngs::pot {
 	auto now_recalc() {
 		struct tm tm;

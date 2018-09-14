@@ -36,11 +36,7 @@ namespace lngs {
 	class source_file;
 	class diagnostics;
 
-	static inline std::string straighten(std::string str) {
-		for (auto& c : str)
-			if (c == '\n') c = ' ';
-		return str;
-	}
+	std::string straighten(std::string str);
 }
 
 namespace lngs::pot {
