@@ -10,7 +10,7 @@
 
 #include <optional>
 
-extern std::string LOCALE_data_path;
+extern fs::path LOCALE_data_path;
 
 namespace lngs::testing {
 	using namespace ::std::literals;
@@ -149,21 +149,21 @@ namespace lngs::testing {
 
 		static void SetUpTestCase() {
 			if constexpr (false) {
-				auto mo_file = fs::fopen(fs::path{ LOCALE_data_path } / "truncated.mo", "wb");
-				mo_file = fs::fopen(fs::path{ LOCALE_data_path } / "zero.mo", "wb");
+				auto mo_file = fs::fopen(LOCALE_data_path / "truncated.mo", "wb");
+				mo_file = fs::fopen(LOCALE_data_path / "zero.mo", "wb");
 				write_mo_head(mo_file, 0, 0, 0, 0, 0, reverse);
 
-				mo_file = fs::fopen(fs::path{ LOCALE_data_path } / "empty_BE.mo", "wb");
+				mo_file = fs::fopen(LOCALE_data_path / "empty_BE.mo", "wb");
 				write_mo_head(mo_file, 0, 28, 28, 0, 28, reverse);
-				mo_file = fs::fopen(fs::path{ LOCALE_data_path } / "empty_LE.mo", "wb");
+				mo_file = fs::fopen(LOCALE_data_path / "empty_LE.mo", "wb");
 				write_mo_head(mo_file, 0, 28, 28, 0, 28, direct);
 
-				mo_file = fs::fopen(fs::path{ LOCALE_data_path } / "empty_rev_nonzero_BE.mo", "wb");
+				mo_file = fs::fopen(LOCALE_data_path / "empty_rev_nonzero_BE.mo", "wb");
 				write_mo_head(mo_file, 0, 28, 28, 0, 28, reverse, 0x11223344);
-				mo_file = fs::fopen(fs::path{ LOCALE_data_path } / "empty_rev_nonzero_LE.mo", "wb");
+				mo_file = fs::fopen(LOCALE_data_path / "empty_rev_nonzero_LE.mo", "wb");
 				write_mo_head(mo_file, 0, 28, 28, 0, 28, direct, 0x11223344);
 
-				mo_file = fs::fopen(fs::path{ LOCALE_data_path } / "ab_BE.mo", "wb");
+				mo_file = fs::fopen(LOCALE_data_path / "ab_BE.mo", "wb");
 				write_mo_head(mo_file, 1, 28, 36, 0, 44, reverse);
 				be(mo_file, (uint32_t)1);
 				be(mo_file, (uint32_t)44);
@@ -174,7 +174,7 @@ namespace lngs::testing {
 				mo_file.store(a, sizeof(a));
 				mo_file.store(b, sizeof(b));
 
-				mo_file = fs::fopen(fs::path{ LOCALE_data_path } / "ab_LE.mo", "wb");
+				mo_file = fs::fopen(LOCALE_data_path / "ab_LE.mo", "wb");
 				write_mo_head(mo_file, 1, 28, 36, 0, 44, direct);
 				write(mo_file, (uint32_t)1);
 				write(mo_file, (uint32_t)44);
@@ -183,7 +183,7 @@ namespace lngs::testing {
 				mo_file.store(a, sizeof(a));
 				mo_file.store(b, sizeof(b));
 
-				mo_file = fs::fopen(fs::path{ LOCALE_data_path } / "not_asciiz.mo", "wb");
+				mo_file = fs::fopen(LOCALE_data_path / "not_asciiz.mo", "wb");
 				write_mo_head(mo_file, 1, 28, 36, 0, 44, reverse);
 				be(mo_file, (uint32_t)1);
 				be(mo_file, (uint32_t)44);
@@ -192,7 +192,7 @@ namespace lngs::testing {
 				constexpr const char noasciiz[] = { 'a', 'b' };
 				mo_file.store(noasciiz, sizeof(noasciiz));
 
-				mo_file = fs::fopen(fs::path{ LOCALE_data_path } / "string_missing.mo", "wb");
+				mo_file = fs::fopen(LOCALE_data_path / "string_missing.mo", "wb");
 				write_mo_head(mo_file, 1, 28, 36, 0, 44, reverse);
 				be(mo_file, (uint32_t)1);
 				be(mo_file, (uint32_t)44);
@@ -200,17 +200,17 @@ namespace lngs::testing {
 				be(mo_file, (uint32_t)44 + 2);
 				mo_file.store(a, sizeof(a));
 
-				mo_file = fs::fopen(fs::path{ LOCALE_data_path } / "within_hash.mo", "wb");
+				mo_file = fs::fopen(LOCALE_data_path / "within_hash.mo", "wb");
 				write_mo_head(mo_file, 1, 28, 36, 2, 44, reverse);
 				be(mo_file, (uint32_t)1);
 				be(mo_file, (uint32_t)44);
 
-				mo_file = fs::fopen(fs::path{ LOCALE_data_path } / "over_the_top.mo", "wb");
+				mo_file = fs::fopen(LOCALE_data_path / "over_the_top.mo", "wb");
 				write_mo_head(mo_file, 1, 28, 36, 0, 44, reverse);
 				be(mo_file, (uint32_t)1);
 				be(mo_file, (uint32_t)44);
 
-				mo_file = fs::fopen(fs::path{ LOCALE_data_path } / "no_space_for_0.mo", "wb");
+				mo_file = fs::fopen(LOCALE_data_path / "no_space_for_0.mo", "wb");
 				write_mo_head(mo_file, 1, 28, 36, 0, 44, reverse);
 				be(mo_file, (uint32_t)1);
 				be(mo_file, (uint32_t)44);
@@ -218,7 +218,7 @@ namespace lngs::testing {
 				be(mo_file, (uint32_t)44);
 				mo_file.store(a, 1);
 
-				mo_file = fs::fopen(fs::path{ LOCALE_data_path } / "no_space_for_strings_1.mo", "wb");
+				mo_file = fs::fopen(LOCALE_data_path / "no_space_for_strings_1.mo", "wb");
 				write_mo_head(mo_file, 2, 28, 36, 0, 44, reverse);
 				be(mo_file, (uint32_t)1);
 				be(mo_file, (uint32_t)44);
@@ -227,7 +227,7 @@ namespace lngs::testing {
 				mo_file.store(a, sizeof(a));
 				mo_file.store(b, sizeof(b));
 
-				mo_file = fs::fopen(fs::path{ LOCALE_data_path } / "no_space_for_strings_2.mo", "wb");
+				mo_file = fs::fopen(LOCALE_data_path / "no_space_for_strings_2.mo", "wb");
 				write_mo_head(mo_file, 2, 28, 44, 0, 44, reverse);
 				be(mo_file, (uint32_t)1);
 				be(mo_file, (uint32_t)44);
@@ -241,7 +241,7 @@ namespace lngs::testing {
 
 	TEST_P(gettext, text) {
 		auto[filename, exp_diag, expected, expect_file] = GetParam();
-		auto mo = fs::path{ LOCALE_data_path } / filename;
+		auto mo = LOCALE_data_path / filename;
 
 		if (expect_file) {
 			auto mo_file = fs::fopen(mo, "rb");
@@ -356,7 +356,7 @@ namespace lngs::testing {
 	TEST_P(mo_load, translations) {
 		auto[strings, warp, verbose, filename, expected, msgs] = GetParam();
 
-		auto mo = fs::path{ LOCALE_data_path } / filename;
+		auto mo = LOCALE_data_path / filename;
 
 		diagnostics diag;
 		auto actual = make::load_mo(strings,
@@ -691,7 +691,7 @@ namespace lngs::testing {
 
 	INSTANTIATE_TEST_CASE_P(msgs, mo_load, ValuesIn(msgs));
 
-	static const mo_fix_param attrs[] = {
+	static const mo_fix_param attrs_tests[] = {
 		{
 			{}, {}, {}, true, { warning << lng::ERR_MSGS_ATTR_LANG_MISSING }
 		},
@@ -776,5 +776,5 @@ namespace lngs::testing {
 		},
 	};
 
-	INSTANTIATE_TEST_CASE_P(attrs, mo_fix, ValuesIn(attrs));
+	INSTANTIATE_TEST_CASE_P(attrs, mo_fix, ValuesIn(attrs_tests));
 }

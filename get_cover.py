@@ -147,7 +147,8 @@ class stats:
 			prev = stats()
 			prev += self
 
-		return u'{}{}{}{}{}'.format(
+		missed = self.relevant - self.covered
+		return u'{}{}{}{}{}{}'.format(
 			diff_html_(self.coverage, prev.coverage, percent,
 				"cov cov-good" if self.coverage >= RESULT_GOOD else (\
 				"cov cov-ok" if self.coverage >= RESULT_OK else \
@@ -155,6 +156,8 @@ class stats:
 			diff_html_(self.lines, prev.lines),
 			diff_html_(self.relevant, prev.relevant),
 			diff_html_(self.covered, prev.covered),
+			diff_html_(missed, prev.relevant - prev.covered, klass=
+				"missed missed-nothing" if missed == 0 else "missed missed-lines"),
 			diff_html_(self.average, prev.average, average)
 			)
 
@@ -422,6 +425,8 @@ tr td.value.cov-bad { color: #c44 }
 tr td.value.cov-ok { color: #883 }
 tr td.value.cov-good { color: #080 }
 
+tr td.value.missed-lines { font-style: italic }
+
 table#commit { border-collapse: collapse; width: 100%; margin-bottom: 2em; }
 
 table#commit td.label {
@@ -490,7 +495,7 @@ if args.out is not None:
 </table>
 
 <table class="stats">'''.format(css=css, subject=subject, details=details, author=author_, commiter=commiter_, commit=commit, branch=data['git']['branch']), file=out)
-			print(u'<thead><tr><th>Name</th><th>Coverage</th><th>&nbsp;</th><th>Total</th><th>&nbsp;</th><th>Relevant</th><th>&nbsp;</th><th>Covered</th><th>&nbsp;</th><th>Hits/Line</th><th>&nbsp;</th></tr></thead>', file=out)
+			print(u'<thead><tr><th>Name</th><th>Coverage</th><th>&nbsp;</th><th>Total</th><th>&nbsp;</th><th>Relevant</th><th>&nbsp;</th><th>Covered</th><th>&nbsp;</th><th>Missed</th><th>&nbsp;</th><th>Hits/Line</th><th>&nbsp;</th></tr></thead>', file=out)
 			print(curr.html(), file=out)
 			for dname in sorted(curr.dirs.keys()):
 				dinfo = curr.dirs[dname]

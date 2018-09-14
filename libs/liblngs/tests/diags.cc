@@ -3,7 +3,7 @@
 #include <string_view>
 #include <numeric>
 
-extern std::string LOCALE_data_path;
+extern fs::path LOCALE_data_path;
 
 namespace lngs::testing {
 	using namespace ::std::literals;
@@ -94,7 +94,7 @@ namespace lngs::testing {
 		};
 
 		diagnostics diag;
-		auto src = diag.open((fs::path{ LOCALE_data_path } / "the_raven.txt").string());
+		auto src = diag.open((LOCALE_data_path / "the_raven.txt").string());
 
 		EXPECT_TRUE(src.valid());
 		EXPECT_EQ(src.line(0), ""sv) << "Line: 0";
@@ -111,7 +111,7 @@ namespace lngs::testing {
 
 	TEST_F(diag_write, lines_not_found) {
 		diagnostics diag;
-		auto src = diag.open((fs::path{ LOCALE_data_path } / "no-such.txt").string());
+		auto src = diag.open((LOCALE_data_path / "no-such.txt").string());
 
 		EXPECT_FALSE(src.valid());
 		EXPECT_EQ(src.line(0), ""sv) << "Line: 0";

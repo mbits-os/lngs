@@ -65,6 +65,7 @@
 #include <iostream>
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
+#include <locale/file.hpp>
 
 #if __has_include(<default_data_path.hpp>)
 #include <default_data_path.hpp>
@@ -72,9 +73,9 @@
 #endif
 
 #ifdef HAS_DEFAULT_DATA_PATH
-std::string LOCALE_data_path{ lngs::testing::directory_info::sources };
+fs::path LOCALE_data_path{ lngs::testing::directory_info::sources };
 #else
-std::string LOCALE_data_path{};
+fs::path LOCALE_data_path{};
 #endif
 
 namespace {
@@ -141,9 +142,11 @@ int main(int argc, char** argv)
 	if (argc > 0) {
 		using namespace testing::internal;
 		for (int i = 1; i != argc; i++) {
-			if (ParseStringFlag(argv[i], "data_path", &LOCALE_data_path)
-				&& !LOCALE_data_path.empty()) {
-				printf("Note: data used from path: %s\n", LOCALE_data_path.c_str());
+			std::string value;
+			if (ParseStringFlag(argv[i], "data_path", &value)
+				&& !value.empty()) {
+				printf("Note: data used from path: %s\n", value.c_str());
+				LOCALE_data_path = value;
 			}
 		}
 	}

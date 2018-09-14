@@ -2,7 +2,7 @@
 #include "diag_helper.h"
 #include "strings_helper.h"
 
-extern std::string LOCALE_data_path;
+extern fs::path LOCALE_data_path;
 
 namespace lngs::testing {
 	using namespace ::std::literals;
@@ -110,7 +110,7 @@ namespace lngs::testing {
 			if (std::holds_alternative<std::string>(msg.value)) {
 				auto& val = std::get<std::string>(msg.value);
 				if (val.compare(0, 11, "$DATA_PATH/") == 0) {
-					val = (fs::path{ LOCALE_data_path } / val.substr(11)).string();
+					val = (LOCALE_data_path / val.substr(11)).string();
 				}
 			}
 			for (auto& arg : msg.args)
@@ -142,7 +142,7 @@ namespace lngs::testing {
 	TEST_P(read_file, strings) {
 		auto const& param = GetParam();
 
-		auto src_name = fs::path{ LOCALE_data_path } / param.text;
+		auto src_name = LOCALE_data_path / param.text;
 		diagnostics diag;
 		idl_strings actual;
 		auto result = read_strings("prog", src_name, actual, param.verbose, diag);
