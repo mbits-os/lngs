@@ -25,7 +25,6 @@
 #pragma once
 
 #include <functional>
-#include <memory>
 #include <vector>
 #include <map>
 #include <locale/locale_file.hpp>
@@ -38,7 +37,7 @@ namespace locale {
 			fs::path m_base;
 			fs::path m_fname;
 		public:
-			explicit SubdirPath(std::string base, std::string fname)
+			explicit SubdirPath(fs::path base, std::string fname)
 				: m_base(std::move(base))
 				, m_fname(std::move(fname))
 			{}
@@ -111,7 +110,7 @@ namespace locale {
 	}
 
 	struct memory_block : memory_view {
-		std::unique_ptr<std::byte[]> block;
+		std::vector<std::byte> block;
 	};
 
 	struct culture {
@@ -160,6 +159,8 @@ namespace locale {
 
 		std::map<uint32_t, std::function<void()>> m_updatelisteners;
 		uint32_t m_nextupdate = 0xba5e0000;
+
+		friend class translation_tests;
 
 		void onupdate();
 	public:

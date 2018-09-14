@@ -37,11 +37,12 @@ class file : private std::unique_ptr<FILE, fcloser> {
 	using parent_t = std::unique_ptr<FILE, fcloser>;
 	static FILE* fopen(path fname, char const* mode) noexcept;
 public:
-	file() = default;
+	file();
+	~file();
 	file(const file&) = delete;
 	file& operator=(const file&) = delete;
-	file(file&&) = default;
-	file& operator=(file&&) = default;
+	file(file&&);
+	file& operator=(file&&);
 
 	explicit file(const path& fname) noexcept : file(fname, "r") {}
 	file(const path& fname, const char* mode) noexcept : parent_t(fopen(fname, mode)) {}
@@ -57,7 +58,5 @@ public:
 	bool feof() const noexcept { return std::feof(get()); }
 };
 
-inline file fopen(const path& file, char const* mode = "r") noexcept {
-	return { file, mode };
-};
+file fopen(const path& file, char const* mode = "r") noexcept;
 }

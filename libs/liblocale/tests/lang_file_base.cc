@@ -1,11 +1,5 @@
 #include <gtest/gtest.h>
-#include <locale/file.hpp>
-#include <locale/locale_file.hpp>
-
-#include <lngs/strings.hpp>
-#include <lngs/languages.hpp>
-#include <lngs/streams.hpp>
-
+#include "lang_file_helpers.h"
 #include <src/str.hpp>
 
 namespace locale::testing {
@@ -13,62 +7,7 @@ namespace locale::testing {
 	using ::testing::TestWithParam;
 	using ::testing::ValuesIn;
 
-	struct attrs_t {
-		std::vector<std::pair<attr_t, std::string>> vals{};
-		intmax_t(*plural_map)(intmax_t) = nullptr;
-
-		attrs_t&& culture(std::string val) && {
-			vals.emplace_back(ATTR_CULTURE, std::move(val));
-			return std::move(*this);
-		}
-
-		attrs_t&& language(std::string val) && {
-			vals.emplace_back(ATTR_LANGUAGE, std::move(val));
-			return std::move(*this);
-		}
-
-		attrs_t&& plurals(std::string val) && {
-			vals.emplace_back(ATTR_PLURALS, std::move(val));
-			return std::move(*this);
-		}
-
-		template <class Lambda>
-		attrs_t&& map(Lambda cb) && {
-			plural_map = cb;
-			return std::move(*this);
-		}
-	};
-
-	struct builder {
-		uint32_t serial{ 0 };
-		template <typename ... Strings>
-		lngs::idl_strings make(Strings ... strings) {
-			return { {}, {}, serial, -1, false, { lngs::idl_string{ strings }... } };
-		}
-	};
-
-	inline lngs::idl_string str(int id, std::string key, std::string value) {
-		return { std::move(key), std::move(value), {}, {}, id, id };
-	}
-
-	std::vector<std::byte> build_strings(const lngs::idl_strings& defs, const attrs_t& attrs, bool with_keys) {
-		lngs::file file;
-		file.serial = defs.serial;
-
-		file.strings.reserve(defs.strings.size());
-		file.attrs.reserve(attrs.vals.size());
-		if (with_keys)
-			file.keys.reserve(defs.strings.size());
-
-		for (auto& string : defs.strings) {
-			file.strings.emplace_back(string.id, string.value);
-			if (with_keys)
-				file.keys.emplace_back(string.id, string.key);
-		}
-
-		for (auto[id, attr] : attrs.vals)
-			file.attrs.emplace_back(id, attr);
-
+	std::vector<std::byte> build_bytes(const lngs::idl_strings& defs, const helper::attrs_t& attrs, bool with_keys) {
 		std::vector<std::byte> out;
 
 		struct stream : lngs::outstream {
@@ -85,13 +24,13 @@ namespace locale::testing {
 			}
 		} output{ out };
 
-		file.write(output);
+		helper::build_strings(output, defs, attrs, with_keys);
 		return out;
 	}
 
 	struct file_info {
 		lngs::idl_strings defs{};
-		attrs_t attrs{};
+		helper::attrs_t attrs{};
 		bool with_keys{ true };
 	};
 	struct lang_file_base : TestWithParam<file_info> {};
@@ -99,7 +38,7 @@ namespace locale::testing {
 	TEST_P(lang_file_base, load) {
 		auto [defs, attrs, with_keys] = GetParam();
 
-		auto bytes = build_strings(defs, attrs, with_keys);
+		auto bytes = build_bytes(defs, attrs, with_keys);
 
 		lang_file file;
 		auto result = file.open({ bytes.data(), bytes.size() });
@@ -129,7 +68,7 @@ namespace locale::testing {
 	TEST_P(lang_file_base, by_keys) {
 		auto[defs, attrs, with_keys] = GetParam();
 
-		auto bytes = build_strings(defs, attrs, with_keys);
+		auto bytes = build_bytes(defs, attrs, with_keys);
 
 		lang_file file;
 		auto result = file.open({ bytes.data(), bytes.size() });
@@ -158,7 +97,7 @@ namespace locale::testing {
 	TEST_P(lang_file_base, outside) {
 		auto[defs, attrs, with_keys] = GetParam();
 
-		auto bytes = build_strings(defs, attrs, with_keys);
+		auto bytes = build_bytes(defs, attrs, with_keys);
 
 		lang_file file;
 		auto result = file.open({ bytes.data(), bytes.size() });
@@ -174,7 +113,7 @@ namespace locale::testing {
 	TEST_P(lang_file_base, plurals) {
 		auto[defs, attrs, with_keys] = GetParam();
 
-		auto bytes = build_strings(defs, attrs, with_keys);
+		auto bytes = build_bytes(defs, attrs, with_keys);
 
 		lang_file file;
 		auto result = file.open({ bytes.data(), bytes.size() });
@@ -225,6 +164,8 @@ namespace locale::testing {
 		}
 	}
 
+	using helper::builder, helper::str;
+
 	static const auto stringz = builder{ 123 }.make(
 		str(1000, "KEY1", "VALUE1"),
 		str(1001, "KEY2", "SINGLE VALUE\0{0} VALUES"s),
@@ -233,13 +174,13 @@ namespace locale::testing {
 		str(1004, "KEY5", "VALUE5")
 	);
 
-	static const auto attrz = attrs_t{}
-		.culture("ll_CC")
+	static const auto attrz = helper::attrs_t{}
+		.culture("ll-CC")
 		.language("language (Region)")
 		.plurals("nplurals=2; plural=(n != 1);")
 		.map([](intmax_t n) -> intmax_t { return (n != 1); });
 
-	static const auto attrz_broken = attrs_t{}.map([](intmax_t) -> intmax_t { return 0; });
+	static const auto attrz_broken = helper::attrs_t{}.map([](intmax_t) -> intmax_t { return 0; });
 
 	static const file_info files[] = {
 		{ },

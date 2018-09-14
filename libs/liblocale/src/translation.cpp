@@ -29,34 +29,15 @@ namespace locale {
 	/* static */
 	memory_block translation::open_file(const fs::path& path) noexcept
 	{
-		fs::error_code ec;
-		auto size = fs::file_size(path, ec);
-		if (ec)
-			return{};
-
 		memory_block block;
-		block.size = size;
-		block.block.reset(new (std::nothrow) std::byte[(size_t)block.size]);
-		block.contents = block.block.get();
-		if (!block.block)
-			return{};
 
-#ifdef WIN32
-		FILE* file = nullptr;
-		(void)_wfopen_s(&file, path.wstring().c_str(), L"rb");
-		std::unique_ptr<FILE, decltype(&fclose)> f { file, fclose };
-#else
-		std::unique_ptr<FILE, decltype(&fclose)> f {
-			fopen(path.native().c_str(), "rb"), fclose
-		};
-#endif
+		auto file = fs::fopen(path, "rb");
+		if (!file)
+			return block;
 
-		if (!f)
-			return{};
-
-		bool read = fread(block.block.get(), (size_t)block.size, 1, f.get()) == 1;
-		if (!read)
-			return{};
+		block.block = file.read();
+		block.contents = block.block.data();
+		block.size = block.block.size();
 
 		return block;
 	}
@@ -75,6 +56,8 @@ namespace locale {
 			m_file.close();
 			m_data = memory_block { };
 			m_mtime = decltype(m_mtime){};
+
+			onupdate();
 			return false;
 		}
 

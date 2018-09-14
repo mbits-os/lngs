@@ -81,7 +81,9 @@ target_link_libraries(locale-test locale lngs_impl gtest gmock ${CMAKE_THREAD_LI
 
 
 enable_testing()
+add_test(NAME locale.file COMMAND locale-test --gtest_filter=file.*)
 add_test(NAME locale.plurals COMMAND locale-test --gtest_filter=*/plurals.*:*/plural_ops.*)
 add_test(NAME locale.lang_file COMMAND locale-test --gtest_filter=*/lang_file_*)
+add_test(NAME locale.translation COMMAND locale-test --gtest_filter=*/translation.*:translation.*)
 
 endif()

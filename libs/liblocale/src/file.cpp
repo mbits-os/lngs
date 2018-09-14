@@ -26,6 +26,11 @@
 #include <cstdio>
 
 namespace fs {
+file::file() = default;
+file::~file() = default;
+file::file(file&&) = default;
+file& file::operator=(file&&) = default;
+
 FILE* file::fopen(path file, char const* mode) noexcept
 {
 	file.make_preferred();
@@ -86,5 +91,9 @@ size_t file::store(const void* buffer, size_t length) const noexcept
 {
 	return std::fwrite(buffer, 1, length, get());
 }
+
+file fopen(const path& file, char const* mode) noexcept {
+	return { file, mode };
+};
 
 }
