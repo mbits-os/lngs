@@ -111,7 +111,7 @@ namespace locale {
 	}
 
 	struct memory_block : memory_view {
-		std::unique_ptr<char[]> block;
+		std::unique_ptr<std::byte[]> block;
 	};
 
 	struct culture {

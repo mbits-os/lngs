@@ -176,7 +176,7 @@ namespace locale {
 			{
 				m_file = std::make_shared<lang_file>();
 				memory_view view;
-				view.contents = ResourceT::data();
+				view.contents = (const std::byte*)ResourceT::data();
 				view.size = ResourceT::size();
 				return m_file->open(view);
 			}

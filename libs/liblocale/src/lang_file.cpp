@@ -48,13 +48,6 @@ namespace locale {
 		return { key->offset + strings, key->length };
 	}
 
-	std::string_view lang_file::section::string(const string_key* key) const noexcept
-	{
-		if (!key)
-			return nullptr;
-		return { key->offset + strings, key->length };
-	}
-
 	std::string_view lang_file::section::string(const string_key& key) const noexcept
 	{
 		return { key.offset + strings, key.length };
@@ -64,17 +57,39 @@ namespace locale {
 	{
 	}
 
-	uint32_t bitsIn(uint32_t test)
+	bool lang_file::section::read_strings(const string_header* sec) noexcept
 	{
-		uint32_t acc = 0;
-		while (test) {
-			if (test & 1)
-				++acc;
-			test >>= 1;
+		close();
+
+		if (sec->string_offset - sizeof(section_header) / sizeof(uint32_t) > sec->ints)
+			return false;
+
+		auto uints_for_keys = sec->string_offset - sizeof(string_header) / sizeof(uint32_t);
+		if (uints_for_keys < sec->string_count * sizeof(string_key) / sizeof(uint32_t))
+			return false;
+
+		const auto space_for_strings = (sec->ints + sizeof(section_header) / sizeof(uint32_t) - sec->string_offset) * sizeof(uint32_t);
+
+		auto in_keys = reinterpret_cast<const string_key*>(sec + 1);
+		auto in_strings = reinterpret_cast<const char*>(
+			reinterpret_cast<const uint32_t*>(sec) + sec->string_offset
+			);
+		for (auto cur = in_keys, end = in_keys + sec->string_count;
+			cur != end; ++cur) {
+			auto& key = *cur;
+			if (key.offset > space_for_strings)
+				return false;
+			if (key.offset + key.length > space_for_strings)
+				return false;
+			if (in_strings[key.offset + key.length] != 0)
+				return false;
 		}
 
-		return acc;
-	}
+		count = sec->string_count;
+		strings = in_strings;
+		keys = in_keys;
+		return true;
+	};
 
 	bool lang_file::open(const memory_view& view) noexcept
 	{
@@ -88,12 +103,11 @@ namespace locale {
 		auto uints = reinterpret_cast<const uint32_t*>(view.contents);
 
 		auto file_tag = *uints++;
+		--ints;
 		auto fhdr = reinterpret_cast<const file_header*>(uints);
 		if (file_tag != langtext_tag || fhdr->id != hdrtext_tag)
 			return false;
-		if (fhdr->ints + 2 < sizeof(file_header) / sizeof(uint32_t))
-			return false;
-		if (fhdr->ints > ints)
+		if ((fhdr->ints + 2) < (sizeof(file_header) / sizeof(uint32_t)))
 			return false;
 
 		if (fhdr->version != v1_0::version) { // == 1.0?
@@ -101,59 +115,26 @@ namespace locale {
 				return false;
 		}
 
-		auto read_strings = [](const string_header* sec, section& out) noexcept -> bool
-		{
-			out.close();
-
-			if (sec->string_offset - sizeof(section_header) / sizeof(uint32_t) > sec->ints)
-				return false;
-
-			auto uints_for_keys = sec->string_offset - sizeof(string_header) / sizeof(uint32_t);
-			if (uints_for_keys < sec->string_count * sizeof(string_key) / sizeof(uint32_t))
-				return false;
-
-			const auto space_for_strings = (sec->ints + sizeof(section_header) / sizeof(uint32_t) - sec->string_offset) * sizeof(uint32_t);
-
-			auto keys = reinterpret_cast<const string_key*>(sec + 1);
-			auto strings = reinterpret_cast<const char*>(
-				reinterpret_cast<const uint32_t*>(sec) + sec->string_offset
-				);
-			for (auto cur = keys, end = keys + sec->string_count;
-			cur != end; ++cur) {
-				auto& key = *cur;
-				if (key.offset > space_for_strings)
-					return false;
-				if (key.offset + key.length > space_for_strings)
-					return false;
-				if (strings[key.offset + key.length] != 0)
-					return false;
-			}
-
-			out.count = sec->string_count;
-			out.strings = strings;
-			out.keys = keys;
-			return true;
-		};
-
 		auto sec = static_cast<const section_header*>(fhdr);
 		while (sec->id != lasttext_tag) {
-			uints += sec->ints + sizeof(section_header) / sizeof(uint32_t);
-			ints -= sec->ints + sizeof(section_header) / sizeof(uint32_t);
-			sec = reinterpret_cast<const section_header*>(uints);
-			if (sec->ints > ints)
+			const auto sec_ints = sec->ints + sizeof(section_header) / sizeof(uint32_t);
+			if (sec_ints >= ints)
 				return false;
+			uints += sec_ints;
+			ints -= sec_ints;
+			sec = reinterpret_cast<const section_header*>(uints);
 
 			switch (sec->id) {
 			case attrtext_tag:
-				if (!read_strings((const string_header*)sec, attrs))
+				if (!attrs.read_strings((const string_header*)sec))
 					return false;
 				break;
 			case strstext_tag:
-				if (!read_strings((const string_header*)sec, strings))
+				if (!strings.read_strings((const string_header*)sec))
 					return false;
 				break;
 			case keystext_tag:
-				if (!read_strings((const string_header*)sec, attrs))
+				if (!keys.read_strings((const string_header*)sec))
 					return false;
 				break;
 			}
@@ -177,8 +158,7 @@ namespace locale {
 
 	std::string_view lang_file::get_string(identifier id, quantity count) const noexcept
 	{
-		auto key = strings.get(id);
-		auto str = strings.string(key);
+		const auto str = strings.string(id);
 		if (str.empty())
 			return str;
 

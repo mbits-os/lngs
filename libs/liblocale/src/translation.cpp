@@ -36,7 +36,7 @@ namespace locale {
 
 		memory_block block;
 		block.size = size;
-		block.block.reset(new (std::nothrow) char[(size_t)block.size]);
+		block.block.reset(new (std::nothrow) std::byte[(size_t)block.size]);
 		block.contents = block.block.get();
 		if (!block.block)
 			return{};

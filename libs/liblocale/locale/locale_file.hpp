@@ -28,11 +28,12 @@
 #include <locale/plurals.hpp>
 #include <memory>
 #include <string_view>
+#include <cstddef>
 
 namespace locale {
 
 	struct memory_view {
-		const char* contents = nullptr;
+		const std::byte* contents = nullptr;
 		uintmax_t size = 0;
 	};
 
@@ -61,11 +62,12 @@ namespace locale {
 			}
 			const string_key* get(identifier id) const noexcept;
 			std::string_view string(identifier id) const noexcept;
-			std::string_view string(const string_key* key) const noexcept;
 			std::string_view string(const string_key& key) const noexcept;
 
 			const string_key* begin() const noexcept { return keys; }
 			const string_key* end() const noexcept { return keys + count; }
+
+			bool read_strings(const string_header* sec) noexcept;
 		};
 		section attrs;
 		section strings;
