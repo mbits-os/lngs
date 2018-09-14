@@ -34,8 +34,16 @@ namespace plurals {
 	};
 
 	struct lexical {
-		int nplurals;
-		std::unique_ptr<expr> plural;
+		int nplurals{ 0 };
+		std::unique_ptr<expr> plural{};
+
+		lexical();
+		~lexical();
+		lexical(const lexical&) = delete;
+		lexical(lexical&&);
+		lexical& operator=(const lexical&) = delete;
+		lexical& operator=(lexical&&);
+
 		intmax_t eval(intmax_t n) const noexcept;
 		explicit operator bool() const noexcept { return !!plural; }
 	};

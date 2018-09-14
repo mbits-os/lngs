@@ -29,8 +29,13 @@
 #include <cstdlib>
 
 namespace plurals {
+	lexical::lexical() = default;
+	lexical::~lexical() = default;
+	lexical::lexical(lexical&&) = default;
+	lexical& lexical::operator=(lexical&&) = default;
+
 	lexical decode(std::string_view entry) {
-		lexical out{ 0,{} };
+		lexical out;
 		auto values = split_view(entry, ";");
 		for (auto& val : values) {
 			auto attr = split_view(val, "=", 1);

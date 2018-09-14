@@ -214,7 +214,7 @@ namespace locale {
 			if (!entry.empty())
 				lex = plurals::decode(entry);
 			if (!lex)
-				lex = plurals::decode("0");
+				lex = plurals::decode("nplurals=1;plural=0");
 
 			if (!lex)
 				return 0;
