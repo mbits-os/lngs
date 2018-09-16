@@ -115,7 +115,7 @@ with cd(args.src_dir):
 	}
 
 gcda_dirs = {}
-for gcda in recurse(os.path.abspath(args.bin_dir), '.gcda'):
+for gcda in recurse(os.path.abspath(args.bin_dir), '.gcno'):
 	dirn, filen = os.path.split(gcda)
 	if dirn not in gcda_dirs:
 		gcda_dirs[dirn] = []
