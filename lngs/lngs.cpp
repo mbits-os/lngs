@@ -155,7 +155,9 @@ namespace lngs {
 		StringsImpl tr;
 
 		~locale_base() {
-			printer_anchor tmp{ get_stdout(), diag, tr };
+			auto& out = get_stdout();
+			for (const auto& diagnostic : diag.diagnostic_set())
+				diagnostic.print(out, diag, tr);
 		}
 
 		int read_strings(args::parser& parser, const fs::path& in, bool verbose) {

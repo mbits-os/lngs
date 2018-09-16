@@ -256,11 +256,4 @@ namespace lngs {
 
 		bool has_errors() const noexcept;
 	};
-
-	struct printer_anchor {
-		outstream& out;
-		diagnostics& diag;
-		strings& tr;
-		~printer_anchor();
-	};
 }

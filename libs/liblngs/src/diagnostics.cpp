@@ -491,9 +491,4 @@ namespace lngs {
 		}
 		return false;
 	}
-
-	printer_anchor::~printer_anchor() {
-		for (const auto& diagnostic : diag.diagnostic_set())
-			diagnostic.print(out, diag, tr);
-	}
 }
