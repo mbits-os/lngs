@@ -35,7 +35,7 @@ target_include_directories(lngs_impl
   PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
   PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
-target_link_libraries(lngs_impl locale)
+target_link_libraries(lngs_impl locale fmt::fmt)
 
 ##################################################################
 ##  TESTING

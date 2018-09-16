@@ -25,7 +25,6 @@
 #pragma once
 
 #include <locale/locale_storage.hpp>
-#include <fmt/core.h>
 
 namespace locale {
 	template <typename Enum, typename Storage = storage::FileBased>
@@ -33,15 +32,8 @@ namespace locale {
 	public:
 		std::string operator()(Enum val) const noexcept
 		{
-			auto ptr = Storage::get_string((uint32_t)val);
+			auto ptr = Storage::get_string((lang_file::identifier)val);
 			return !ptr.empty() ? std::string{ ptr } : std::string{ };
-		}
-
-		template <typename... Args>
-		std::string operator()(Enum val, Args&&... args) const noexcept
-		{
-			auto ptr = Storage::get_string((uint32_t)val);
-			return !ptr.empty() ? fmt::format(ptr, std::forward<Args>(args)...) : std::string{ };
 		}
 
 		std::string attr(v1_0::attr_t val) const noexcept
@@ -56,15 +48,14 @@ namespace locale {
 	public:
 		std::string operator()(Enum val, intmax_t count) const noexcept
 		{
-			auto ptr = Storage::get_string((uint32_t)val, count);
+			auto ptr = Storage::get_string((lang_file::identifier)val, (lang_file::quantity)count);
 			return !ptr.empty() ? std::string{ ptr } : std::string{ };
 		}
 
-		template <typename... Args>
-		std::string operator()(Enum val, intmax_t count, Args&&... args) const noexcept
+		std::string attr(v1_0::attr_t val) const noexcept
 		{
-			auto ptr = Storage::get_string((uint32_t)val, count);
-			return !ptr.empty() ? fmt::format(ptr, std::forward<Args>(args)...) : std::string{ };
+			auto ptr = Storage::get_attr(val);
+			return !ptr.empty() ? std::string{ ptr } : std::string{ };
 		}
 	};
 
@@ -74,15 +65,8 @@ namespace locale {
 		using SingularStrings<SEnum, Storage>::operator(); // un-hide
 		std::string operator()(PEnum val, intmax_t count) const noexcept
 		{
-			auto ptr = SingularStrings<SEnum, Storage>::get_string((uint32_t)val, count);
+			auto ptr = SingularStrings<SEnum, Storage>::get_string((lang_file::identifier)val, (lang_file::quantity)count);
 			return !ptr.empty() ? std::string{ ptr } : std::string{ };
-		}
-
-		template <typename... Args>
-		std::string operator()(PEnum val, intmax_t count, Args&&... args) const noexcept
-		{
-			auto ptr = SingularStrings<SEnum, Storage>::get_string((uint32_t)val, count);
-			return !ptr.empty() ? fmt::format(ptr, std::forward<Args>(args)...) : std::string{ };
 		}
 	};
 }

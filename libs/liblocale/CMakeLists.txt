@@ -52,7 +52,7 @@ target_include_directories(locale
 	  $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
 	  $<INSTALL_INTERFACE:include>
 	PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
-target_link_libraries(locale PUBLIC ${EXTRA_LIBS} fmt::fmt)
+target_link_libraries(locale PUBLIC ${EXTRA_LIBS})
 
 install(TARGETS locale
 	ARCHIVE DESTINATION lib
@@ -77,7 +77,7 @@ file(GLOB TEST_SRCS tests/*.cc)
 
 add_executable(locale-test "${CMAKE_SOURCE_DIR}/googletest.cpp" ${TEST_SRCS})
 set_target_properties(locale-test PROPERTIES FOLDER tests)
-target_link_libraries(locale-test locale lngs_impl gtest gmock ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(locale-test locale liblngs gtest gmock ${CMAKE_THREAD_LIBS_INIT})
 
 
 enable_testing()
@@ -86,5 +86,6 @@ add_test(NAME locale.plurals COMMAND locale-test --gtest_filter=*/plurals.*:*/pl
 add_test(NAME locale.lang_file COMMAND locale-test --gtest_filter=*/lang_file_*)
 add_test(NAME locale.translation COMMAND locale-test --gtest_filter=*/translation.*:translation.*)
 add_test(NAME locale.storage COMMAND locale-test --gtest_filter=*/storage_*:storage.*)
+add_test(NAME locale.strings COMMAND locale-test --gtest_filter=strings.*)
 
 endif()
