@@ -85,5 +85,6 @@ add_test(NAME locale.file COMMAND locale-test --gtest_filter=file.*)
 add_test(NAME locale.plurals COMMAND locale-test --gtest_filter=*/plurals.*:*/plural_ops.*)
 add_test(NAME locale.lang_file COMMAND locale-test --gtest_filter=*/lang_file_*)
 add_test(NAME locale.translation COMMAND locale-test --gtest_filter=*/translation.*:translation.*)
+add_test(NAME locale.storage COMMAND locale-test --gtest_filter=*/storage_*:storage.*)
 
 endif()

@@ -28,11 +28,12 @@
 #include <assert.h>
 #include <type_traits>
 #include <string>
+#include <string_view>
 #include <vector>
 
 namespace locale {
 	std::vector<std::string> system_locales(bool init_setlocale = true);
-	std::vector<std::string> http_accept_language(const char* header);
+	std::vector<std::string> http_accept_language(std::string_view header);
 	namespace storage {
 		class FileBased {
 			std::shared_ptr<translation> m_impl;
@@ -103,7 +104,7 @@ namespace locale {
 
 			template <typename T>
 			std::enable_if_t<std::is_convertible<T, std::string>::value, bool>
-				open_first_of(std::initializer_list<T>&& langs)
+				open_first_of(std::initializer_list<T> langs)
 			{
 				return open_range(std::move(langs));
 			}
@@ -239,22 +240,4 @@ namespace locale {
 			using Builtin<ResourceT>::init;
 		};
 	}
-
-	template <typename Strings>
-	struct Translation {
-		Strings tr;
-		void onupdate(const std::function<void()>& fn)
-		{
-			if (reg_token)
-				tr.remove_onupdate(reg_token);
-			reg_token = tr.add_onupdate(fn);
-		}
-
-		~Translation()
-		{
-			if (reg_token) tr.remove_onupdate(reg_token);
-		}
-	private:
-		uint32_t reg_token = 0;
-	};
 }

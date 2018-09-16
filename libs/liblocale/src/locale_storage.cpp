@@ -232,6 +232,8 @@ namespace locale {
 					}
 					break;
 				case '.':
+					if (seen_dot)
+						return q * pow;
 					seen_dot = true;
 					break;
 				default:
@@ -243,12 +245,12 @@ namespace locale {
 		}
 	};
 
-	std::vector<std::string> priority_list(const char* header)
+	std::vector<std::string> priority_list(std::string_view header)
 	{
 		std::vector<ListItem> items;
 
-		const char* c = header;
-		const char* e = c + strlen(c);
+		const char* c = header.data();
+		const char* e = c + header.length();
 		size_t pos = 0;
 		while (c < e) {
 			ListItem it;
@@ -258,8 +260,11 @@ namespace locale {
 
 		std::stable_sort(items.begin(), items.end());
 		std::vector<std::string> out;
-		out.resize(items.size());
-		std::transform(begin(items), end(items), begin(out), [](ListItem& item) { return std::move(item.m_value); });
+		out.reserve(items.size());
+		for (auto& item : items) {
+			if (!inside(out, item.m_value))
+				out.push_back(std::move(item.m_value));
+		}
 		return out;
 	}
 
@@ -296,7 +301,7 @@ namespace locale {
 		return false;
 	}
 
-	std::vector<std::string> http_accept_language(const char* header)
+	std::vector<std::string> http_accept_language(std::string_view header)
 	{
 		auto out = priority_list(header);
 		while (expand_list(out));
