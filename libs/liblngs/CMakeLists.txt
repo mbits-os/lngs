@@ -28,14 +28,17 @@ set (lngs_INCS
   lngs/utf8.hpp
 )
 
-add_library(lngs_impl STATIC ${lngs_SRCS} ${lngs_INCS})
-set_target_properties(lngs_impl PROPERTIES FOLDER tools IDL "${CMAKE_CURRENT_SOURCE_DIR}/src/lngs.idl")
-target_compile_definitions(lngs_impl PRIVATE _CRT_SECURE_NO_WARNINGS)
-target_include_directories(lngs_impl
+add_library(liblngs STATIC ${lngs_SRCS} ${lngs_INCS})
+set_target_properties(liblngs PROPERTIES
+  FOLDER tools
+  IDL "${CMAKE_CURRENT_SOURCE_DIR}/src/lngs.idl"
+  OUTPUT_NAME lngs)
+target_compile_definitions(liblngs PRIVATE _CRT_SECURE_NO_WARNINGS)
+target_include_directories(liblngs
   PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
   PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
-target_link_libraries(lngs_impl locale fmt::fmt)
+target_link_libraries(liblngs locale fmt::fmt)
 
 ##################################################################
 ##  TESTING
@@ -53,11 +56,11 @@ file(GLOB TEST_SRCS tests/*.cc)
 
 add_executable(lngs-test "${CMAKE_SOURCE_DIR}/googletest.cpp" ${TEST_SRCS})
 set_target_properties(lngs-test PROPERTIES FOLDER tests)
-target_link_libraries(lngs-test lngs_impl gtest gmock ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(lngs-test liblngs gtest gmock ${CMAKE_THREAD_LIBS_INIT})
 
 add_executable(args-test tests/args-test.cpp)
 set_target_properties(args-test PROPERTIES FOLDER tests)
-target_link_libraries(args-test lngs_impl)
+target_link_libraries(args-test liblngs)
 
 enable_testing()
 add_test(NAME lngs.source_location COMMAND lngs-test --gtest_filter=source_location.*)

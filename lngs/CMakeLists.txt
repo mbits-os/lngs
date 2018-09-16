@@ -24,11 +24,11 @@ target_include_directories(lngs
 		"${CMAKE_CURRENT_SOURCE_DIR}"
 		"${CMAKE_CURRENT_BINARY_DIR}"
 		)
-target_link_libraries(lngs lngs_impl)
+target_link_libraries(lngs liblngs)
 
 install(TARGETS lngs DESTINATION bin)
 
-get_target_property(LNGS_IDL lngs_impl IDL)
+get_target_property(LNGS_IDL liblngs IDL)
 
 add_custom_target(lngs_pot
 	COMMAND
