@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 #include "diag_helper.h"
+#include <lngs/strings/lngs.hpp>
 #include <lngs/commands.hpp>
 #include <lngs/strings.hpp>
 #include <lngs/languages.hpp>
@@ -516,4 +517,10 @@ namespace project {
 	};
 
 	INSTANTIATE_TEST_CASE_P(resources, res_write, ValuesIn(write_resources));
+
+	TEST(res_read, builtin) {
+		locale::SingularStrings<lngs::lng, locale::storage::Builtin<Resource>> res;
+		ASSERT_TRUE(res.init());
+		ASSERT_FALSE(res(lng::ERR_EXPECTED).empty());
+	}
 }

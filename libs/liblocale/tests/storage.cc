@@ -372,6 +372,21 @@ namespace locale::storage::testing {
 
 	INSTANTIATE_TEST_CASE_P(headers, storage_AcceptLanguage, ValuesIn(headers));
 
+	struct List {
+		const std::vector<std::string>& strings;
+	};
+
+	static inline std::ostream& operator<<(std::ostream& o, const List& refs) {
+		o << "{";
+		bool first = true;
+		for (auto const & s : refs.strings) {
+			if (first) first = false;
+			else o << ",";
+			o << ' ' << s;
+		}
+		return o << " }";
+	}
+
 	TEST(storage, system_locales) {
 #ifndef _WIN32
 		std::setlocale(LC_MESSAGES, "C");
@@ -382,12 +397,16 @@ namespace locale::storage::testing {
 		auto actual = system_locales();
 #ifndef _WIN32
 		auto expected = std::vector{ "king", "king-KONG", "en" };
-		ASSERT_GE(expected.size(), actual.size());
-		EXPECT_EQ(expected.size(), actual.size());
-		auto it = begin(expected);
-		for (auto const& act : actual) {
-			auto const& exp = *it++;
-			EXPECT_EQ(exp, act);
+		ASSERT_LE(expected.size(), actual.size());
+		for (auto const& exp : expected) {
+			bool found = false;
+			for (auto const& act : actual) {
+				if (act == exp) {
+					found = true;
+					break;
+				}
+			}
+			EXPECT_TRUE(found) << "  while looking for: " << exp << " with " << List{ actual };
 		}
 #endif
 	}

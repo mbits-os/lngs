@@ -67,7 +67,7 @@ add_test(NAME lngs.source_location COMMAND lngs-test --gtest_filter=source_locat
 add_test(NAME lngs.diagnostics COMMAND lngs-test --gtest_filter=*diag_write.*:*/diag_ne.* --data_path=${DATA_DIR})
 add_test(NAME lngs.read_idl COMMAND lngs-test --gtest_filter=*/read.*:*/read_file.* --data_path=${DATA_DIR})
 add_test(NAME lngs.freeze COMMAND lngs-test --gtest_filter=*/frozen.*)
-add_test(NAME lngs.res COMMAND lngs-test --gtest_filter=*/res_make.*:*/res_write.*)
+add_test(NAME lngs.res COMMAND lngs-test --gtest_filter=*/res_make.*:*/res_write.*:res_read.*)
 add_test(NAME lngs.enums COMMAND lngs-test --gtest_filter=*/enums.*)
 add_test(NAME lngs.python COMMAND lngs-test --gtest_filter=*/python.*)
 add_test(NAME lngs.pot COMMAND lngs-test --gtest_filter=*/pot.*)
