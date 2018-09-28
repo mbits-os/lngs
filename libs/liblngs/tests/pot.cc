@@ -30,7 +30,7 @@ namespace lngs::testing {
 		outstrstream output;
 		lngs::pot::write(output, strings, info);
 
-		std::regex pot_creation_date{ R"("POT-Creation-Date: ((\d{4})-\d{2}-\d{2} \d{2}:\d{2}\+\d{4})\\n")" };
+		std::regex pot_creation_date{ R"("POT-Creation-Date: ((\d{4})-\d{2}-\d{2} \d{2}:\d{2}[+-]\d{4})\\n")" };
 		std::smatch matches;
 		ASSERT_TRUE(std::regex_search(output.contents, matches, pot_creation_date));
 

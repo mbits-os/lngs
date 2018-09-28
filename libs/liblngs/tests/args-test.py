@@ -16,6 +16,7 @@ def tests():
   if p.returncode:
     sys.exit(p.returncode)
 
+  out = out.decode('utf-8')
   return [mktest(*line.split(':', 1)) for line in out.split('\n') if line]
 
 tests_failed = 0

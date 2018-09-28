@@ -1,11 +1,11 @@
-add_library(locale_c SHARED strings.cpp locale/strings.h)
+add_library(locale_c SHARED strings.cpp include/locale/strings.h)
 set_target_properties(locale_c PROPERTIES
 	COMPILE_DEFINITIONS STRINGS_EXPORT
 	VERSION ${LOCALE_VERSION_SHORT}
 	SOVERSION ${LOCALE_VERSION_MAJOR}
-  FOLDER library)
+  FOLDER libs)
 target_include_directories(locale_c PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>
 )
 
@@ -15,4 +15,4 @@ install(TARGETS locale_c
 	ARCHIVE DESTINATION lib
 	LIBRARY DESTINATION lib
 	RUNTIME DESTINATION bin)
-install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/locale/strings.h DESTINATION include/locale)
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/locale/strings.h DESTINATION include/locale)
