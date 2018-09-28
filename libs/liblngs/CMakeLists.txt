@@ -17,25 +17,25 @@ set(lngs_SRCS
 )
 
 set (lngs_INCS
-  lngs/argparser.hpp
-  lngs/commands.hpp
-  lngs/diagnostics.hpp
-  lngs/gettext.hpp
-  lngs/languages.hpp
-  lngs/streams.hpp
-  lngs/strings.hpp
-  lngs/strings/lngs.hpp
-  lngs/utf8.hpp
+  include/lngs/argparser.hpp
+  include/lngs/commands.hpp
+  include/lngs/diagnostics.hpp
+  include/lngs/gettext.hpp
+  include/lngs/languages.hpp
+  include/lngs/streams.hpp
+  include/lngs/strings.hpp
+  include/lngs/strings/lngs.hpp
+  include/lngs/utf8.hpp
 )
 
 add_library(liblngs STATIC ${lngs_SRCS} ${lngs_INCS})
 set_target_properties(liblngs PROPERTIES
-  FOLDER tools
+  FOLDER app
   IDL "${CMAKE_CURRENT_SOURCE_DIR}/src/lngs.idl"
   OUTPUT_NAME lngs)
 target_compile_definitions(liblngs PRIVATE _CRT_SECURE_NO_WARNINGS)
 target_include_directories(liblngs
-  PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
+  PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include
   PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 target_link_libraries(liblngs locale fmt::fmt)
@@ -48,13 +48,13 @@ if (LOCALE_TESTING)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/tests)
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
-set(DATA_DIR ${CMAKE_CURRENT_SOURCE_DIR}/test-data)
+set(DATA_DIR ${CMAKE_CURRENT_SOURCE_DIR}/tests/data)
 configure_file(${PROJECT_SOURCE_DIR}/default_data_path.in.hpp ${CMAKE_CURRENT_BINARY_DIR}/default_data_path.hpp @ONLY)
-message(STATUS "${CMAKE_CURRENT_BINARY_DIR}/default_data_path.hpp")
+message(STATUS "Test data: ${DATA_DIR}")
 
 file(GLOB TEST_SRCS tests/*.cc)
 
-add_executable(lngs-test "${CMAKE_SOURCE_DIR}/googletest.cpp" ${TEST_SRCS})
+add_executable(lngs-test "${CMAKE_SOURCE_DIR}/tools/googletest.cpp" ${TEST_SRCS})
 set_target_properties(lngs-test PROPERTIES FOLDER tests)
 target_link_libraries(lngs-test liblngs gtest gmock ${CMAKE_THREAD_LIBS_INIT})
 

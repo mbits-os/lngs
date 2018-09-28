@@ -5,7 +5,7 @@ set(gtest_force_shared_crt ON CACHE BOOL "Use shared (DLL) run-time lib even whe
 
 add_subdirectory(tools/googletest gtest)
 
-set_target_properties(gmock PROPERTIES FOLDER "3rd Party")
-set_target_properties(gmock_main PROPERTIES FOLDER "3rd Party")
-set_target_properties(gtest PROPERTIES FOLDER "3rd Party")
-set_target_properties(gtest_main PROPERTIES FOLDER "3rd Party")
+set_target_properties(gmock PROPERTIES FOLDER tools)
+set_target_properties(gmock_main PROPERTIES FOLDER tools)
+set_target_properties(gtest PROPERTIES FOLDER tools)
+set_target_properties(gtest_main PROPERTIES FOLDER tools)
