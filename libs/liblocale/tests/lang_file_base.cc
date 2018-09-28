@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include "lang_file_helpers.h"
-#include <src/str.hpp>
+#include <../src/str.hpp>
 
 namespace locale::testing {
 	using namespace ::std::literals;

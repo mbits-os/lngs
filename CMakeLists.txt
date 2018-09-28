@@ -18,7 +18,7 @@ endif()
 
 foreach(MOD lngs locale)
   list(APPEND COVERALLS_DIRS
-    libs/lib${MOD}/${MOD}
+    libs/lib${MOD}/include/${MOD}
     libs/lib${MOD}/src)
 endforeach()
 
@@ -58,13 +58,15 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 if (LOCALE_TESTING)
   enable_testing()
+  set(INSTALL_GTEST OFF CACHE BOOL "Enable installation of googletest.")
   include( ${CMAKE_CURRENT_SOURCE_DIR}/googletest.cmake )
 endif()
 
 define_property(TARGET PROPERTY IDL BRIEF_DOCS "The language file path" FULL_DOCS "Same...")
 
+add_subdirectory(external)
 add_subdirectory(libs)
-add_subdirectory(lngs)
+add_subdirectory(app)
 
 set(CPACK_PACKAGE_NAME "${PROJECT_NAME}")
 set(CPACK_PACKAGE_VENDOR "midnightBITS")

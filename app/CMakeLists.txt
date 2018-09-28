@@ -7,7 +7,7 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/dirs.in.hpp ${CMAKE_CURRENT_BINARY_DI
 
 message(STATUS "SHARE: ${CMAKE_INSTALL_PREFIX}/${SHARE_DIR}")
 
-file(GLOB PO_FILES strings/*.po)
+file(GLOB PO_FILES data/strings/*.po)
 
 set(SOURCES
 	lngs.cpp
@@ -18,7 +18,7 @@ set(SOURCES
 add_executable(lngs ${SOURCES})
 set_target_properties(lngs PROPERTIES
 	VERSION ${LOCALE_VERSION_SHORT}
-	FOLDER tools)
+	FOLDER app)
 target_include_directories(lngs
 	PRIVATE
 		"${CMAKE_CURRENT_SOURCE_DIR}"
@@ -49,12 +49,14 @@ set_target_properties(lngs_pot PROPERTIES FOLDER tools/strings)
 
 find_program(MSGFMT NAMES msgfmt)
 
-file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/strings)
+file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/data/strings)
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${SHARE_DIR})
 
+set(PO_NAMES)
 foreach(PO ${PO_FILES})
 	get_filename_component(PO_NAME ${PO} NAME_WE)
-	set(MO ${CMAKE_CURRENT_BINARY_DIR}/strings/${PO_NAME}.mo)
+	list(APPEND PO_NAMES ${PO_NAME})
+	set(MO ${CMAKE_CURRENT_BINARY_DIR}/data/strings/${PO_NAME}.mo)
 	set(LNG ${CMAKE_CURRENT_BINARY_DIR}/${SHARE_DIR}/lngs.${PO_NAME})
 
 	if (MSVC)
@@ -83,7 +85,10 @@ foreach(PO ${PO_FILES})
 		IMPLICIT_DEPENDS $<TARGET_FILE:lngs>
 		COMMENT "[${PO_NAME}] finalizing")
 endforeach()
-install(DIRECTORY ${SHARE_DIR}/ DESTINATION ${SHARE_DIR})
+if (PO_NAMES)
+	message(STATUS "Found strings for: ${PO_NAMES}")
+endif()
+install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${SHARE_DIR}/ DESTINATION ${SHARE_DIR})
 
 get_filename_component(IDL_DIR ${LNGS_IDL} DIRECTORY)
 

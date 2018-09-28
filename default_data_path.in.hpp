@@ -26,6 +26,6 @@
 
 namespace lngs::testing {
 	struct directory_info {
-		constexpr static const char sources[] = "@CMAKE_CURRENT_SOURCE_DIR@/test-data";
+		constexpr static const char sources[] = "@DATA_DIR@";
 	};
 }

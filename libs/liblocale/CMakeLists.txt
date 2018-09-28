@@ -1,4 +1,4 @@
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/version.in.hpp ${CMAKE_CURRENT_BINARY_DIR}/locale/version.hpp @ONLY)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/version.in.hpp ${CMAKE_CURRENT_BINARY_DIR}/include/locale/version.hpp @ONLY)
 
 set(locale_SRCS
 	src/expr_parser.cpp
@@ -11,18 +11,18 @@ set(locale_SRCS
 )
 
 set (locale_INCS
-	locale/file.hpp
-	locale/locale.hpp
-	locale/locale_base.hpp
-	locale/locale_file.hpp
-	locale/locale_storage.hpp
-	locale/plurals.hpp
-	locale/translation.hpp
+	include/locale/file.hpp
+	include/locale/locale.hpp
+	include/locale/locale_base.hpp
+	include/locale/locale_file.hpp
+	include/locale/locale_storage.hpp
+	include/locale/plurals.hpp
+	include/locale/translation.hpp
 	src/expr_parser.hpp
 	src/node.hpp
 	src/str.hpp
 	src/version.in.hpp
-	"${CMAKE_CURRENT_BINARY_DIR}/locale/version.hpp"
+	"${CMAKE_CURRENT_BINARY_DIR}/include/locale/version.hpp"
 )
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
@@ -45,11 +45,11 @@ endif()
 add_library(locale STATIC ${locale_SRCS} ${locale_INCS})
 set_target_properties(locale PROPERTIES
 	VERSION ${LOCALE_VERSION}
-	FOLDER library)
+	FOLDER libs)
 target_include_directories(locale
 	PUBLIC
-	  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-	  $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
+	  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+	  $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
 	  $<INSTALL_INTERFACE:include>
 	PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
 target_link_libraries(locale PUBLIC ${EXTRA_LIBS})
@@ -58,8 +58,8 @@ install(TARGETS locale
 	ARCHIVE DESTINATION lib
 	LIBRARY DESTINATION lib
 	RUNTIME DESTINATION bin)
-install(DIRECTORY locale/ DESTINATION include/locale)
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/locale/version.hpp DESTINATION include/locale)
+install(DIRECTORY include/locale/ DESTINATION include/locale)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/include/locale/version.hpp DESTINATION include/locale)
 
 ##################################################################
 ##  TESTING
@@ -69,13 +69,13 @@ if (LOCALE_TESTING)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/tests)
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
-set(DATA_DIR ${CMAKE_CURRENT_SOURCE_DIR}/test-data)
+set(DATA_DIR ${CMAKE_CURRENT_SOURCE_DIR}/tests/data)
 configure_file(${PROJECT_SOURCE_DIR}/default_data_path.in.hpp ${CMAKE_CURRENT_BINARY_DIR}/default_data_path.hpp @ONLY)
-message(STATUS "${CMAKE_CURRENT_BINARY_DIR}/default_data_path.hpp")
+message(STATUS "Test data: ${DATA_DIR}")
 
 file(GLOB TEST_SRCS tests/*.cc)
 
-add_executable(locale-test "${CMAKE_SOURCE_DIR}/googletest.cpp" ${TEST_SRCS})
+add_executable(locale-test "${CMAKE_SOURCE_DIR}/tools/googletest.cpp" ${TEST_SRCS})
 set_target_properties(locale-test PROPERTIES FOLDER tests)
 target_link_libraries(locale-test locale liblngs gtest gmock ${CMAKE_THREAD_LIBS_INIT})
 
