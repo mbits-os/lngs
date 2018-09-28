@@ -2,5 +2,5 @@
 	path = tools/googletest
 	url = https://github.com/google/googletest
 [submodule "libs/libfmt"]
-	path = libs/libfmt
+	path = external/libfmt
 	url = https://github.com/fmtlib/fmt
