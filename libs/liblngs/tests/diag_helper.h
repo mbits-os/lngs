@@ -110,6 +110,9 @@ namespace lngs::testing {
 	struct UnexpectedDiags {
 		const std::vector<diagnostic>& diags;
 		size_t skip;
+		UnexpectedDiags(const std::vector<diagnostic>& diags, size_t skip)
+			: diags{ diags }, skip{ skip }
+		{}
 
 		static const char* name(lng val);
 		static const char* name(severity sev);

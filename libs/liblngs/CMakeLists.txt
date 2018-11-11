@@ -46,23 +46,12 @@ target_link_libraries(liblngs locale fmt::fmt)
 
 if (LOCALE_TESTING)
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/tests)
-include_directories(${CMAKE_CURRENT_BINARY_DIR})
-set(DATA_DIR ${CMAKE_CURRENT_SOURCE_DIR}/tests/data)
-configure_file(${PROJECT_SOURCE_DIR}/default_data_path.in.hpp ${CMAKE_CURRENT_BINARY_DIR}/default_data_path.hpp @ONLY)
-message(STATUS "Test data: ${DATA_DIR}")
-
-file(GLOB TEST_SRCS tests/*.cc)
-
-add_executable(lngs-test "${CMAKE_SOURCE_DIR}/tools/googletest.cpp" ${TEST_SRCS})
-set_target_properties(lngs-test PROPERTIES FOLDER tests)
-target_link_libraries(lngs-test liblngs gtest gmock ${CMAKE_THREAD_LIBS_INIT})
+add_test_executable(lngs-test DATA_PATH data LIBRARIES liblngs)
 
 add_executable(args-test tests/args-test.cpp)
 set_target_properties(args-test PROPERTIES FOLDER tests)
 target_link_libraries(args-test liblngs)
 
-enable_testing()
 add_test(NAME lngs.source_location COMMAND lngs-test --gtest_filter=source_location.*)
 add_test(NAME lngs.diagnostics COMMAND lngs-test --gtest_filter=*diag_write.*:*/diag_ne.* --data_path=${DATA_DIR})
 add_test(NAME lngs.read_idl COMMAND lngs-test --gtest_filter=*/read.*:*/read_file.* --data_path=${DATA_DIR})

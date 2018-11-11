@@ -2,7 +2,7 @@
 #include <locale/translation.hpp>
 #include "lang_file_helpers.h"
 
-extern fs::path LOCALE_data_path;
+extern fs::path TESTING_data_path;
 
 namespace locale {
 	class translation_tests {
@@ -43,8 +43,8 @@ namespace locale::testing {
 
 		static void SetUpTestCase() {
 			if constexpr (false) {
-				auto testset_1 = LOCALE_data_path / "testset1.ext";
-				auto testset_2 = LOCALE_data_path / "testset2.sub";
+				auto testset_1 = TESTING_data_path / "testset1.ext";
+				auto testset_2 = TESTING_data_path / "testset2.sub";
 
 				try {
 					fs::create_directories(testset_1 / "wibbly-WOBBLY");
@@ -150,7 +150,7 @@ namespace locale::testing {
 	TEST_P(translation, known) {
 		auto& param = GetParam();
 
-		auto root = LOCALE_data_path / param.root;
+		auto root = TESTING_data_path / param.root;
 		locale::translation tr;
 		if (root.extension() == ".ext") {
 			tr.path_manager<manager::ExtensionPath>(root, param.name);
@@ -177,7 +177,7 @@ namespace locale::testing {
 	TEST_P(translation, onupdate) {
 		auto& param = GetParam();
 
-		auto root = LOCALE_data_path / param.root;
+		auto root = TESTING_data_path / param.root;
 		locale::translation tr;
 		if (root.extension() == ".ext") {
 			tr.path_manager<manager::ExtensionPath>(root, param.name);
@@ -212,7 +212,7 @@ namespace locale::testing {
 	TEST_P(translation, keys) {
 		auto& param = GetParam();
 
-		auto root = LOCALE_data_path / param.root;
+		auto root = TESTING_data_path / param.root;
 		locale::translation tr;
 		if (root.extension() == ".ext") {
 			tr.path_manager<manager::ExtensionPath>(root, param.name);

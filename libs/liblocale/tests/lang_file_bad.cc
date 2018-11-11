@@ -2,7 +2,7 @@
 #include <locale/file.hpp>
 #include <locale/locale_file.hpp>
 
-extern fs::path LOCALE_data_path;
+extern fs::path TESTING_data_path;
 
 namespace locale::testing {
 	using namespace ::std::literals;
@@ -30,38 +30,38 @@ namespace locale::testing {
 
 		static void SetUpTestCase() {
 			if constexpr (false) {
-				auto lngs_file = fs::fopen(LOCALE_data_path / "truncated.data", "wb");
+				auto lngs_file = fs::fopen(TESTING_data_path / "truncated.data", "wb");
 
-				lngs_file = fs::fopen(LOCALE_data_path / "zero.data", "wb");
+				lngs_file = fs::fopen(TESTING_data_path / "zero.data", "wb");
 				write_lngs_head(lngs_file, 0, 0, 2, 0, 0);
 
-				lngs_file = fs::fopen(LOCALE_data_path / "file_tag.data", "wb");
+				lngs_file = fs::fopen(TESTING_data_path / "file_tag.data", "wb");
 				write_lngs_head(lngs_file, langtext_tag, 0, 2, 0, 0);
 
-				lngs_file = fs::fopen(LOCALE_data_path / "header_2.0.data", "wb");
+				lngs_file = fs::fopen(TESTING_data_path / "header_2.0.data", "wb");
 				write_lngs_head(lngs_file, langtext_tag, hdrtext_tag, 2, 0x0000'0200);
 
-				lngs_file = fs::fopen(LOCALE_data_path / "header_small.data", "wb");
+				lngs_file = fs::fopen(TESTING_data_path / "header_small.data", "wb");
 				write_lngs_head(lngs_file, langtext_tag, hdrtext_tag, 1);
 
-				lngs_file = fs::fopen(LOCALE_data_path / "header_big.data", "wb");
+				lngs_file = fs::fopen(TESTING_data_path / "header_big.data", "wb");
 				write_lngs_head(lngs_file, langtext_tag, hdrtext_tag, 4);
 
-				lngs_file = fs::fopen(LOCALE_data_path / "no_last.data", "wb");
+				lngs_file = fs::fopen(TESTING_data_path / "no_last.data", "wb");
 				write_lngs_head(lngs_file);
 
-				lngs_file = fs::fopen(LOCALE_data_path / "broken_strs_1.data", "wb");
+				lngs_file = fs::fopen(TESTING_data_path / "broken_strs_1.data", "wb");
 				write_lngs_head(lngs_file);
 				write(lngs_file, string_header{ strstext_tag, 2, 0, 5 });
 				write_lngs_last(lngs_file);
 
-				lngs_file = fs::fopen(LOCALE_data_path / "broken_strs_2.data", "wb");
+				lngs_file = fs::fopen(TESTING_data_path / "broken_strs_2.data", "wb");
 				write_lngs_head(lngs_file);
 				write(lngs_file, strstext_tag);
 				write(lngs_file, string_header{ strstext_tag, 2, 1, 4 });
 				write_lngs_last(lngs_file);
 
-				lngs_file = fs::fopen(LOCALE_data_path / "broken_attr_1.data", "wb");
+				lngs_file = fs::fopen(TESTING_data_path / "broken_attr_1.data", "wb");
 				write_lngs_head(lngs_file);
 				write(lngs_file, string_header{ attrtext_tag, 5, 1, 7 });
 				write(lngs_file, string_key{ 1000, 0, 5 });
@@ -69,7 +69,7 @@ namespace locale::testing {
 				write_lngs_last(lngs_file);
 
 				constexpr static const char valuee[] = "valuee\0\0";
-				lngs_file = fs::fopen(LOCALE_data_path / "broken_attr_2.data", "wb");
+				lngs_file = fs::fopen(TESTING_data_path / "broken_attr_2.data", "wb");
 				write_lngs_head(lngs_file);
 				write(lngs_file, string_header{ attrtext_tag, 7, 1, 7 });
 				write(lngs_file, string_key{ 1000, 0, 5 });
@@ -77,12 +77,12 @@ namespace locale::testing {
 				write(lngs_file, string_header{ strstext_tag, 2, 0, 4 });
 				write_lngs_last(lngs_file);
 
-				lngs_file = fs::fopen(LOCALE_data_path / "broken_keys_1.data", "wb");
+				lngs_file = fs::fopen(TESTING_data_path / "broken_keys_1.data", "wb");
 				write_lngs_head(lngs_file);
 				write(lngs_file, string_header{ keystext_tag, 2, 1, 4 });
 				write_lngs_last(lngs_file);
 
-				lngs_file = fs::fopen(LOCALE_data_path / "broken_keys_2.data", "wb");
+				lngs_file = fs::fopen(TESTING_data_path / "broken_keys_2.data", "wb");
 				write_lngs_head(lngs_file);
 				write(lngs_file, string_header{ attrtext_tag, 5, 1, 7 });
 				write(lngs_file, string_key{ 1000, 10, 5 });
@@ -94,7 +94,7 @@ namespace locale::testing {
 	TEST_P(lang_file_bad, load) {
 		auto& path = GetParam();
 
-		auto bytes = fs::fopen(LOCALE_data_path / path, "rb").read();
+		auto bytes = fs::fopen(TESTING_data_path / path, "rb").read();
 
 		lang_file file;
 		auto result = file.open({ bytes.data(), bytes.size() });

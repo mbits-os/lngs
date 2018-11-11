@@ -22,7 +22,7 @@ foreach(MOD lngs locale)
     libs/lib${MOD}/src)
 endforeach()
 
-include(Coveralls.cmake)
+include(tools/coveralls/Coveralls.cmake)
 
 if (COVERALLS AND NOT LOCALE_TESTING)
   message(FATAL_ERROR "Coveralls are useless without -DLOCALE_TESTING=ON")
@@ -57,9 +57,7 @@ endif()
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 if (LOCALE_TESTING)
-  enable_testing()
-  set(INSTALL_GTEST OFF CACHE BOOL "Enable installation of googletest.")
-  include( ${CMAKE_CURRENT_SOURCE_DIR}/googletest.cmake )
+  include( ${CMAKE_CURRENT_SOURCE_DIR}/tools/testing/googletest.cmake )
 endif()
 
 define_property(TARGET PROPERTY IDL BRIEF_DOCS "The language file path" FULL_DOCS "Same...")

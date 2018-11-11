@@ -2,7 +2,7 @@
 #include <locale/file.hpp>
 #include <locale/locale_base.hpp>
 
-extern fs::path LOCALE_data_path;
+extern fs::path TESTING_data_path;
 
 namespace fs::testing {
 	using namespace ::std::literals;
@@ -29,8 +29,8 @@ the lazy dog)";
 	}
 
 	TEST(file, read) {
-		auto file = fopen(LOCALE_data_path / "no_last.data");
-		ASSERT_TRUE(file);
+		auto file = fopen(TESTING_data_path / "no_last.data");
+		ASSERT_TRUE(file) << TESTING_data_path / "no_last.data";
 		uint32_t tag;
 		auto read = file.load(&tag, sizeof(uint32_t));
 		EXPECT_EQ(sizeof(uint32_t), read);

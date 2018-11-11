@@ -67,20 +67,8 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/include/locale/version.hpp DESTINATION
 
 if (LOCALE_TESTING)
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/tests)
-include_directories(${CMAKE_CURRENT_BINARY_DIR})
-set(DATA_DIR ${CMAKE_CURRENT_SOURCE_DIR}/tests/data)
-configure_file(${PROJECT_SOURCE_DIR}/default_data_path.in.hpp ${CMAKE_CURRENT_BINARY_DIR}/default_data_path.hpp @ONLY)
-message(STATUS "Test data: ${DATA_DIR}")
+add_test_executable(locale-test DATA_PATH data LIBRARIES locale liblngs)
 
-file(GLOB TEST_SRCS tests/*.cc)
-
-add_executable(locale-test "${CMAKE_SOURCE_DIR}/tools/googletest.cpp" ${TEST_SRCS})
-set_target_properties(locale-test PROPERTIES FOLDER tests)
-target_link_libraries(locale-test locale liblngs gtest gmock ${CMAKE_THREAD_LIBS_INIT})
-
-
-enable_testing()
 add_test(NAME locale.file COMMAND locale-test --gtest_filter=file.*)
 add_test(NAME locale.plurals COMMAND locale-test --gtest_filter=*/plurals.*:*/plural_ops.*)
 add_test(NAME locale.lang_file COMMAND locale-test --gtest_filter=*/lang_file_*)

@@ -4,7 +4,7 @@
 #include <cstdlib>
 #include <clocale>
 
-extern fs::path LOCALE_data_path;
+extern fs::path TESTING_data_path;
 
 namespace locale::storage::testing {
 	using namespace ::std::literals;
@@ -71,7 +71,7 @@ namespace locale::storage::testing {
 			auto& param = GetParam();
 
 			if constexpr (has_file_based_v<Storage>) {
-				auto root = LOCALE_data_path / param.root;
+				auto root = TESTING_data_path / param.root;
 				if (root.extension() == ".ext") {
 					tr.template path_manager<manager::ExtensionPath>(root, param.name);
 				}
@@ -234,7 +234,7 @@ namespace locale::storage::testing {
 		publicize<FileBased> tr;
 
 		tr.path_manager<manager::ExtensionPath>(
-			LOCALE_data_path / "testset1.ext",
+			TESTING_data_path / "testset1.ext",
 			param.package);
 
 		auto vectored = std::vector(param.one_of);

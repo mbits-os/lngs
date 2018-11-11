@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <locale/locale.hpp>
 
-extern fs::path LOCALE_data_path;
+extern fs::path TESTING_data_path;
 
 namespace locale::testing {
 	using namespace ::std::literals;
@@ -27,7 +27,7 @@ namespace locale::testing {
 		Strings tr3;
 
 		void SetUp() override {
-			auto root = LOCALE_data_path / "testset1.ext";
+			auto root = TESTING_data_path / "testset1.ext";
 			tr1.path_manager<manager::ExtensionPath>(root, "pkg1");
 			tr2.path_manager<manager::ExtensionPath>(root, "pkg1");
 			tr3.path_manager<manager::ExtensionPath>(root, "pkg1");
