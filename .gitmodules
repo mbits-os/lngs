@@ -7,3 +7,6 @@
 [submodule "tools/testing"]
 	path = tools/testing
 	url = https://github.com/mbits-libs/testing.git
+[submodule "external/libargs"]
+	path = external/libargs
+	url = https://github.com/mbits-libs/libargs.git

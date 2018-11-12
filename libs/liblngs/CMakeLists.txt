@@ -1,5 +1,4 @@
 set(lngs_SRCS
-  src/argparser.cpp
   src/cmds/cmd_freeze_ids.cpp
   src/cmds/cmd_load_mo.cpp
   src/cmds/cmd_write_enums.cpp
@@ -17,7 +16,6 @@ set(lngs_SRCS
 )
 
 set (lngs_INCS
-  include/lngs/argparser.hpp
   include/lngs/commands.hpp
   include/lngs/diagnostics.hpp
   include/lngs/gettext.hpp
@@ -38,7 +36,7 @@ target_include_directories(liblngs
   PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include
   PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
-target_link_libraries(liblngs locale fmt::fmt)
+target_link_libraries(liblngs locale args fmt::fmt)
 
 ##################################################################
 ##  TESTING
@@ -47,10 +45,6 @@ target_link_libraries(liblngs locale fmt::fmt)
 if (LOCALE_TESTING)
 
 add_test_executable(lngs-test DATA_PATH data LIBRARIES liblngs)
-
-add_executable(args-test tests/args-test.cpp)
-set_target_properties(args-test PROPERTIES FOLDER tests)
-target_link_libraries(args-test liblngs)
 
 add_test(NAME lngs.source_location COMMAND lngs-test --gtest_filter=source_location.*)
 add_test(NAME lngs.diagnostics COMMAND lngs-test --gtest_filter=*diag_write.*:*/diag_ne.* --data_path=${DATA_DIR})
@@ -62,6 +56,5 @@ add_test(NAME lngs.python COMMAND lngs-test --gtest_filter=*/python.*)
 add_test(NAME lngs.pot COMMAND lngs-test --gtest_filter=*/pot.*)
 add_test(NAME lngs.utf COMMAND lngs-test --gtest_filter=*/utf_conv.*:*/utf_errors.*)
 add_test(NAME lngs.gettext COMMAND lngs-test --gtest_filter=*/gettext.*:*/gtt_attr_*.*:*/gtt_extract.*:*/mo_*.* --data_path=${DATA_DIR})
-add_test(NAME lngs.args COMMAND python "${CMAKE_CURRENT_SOURCE_DIR}/tests/args-test.py" "$<TARGET_FILE:args-test>")
 
 endif()

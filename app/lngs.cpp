@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-#include <lngs/argparser.hpp>
+#include <args/parser.hpp>
 #include <lngs/commands.hpp>
 #include <lngs/diagnostics.hpp>
 #include <lngs/languages.hpp>
@@ -64,7 +64,8 @@ command commands[] = {
 
 int main(int argc, XChar* argv[])
 {
-	args::parser base{ {}, argc > 1 ? 2 : 1, argv };
+	args::null_translator tr;
+	args::parser base{ {}, argc > 1 ? 2 : 1, argv, &tr };
 	base.usage("[-h] <command> [<args>]");
 
 	if (base.args().empty())
@@ -72,14 +73,16 @@ int main(int argc, XChar* argv[])
 
 	if (base.args().front() == "-h") {
 		base.short_help();
-		printf("\nknown commands:\n\n");
 
-		std::vector<std::pair<std::string, std::string>> info;
+		{
+			args::fmt_list known(1);
+			auto& chunk = known.front();
+			chunk.title = "known commands";
+			for (auto& cmd : commands)
+				chunk.items.push_back(std::make_pair(cmd.name, cmd.description));
+			args::printer{ stdout }.format_list(known);
+		}
 
-		for (auto& cmd : commands)
-			info.push_back(std::make_pair(cmd.name, cmd.description));
-
-		base.format_list(info);
 		printf(R"(
 The flow for string management and creation:
 
@@ -108,13 +111,13 @@ The flow for string management and creation:
 		if (cmd.name != name)
 			continue;
 
-		args::parser sub{ cmd.description, argc - 1, argv + 1 };
+		args::parser sub{ cmd.description, argc - 1, argv + 1, &tr };
 		sub.program(base.program() + " " + sub.program());
 
 		return cmd.call(sub);
 	}
 
-	base.error("unknown command: " + name);
+	base.error("unknown command: " + std::string{ name.data(), name.length() });
 }
 
 namespace lngs {
