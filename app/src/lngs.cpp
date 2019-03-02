@@ -41,95 +41,36 @@ using XChar = char;
 #endif
 
 namespace lngs::app {
-	namespace pot { int call(args::parser&); }
-	namespace enums { int call(args::parser&); }
-	namespace py { int call(args::parser&); }
-	namespace make { int call(args::parser&); }
-	namespace res { int call(args::parser&); }
-	namespace freeze { int call(args::parser&); }
+	template <typename StringsImpl>
+	struct locale_base;
+	struct main_strings;
+
+	using locale_setup = locale_base<main_strings>;
+
+	namespace pot { int call(args::parser&, locale_setup&); }
+	namespace enums { int call(args::parser&, locale_setup&); }
+	namespace py { int call(args::parser&, locale_setup&); }
+	namespace make { int call(args::parser&, locale_setup&); }
+	namespace res { int call(args::parser&, locale_setup&); }
+	namespace freeze { int call(args::parser&, locale_setup&); }
 }
+
+using lngs::app::lng;
 
 struct command {
 	const char* name;
-	const char* description;
-	int(*call)(args::parser&);
+	const lng description;
+	int(*call)(args::parser&, lngs::app::locale_setup&);
 };
 
 command commands[] = {
-	{ "make",  "Translates MO file to LNG file.", lngs::app::make::call },
-	{ "pot",   "Creates POT file from message file.", lngs::app::pot::call },
-	{ "enums", "Creates header file from message file.", lngs::app::enums::call },
-	{ "py",    "Creates Python module with string keys.", lngs::app::py::call },
-	{ "res",   "Creates C++ file with fallback resource for the message file.", lngs::app::res::call },
-	{ "freeze","Reads the language description file and assigns values to new strings.", lngs::app::freeze::call },
+	{ "make",   lng::ARGS_APP_DESCR_CMD_MAKE, lngs::app::make::call },
+	{ "pot",    lng::ARGS_APP_DESCR_CMD_POT, lngs::app::pot::call },
+	{ "enums",  lng::ARGS_APP_DESCR_CMD_ENUMS, lngs::app::enums::call },
+	{ "py",     lng::ARGS_APP_DESCR_CMD_PY, lngs::app::py::call },
+	{ "res",    lng::ARGS_APP_DESCR_CMD_RES, lngs::app::res::call },
+	{ "freeze", lng::ARGS_APP_DESCR_CMD_FREEZE, lngs::app::freeze::call },
 };
-
-[[noreturn]] void show_help(args::parser& p) {
-	auto args = p.printer_arguments();
-	args.resize(args.size() + 1);
-	args.back().title = "known commands";
-	args.back().items.reserve(sizeof(commands) / sizeof(commands[0]));
-	for (auto const& cmd : commands)
-		args.back().items.push_back({ cmd.name, cmd.description });
-
-	p.short_help();
-	args::printer{ stdout }.format_list(args);
-		printf(R"(
-The flow for string management and creation:
-
-1. String Manager:
-   > lngs freeze + git 
-2. Developer (compile existing list):
-   > lngs enums
-   > lngs res
-   > git commit .hpp .cpp
-3. Developer (add new string):
-   [edit .lngs file]
-   > git commit .lngs
-4. Translator:
-   > lngs pot
-   > msgmerge (or msginit)
-   > git commit .po
-5. Developer (release build):
-   > msgfmt
-   > lngs make
-)");
-
-	std::exit(0);
-}
-
-[[noreturn]] void show_version() {
-	using ver = lngs::app::build::version;
-	fmt::print("lngs {}{}\n", ver::string, ver::stability);
-	std::exit(0);
-}
-
-int main(int argc, XChar* argv[])
-{
-	args::null_translator tr;
-	args::parser base{ {}, args::from_main(argc, argv), &tr };
-	base.usage("[-h] [--version] <command> [<args>]");
-	base.provide_help(false);
-	base.custom(show_help, "h", "help").help(tr(args::lng::help_description, {}, {})).opt();
-	base.custom(show_version, "v", "version").help("shows program version and exits").opt();
-
-	auto const unparsed = base.parse(args::parser::allow_subcommands);
-	if (unparsed.empty())
-		base.error("command missing");
-
-	auto const name = unparsed[0];
-	for (auto& cmd : commands) {
-		if (cmd.name != name)
-			continue;
-
-		args::parser sub{ cmd.description, unparsed, &tr };
-		sub.program(base.program() + " " + sub.program());
-
-		return cmd.call(sub);
-	}
-
-	base.error("unknown command: " + std::string{ name.data(), name.length() });
-}
 
 namespace lngs::app {
 	enum print_outname {
@@ -184,7 +125,7 @@ namespace lngs::app {
 		}
 	};
 
-	struct main_strings : public strings {
+	struct main_strings : public strings, public args::base_translator {
 		main_strings() {
 			m_prefix.path_manager<manager::ExtensionPath>(
 				build::directory_info::prefix, "lngs"
@@ -213,6 +154,25 @@ namespace lngs::app {
 			return result;
 		}
 
+		std::string operator()(args::lng id, std::string_view arg1, std::string_view arg2) const override {
+			auto ident = [](auto id) {
+				switch (id) {
+				case args::lng::usage:            return lng::ARGS_USAGE;
+				case args::lng::def_meta:         return lng::ARGS_DEF_META;
+				case args::lng::positionals:      return lng::ARGS_POSITIONALS;
+				case args::lng::optionals:        return lng::ARGS_OPTIONALS;
+				case args::lng::help_description: return lng::ARGS_HELP_DESCRIPTION;
+				case args::lng::unrecognized:     return lng::ARGS_UNRECOGNIZED;
+				case args::lng::needs_param:      return lng::ARGS_NEEDS_PARAM;
+				case args::lng::needs_number:     return lng::ARGS_NEEDS_NUMBER;
+				case args::lng::needed_number_exceeded: return lng::ARGS_NEEDED_NUMBER_EXCEEDED;
+				case args::lng::required:         return lng::ARGS_REQUIRED;
+				case args::lng::error_msg:        return lng::ARGS_ERROR_MSG;
+				};
+				return static_cast<lng>(0);
+			}(id);
+			return fmt::format(get(ident), arg1, arg2);
+		}
 	private:
 		struct PrefixStrings : SingularStrings<lng> {
 			std::string_view get(lng str) const noexcept
@@ -228,26 +188,107 @@ namespace lngs::app {
 			}
 		} m_build;
 	};
+}
 
-	using locale_setup = locale_base<main_strings>;
+[[noreturn]] void show_help(args::parser& p, lngs::app::main_strings& tr) {
+	auto _ = [&tr](auto id) { return tr.get(id); };
+	auto args = p.printer_arguments();
+	args.resize(args.size() + 1);
+	args.back().title = _(lng::ARGS_APP_KNOWN_CMDS);
+	args.back().items.reserve(sizeof(commands) / sizeof(commands[0]));
+	for (auto const& cmd : commands) {
+		auto view = _(cmd.description);
+		args.back().items.push_back({ cmd.name, { view.data(), view.size() } });
+	}
+
+	p.short_help();
+	args::printer{ stdout }.format_list(args);
+	fmt::print(R"(
+{}:
+
+1. {}:
+   > lngs freeze + git
+2. {}:
+   > lngs enums
+   > lngs res
+   > git commit .hpp .cpp
+3. {}:
+   [edit .lngs file]
+   > git commit .lngs
+4. {}:
+   > lngs pot
+   > msgmerge (or msginit)
+   > git commit .po
+5. {}:
+   > msgfmt
+   > lngs make
+)", _(lng::ARGS_APP_FLOW_TITLE),
+	_(lng::ARGS_APP_FLOW_ROLE_STRMGR),
+	_(lng::ARGS_APP_FLOW_ROLE_DEV_COMPILE),
+	_(lng::ARGS_APP_FLOW_ROLE_DEV_ADD),
+	_(lng::ARGS_APP_FLOW_ROLE_TRANSLATOR),
+	_(lng::ARGS_APP_FLOW_ROLE_DEV_RELEASE)
+);
+
+	std::exit(0);
+}
+
+[[noreturn]] void show_version() {
+	using ver = lngs::app::build::version;
+	fmt::print("lngs {}{}\n", ver::string, ver::stability);
+	std::exit(0);
+}
+
+int main(int argc, XChar* argv[])
+{
+	lngs::app::locale_setup setup;
+
+	auto show_help_tr = [&setup](args::parser& p) { show_help(p, setup.tr); };
+	auto _ = [&setup](auto id) { return setup.tr.get(id); };
+	auto _s = [&_](auto id) { auto view = _(id); return std::string{ view.data(), view.size() }; };
+
+	args::parser base{ {}, args::from_main(argc, argv), &setup.tr };
+	base.usage(_(lng::ARGS_APP_DESCR_USAGE));
+	base.provide_help(false);
+	base.custom(show_help_tr, "h", "help").help(_(lng::ARGS_HELP_DESCRIPTION)).opt();
+	base.custom(show_version, "v", "version").help(_(lng::ARGS_APP_VERSION)).opt();
+
+	auto const unparsed = base.parse(args::parser::allow_subcommands);
+	if (unparsed.empty())
+		base.error(_s(lng::ARGS_APP_NO_COMMAND));
+
+	auto const name = unparsed[0];
+	for (auto& cmd : commands) {
+		if (cmd.name != name)
+			continue;
+
+		auto view = setup.tr.get(cmd.description);
+		args::parser sub{ { view.data(), view.size() }, unparsed, &setup.tr };
+		sub.program(base.program() + " " + sub.program());
+
+		return cmd.call(sub, setup);
+	}
+
+	base.error(fmt::format(_(lng::ARGS_APP_UNK_COMMAND), name));
 }
 
 namespace lngs::app::pot {
-	int call(args::parser& parser)
+	int call(args::parser& parser, locale_setup& setup)
 	{
 		fs::path inname, outname;
 		bool verbose = false;
 		info nfo;
 
-		parser.set<std::true_type>(verbose, "v", "verbose").help("show more info").opt();
-		parser.arg(outname, "o", "out").meta("FILE").help("set POT file to write; if - is used, result is written to standard output");
-		parser.arg(inname, "i", "in").meta("FILE").help("set message file to read");
-		parser.arg(nfo.copy, "c", "copy").meta("HOLDER").help("the name of copyright holder").opt();
-		parser.arg(nfo.first_author, "a", "author").meta("EMAIL").help("the name and address of first author");
-		parser.arg(nfo.title, "t", "title").meta("TITLE").help("some descriptive title").opt();
+		auto _ = [&setup](auto id) { return setup.tr.get(id); };
+
+		parser.set<std::true_type>(verbose, "v", "verbose").help(_(lng::ARGS_APP_VERBOSE)).opt();
+		parser.arg(inname, "i", "in").meta(_(lng::ARGS_APP_META_FILE)).help(_(lng::ARGS_APP_IN_IDL));
+		parser.arg(nfo.copy, "c", "copy").meta(_(lng::ARGS_APP_META_HOLDER)).help(_(lng::ARGS_APP_COPYRIGHT)).opt();
+		parser.arg(nfo.first_author, "a", "author").meta(_(lng::ARGS_APP_META_EMAIL)).help(_(lng::ARGS_APP_AUTHOR));
+		parser.arg(nfo.title, "t", "title").meta(_(lng::ARGS_APP_META_TITLE)).help(_(lng::ARGS_APP_TITLE)).opt();
+		parser.arg(outname, "o", "out").meta(_(lng::ARGS_APP_META_FILE)).help(_(lng::ARGS_APP_OUT_POT));
 		parser.parse();
 
-		locale_setup setup;
 		if (int res = setup.read_strings(parser, inname, verbose))
 			return res;
 
@@ -258,19 +299,20 @@ namespace lngs::app::pot {
 }
 
 namespace lngs::app::enums {
-	int call(args::parser& parser)
+	int call(args::parser& parser, locale_setup& setup)
 	{
 		fs::path inname, outname;
 		bool verbose = false;
 		bool with_resource = false;
 
-		parser.set<std::true_type>(verbose, "v", "verbose").help("show more info").opt();
-		parser.set<std::true_type>(with_resource, "r", "resource").help("configures the Strings type to use `lngs res'.").opt();
-		parser.arg(outname, "o", "out").meta("FILE").help("C++ header file to write; if - is used, result is written to standard output");
-		parser.arg(inname, "i", "in").meta("FILE").help("LNGS message file to read");
+		auto _ = [&setup](auto id) { return setup.tr.get(id); };
+
+		parser.set<std::true_type>(verbose, "v", "verbose").help(_(lng::ARGS_APP_VERBOSE)).opt();
+		parser.set<std::true_type>(with_resource, "r", "resource").help(_(lng::ARGS_APP_RESOURCE)).opt();
+		parser.arg(inname, "i", "in").meta(_(lng::ARGS_APP_META_FILE)).help(_(lng::ARGS_APP_IN_IDL));
+		parser.arg(outname, "o", "out").meta(_(lng::ARGS_APP_META_FILE)).help(_(lng::ARGS_APP_OUT_CPP));
 		parser.parse();
 
-		locale_setup setup;
 		if (int res = setup.read_strings(parser, inname, verbose))
 			return res;
 
@@ -281,17 +323,18 @@ namespace lngs::app::enums {
 }
 
 namespace lngs::app::py {
-	int call(args::parser& parser)
+	int call(args::parser& parser, locale_setup& setup)
 	{
 		fs::path inname, outname;
 		bool verbose = false;
 
-		parser.set<std::true_type>(verbose, "v", "verbose").help("show more info").opt();
-		parser.arg(outname, "o", "out").meta("FILE").help("C++ header file to write; if - is used, result is written to standard output");
-		parser.arg(inname, "i", "in").meta("FILE").help("LNGS message file to read");
+		auto _ = [&setup](auto id) { return setup.tr.get(id); };
+
+		parser.set<std::true_type>(verbose, "v", "verbose").help(_(lng::ARGS_APP_VERBOSE)).opt();
+		parser.arg(inname, "i", "in").meta(_(lng::ARGS_APP_META_FILE)).help(_(lng::ARGS_APP_IN_IDL));
+		parser.arg(outname, "o", "out").meta(_(lng::ARGS_APP_META_FILE)).help(_(lng::ARGS_APP_OUT_PY));
 		parser.parse();
 
-		locale_setup setup;
 		if (int res = setup.read_strings(parser, inname, verbose))
 			return res;
 
@@ -302,22 +345,23 @@ namespace lngs::app::py {
 }
 
 namespace lngs::app::make {
-	int call(args::parser& parser)
+	int call(args::parser& parser, locale_setup& setup)
 	{
 		fs::path inname, outname;
 		std::string moname, llname;
 		bool verbose = false;
 		bool warp_missing = false;
 
-		parser.set<std::true_type>(verbose, "v", "verbose").help("show more info").opt();
-		parser.set<std::true_type>(warp_missing, "w", "warp").help("replace missing strings with warped ones; resulting strings are always singular").opt();
-		parser.arg(outname, "o", "out").meta("FILE").help("LNG binary file to write; if - is used, result is written to standard output");
-		parser.arg(moname, "m", "msgs").meta("MOFILE").help("GetText message file to read");
-		parser.arg(inname, "i", "in").meta("FILE").help("LNGS message file to read");
-		parser.arg(llname, "l", "lang").meta("FILE").help("ATTR_LANGUAGE file with ll_CC names list").opt();
+		auto _ = [&setup](auto id) { return setup.tr.get(id); };
+
+		parser.set<std::true_type>(verbose, "v", "verbose").help(_(lng::ARGS_APP_VERBOSE)).opt();
+		parser.set<std::true_type>(warp_missing, "w", "warp").help(_(lng::ARGS_APP_WARP_MISSING_SINGULAR)).opt();
+		parser.arg(inname, "i", "in").meta(_(lng::ARGS_APP_META_FILE)).help(_(lng::ARGS_APP_IN_IDL));
+		parser.arg(moname, "m", "msgs").meta(_(lng::ARGS_APP_META_MO_FILE)).help(_(lng::ARGS_APP_IN_MO));
+		parser.arg(llname, "l", "lang").meta(_(lng::ARGS_APP_META_FILE)).help(_(lng::ARGS_APP_IN_LLCC)).opt();
+		parser.arg(outname, "o", "out").meta(_(lng::ARGS_APP_META_FILE)).help(_(lng::ARGS_APP_OUT_LNG));
 		parser.parse();
 
-		locale_setup setup;
 		if (int res = setup.read_strings(parser, inname, verbose))
 			return res;
 
@@ -338,7 +382,7 @@ namespace lngs::app::make {
 }
 
 namespace lngs::app::res {
-	int call(args::parser& parser)
+	int call(args::parser& parser, locale_setup& setup)
 	{
 		fs::path inname, outname;
 		bool verbose = false;
@@ -346,15 +390,16 @@ namespace lngs::app::res {
 		bool with_keys = false;
 		std::string include;
 
-		parser.set<std::true_type>(verbose, "v", "verbose").help("show more info").opt();
-		parser.set<std::true_type>(warp_strings, "w", "warp").help("replace all strings with warped ones; plural strings will still be plural (as if English)").opt();
-		parser.set<std::true_type>(with_keys, "k", "keys").help("add string block with string keys").opt();
-		parser.arg(outname, "o", "out").meta("FILE").help("LNG binary file to write; if - is used, result is written to standard output");
-		parser.arg(inname, "i", "in").meta("FILE").help("LNGS message file to read");
-		parser.arg(include, "include").meta("FILE").help("File to include for the definition of the Resource class. Defaults to \"<project>.hpp\".").opt();
+		auto _ = [&setup](auto id) { return setup.tr.get(id); };
+
+		parser.set<std::true_type>(verbose, "v", "verbose").help(_(lng::ARGS_APP_VERBOSE)).opt();
+		parser.set<std::true_type>(warp_strings, "w", "warp").help(_(lng::ARGS_APP_WARP_ALL_PLURAL)).opt();
+		parser.set<std::true_type>(with_keys, "k", "keys").help(_(lng::ARGS_APP_WITH_KEY_BLOCK)).opt();
+		parser.arg(inname, "i", "in").meta(_(lng::ARGS_APP_META_FILE)).help(_(lng::ARGS_APP_IN_IDL));
+		parser.arg(include, "include").meta(_(lng::ARGS_APP_META_FILE)).help(_(lng::ARGS_APP_ALT_INCLUDE)).opt();
+		parser.arg(outname, "o", "out").meta(_(lng::ARGS_APP_META_FILE)).help(_(lng::ARGS_APP_OUT_RES));
 		parser.parse();
 
-		locale_setup setup;
 		if (int res = setup.read_strings(parser, inname, verbose))
 			return res;
 
@@ -364,23 +409,25 @@ namespace lngs::app::res {
 		auto file = make_resource(setup.strings, warp_strings, with_keys);
 
 		return setup.write(parser, outname, [&](outstream& out) {
-			return update_and_write(out, file, include, setup.strings.project);
+			auto const& ns_name = setup.strings.ns_name.empty() ? setup.strings.project : setup.strings.ns_name;
+			return update_and_write(out, file, include, ns_name);
 		}, print_if(verbose));
 	}
 }
 
 namespace lngs::app::freeze {
-	int call(args::parser& parser)
+	int call(args::parser& parser, locale_setup& setup)
 	{
 		fs::path inname, outname;
 		bool verbose = false;
 
-		parser.set<std::true_type>(verbose, "v", "verbose").help("show more info").opt();
-		parser.arg(inname, "i", "in").meta("FILE").help("LNGS message file to read");
-		parser.arg(outname, "o", "out").meta("FILE").help("LNGS message file to write; it may be the same as input; if - is used, result is written to standard output");
+		auto _ = [&setup](auto id) { return setup.tr.get(id); };
+
+		parser.set<std::true_type>(verbose, "v", "verbose").help(_(lng::ARGS_APP_VERBOSE)).opt();
+		parser.arg(inname, "i", "in").meta(_(lng::ARGS_APP_META_FILE)).help(_(lng::ARGS_APP_IN_IDL));
+		parser.arg(outname, "o", "out").meta(_(lng::ARGS_APP_META_FILE)).help(_(lng::ARGS_APP_OUT_IDL));
 		parser.parse();
 
-		locale_setup setup;
 		if (int res = setup.read_strings(parser, inname, verbose))
 			return res;
 

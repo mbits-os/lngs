@@ -687,13 +687,14 @@ namespace lngs::app {
 			attr_def defs;
 
 			defs.arg(def.project, "project", false)
+				.arg(def.ns_name, "namespace", false)
 				.arg(def.version, "version", false)
 				.arg(def.serial, "serial");
 
 			if (!read_attributes(tok, defs, diag))
 				return false;
 
-			auto serial = defs.attrs()[2].get();
+			auto serial = defs.attrs()[3].get();
 			assert(serial && serial->is("serial"));
 			def.serial_offset = serial->visit_pos().file_offset;
 		}

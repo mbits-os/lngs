@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: lngs 0.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-09-10 00:00+0200\n"
-"PO-Revision-Date: 2018-09-10 00:03+0200\n"
+"POT-Creation-Date: 2019-03-03 12:02+0100\n"
+"PO-Revision-Date: 2019-03-03 12:03+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: en\n"
@@ -17,6 +17,287 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Poedit 2.1.1\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#. Description for argument allowing to change the name of an include file to be more in-line with project's layout
+msgctxt "ARGS_APP_ALT_INCLUDE"
+msgid ""
+"sets file name to #include in the implementation of the Resource class; "
+"defaults to \"<project>.hpp\"."
+msgstr ""
+"sets file name to #include in the implementation of the Resource class; "
+"defaults to \"<project>.hpp\"."
+
+#. Description for 'author' argument
+msgctxt "ARGS_APP_AUTHOR"
+msgid "sets the name and email address of first author"
+msgstr "sets the name and email address of first author"
+
+#. Description for 'copyright' argument
+msgctxt "ARGS_APP_COPYRIGHT"
+msgid "sets the name of copyright holder"
+msgstr "sets the name of copyright holder"
+
+#. Help description for the 'lngs enums' command
+msgctxt "ARGS_APP_DESCR_CMD_ENUMS"
+msgid "Creates header file from message file."
+msgstr "Creates header file from message file."
+
+#. Help description for the 'lngs freeze' command
+msgctxt "ARGS_APP_DESCR_CMD_FREEZE"
+msgid "Reads the language description file and assigns values to new strings."
+msgstr "Reads the language description file and assigns values to new strings."
+
+#. Help description for the 'lngs make' command
+msgctxt "ARGS_APP_DESCR_CMD_MAKE"
+msgid "Translates MO file to LNG file."
+msgstr "Translates MO file to LNG file."
+
+#. Help description for the 'lngs pot' command
+msgctxt "ARGS_APP_DESCR_CMD_POT"
+msgid "Creates POT file from message file."
+msgstr "Creates POT file from message file."
+
+#. Help description for the 'lngs py' command
+msgctxt "ARGS_APP_DESCR_CMD_PY"
+msgid "Creates Python module with string keys."
+msgstr "Creates Python module with string keys."
+
+#. Help description for the 'lngs res' command
+msgctxt "ARGS_APP_DESCR_CMD_RES"
+msgid "Creates C++ file with fallback resource for the message file."
+msgstr "Creates C++ file with fallback resource for the message file."
+
+#. Synopsis for the app. The "[-h] [--version]" part should be left intact, only the "command" and "arguments" words should be translated.
+msgctxt "ARGS_APP_DESCR_USAGE"
+msgid "[-h] [--version] <command> [<arguments>]"
+msgstr "[-h] [--version] <command> [<arguments>]"
+
+#. Name of a role responsible for adding new entries to be used in the code
+msgctxt "ARGS_APP_FLOW_ROLE_DEV_ADD"
+msgid "Developer (adding new string)"
+msgstr "Developer (adding new string)"
+
+#. Name of a role responsible for updating the C++ interfaces to project-specific lngs files
+msgctxt "ARGS_APP_FLOW_ROLE_DEV_COMPILE"
+msgid "Developer (compiling existing list)"
+msgstr "Developer (compiling existing list)"
+
+#. Name of a role responsible for transforming .po files to lngs files
+msgctxt "ARGS_APP_FLOW_ROLE_DEV_RELEASE"
+msgid "Developer (releasing a build)"
+msgstr "Developer (releasing a build)"
+
+#. Name of a role responsible for finalizing the list of translations
+msgctxt "ARGS_APP_FLOW_ROLE_STRMGR"
+msgid "Translation Manager"
+msgstr "Translation Manager"
+
+#. Name of a role responsible for supplying translated strings
+msgctxt "ARGS_APP_FLOW_ROLE_TRANSLATOR"
+msgid "Translator"
+msgstr "Translator"
+
+#. Title for the description of the flow for different roles
+msgctxt "ARGS_APP_FLOW_TITLE"
+msgid "The flow for string management and creation"
+msgstr "The flow for string management and creation"
+
+#. Description for input argument taking IDL file
+msgctxt "ARGS_APP_IN_IDL"
+msgid "sets message file name to read from"
+msgstr "sets message file name to read from"
+
+#. Description for input argument taking TXT file with language/country names
+msgctxt "ARGS_APP_IN_LLCC"
+msgid "sets ATTR_LANGUAGE file name with ll_CC (language_COUNTRY) names list"
+msgstr "sets ATTR_LANGUAGE file name with ll_CC (language_COUNTRY) names list"
+
+#. Description for input argument taking GetText MO file
+msgctxt "ARGS_APP_IN_MO"
+msgid "sets GetText message file name to read from"
+msgstr "sets GetText message file name to read from"
+
+#. Header for list of known commands
+msgctxt "ARGS_APP_KNOWN_CMDS"
+msgid "known commands"
+msgstr "known commands"
+
+#. Name of argument holding an email address
+msgctxt "ARGS_APP_META_EMAIL"
+msgid "<email>"
+msgstr "<email>"
+
+#. Name of argument holding a file name
+msgctxt "ARGS_APP_META_FILE"
+msgid "<file>"
+msgstr "<file>"
+
+#. Name of argument for rights holder
+msgctxt "ARGS_APP_META_HOLDER"
+msgid "<holder>"
+msgstr "<holder>"
+
+#. Name of argument holding a file name for a GetText MO file
+msgctxt "ARGS_APP_META_MO_FILE"
+msgid "<mo file>"
+msgstr "<mo file>"
+
+#. Name of argument holding a heading
+msgctxt "ARGS_APP_META_TITLE"
+msgid "<title>"
+msgstr "<title>"
+
+#. Error message displayed, when a command is missing in the command line
+msgctxt "ARGS_APP_NO_COMMAND"
+msgid "command missing"
+msgstr "command missing"
+
+#. Description for output argument for lngs enums
+msgctxt "ARGS_APP_OUT_CPP"
+msgid ""
+"sets C++ header file name to write results to; use \"-\" for standard output"
+msgstr ""
+"sets C++ header file name to write results to; use \"-\" for standard output"
+
+#. Description for output argument for lngs freeze
+msgctxt "ARGS_APP_OUT_IDL"
+msgid ""
+"sets IDL message file name to write results to; it may be the same as input; "
+"use \"-\" for standard output"
+msgstr ""
+"sets IDL message file name to write results to; it may be the same as input; "
+"use \"-\" for standard output"
+
+#. Description for output argument for lngs make
+msgctxt "ARGS_APP_OUT_LNG"
+msgid ""
+"sets LNG binary file name to write results to; use \"-\" for standard output"
+msgstr ""
+"sets LNG binary file name to write results to; use \"-\" for standard output"
+
+#. Description for output argument for lngs pot
+msgctxt "ARGS_APP_OUT_POT"
+msgid "sets POT file name to write results to; use \"-\" for standard output"
+msgstr "sets POT file name to write results to; use \"-\" for standard output"
+
+#. Description for output argument for lngs py
+msgctxt "ARGS_APP_OUT_PY"
+msgid ""
+"sets Python file name to write results to; use \"-\" for standard output"
+msgstr ""
+"sets Python file name to write results to; use \"-\" for standard output"
+
+#. Description for output argument for lngs res
+msgctxt "ARGS_APP_OUT_RES"
+msgid ""
+"sets C++ code file name with builtin strings to write results to; use \"-\" "
+"for standard output"
+msgstr ""
+"sets C++ code file name with builtin strings to write results to; use \"-\" "
+"for standard output"
+
+#. Description for 'resource' argument
+msgctxt "ARGS_APP_RESOURCE"
+msgid "instructs the Strings type to use data generated by the `lngs res'."
+msgstr "instructs the Strings type to use data generated by the `lngs res'."
+
+#. Description for 'title' argument
+msgctxt "ARGS_APP_TITLE"
+msgid "sets a descriptive title for the POT project"
+msgstr "sets a descriptive title for the POT project"
+
+#. Error message displayed, when a command from command line is not recognized
+msgctxt "ARGS_APP_UNK_COMMAND"
+msgid "unknown command: {0}"
+msgstr "unknown command: {0}"
+
+#. Description for 'verbose' argument
+msgctxt "ARGS_APP_VERBOSE"
+msgid "shows more info"
+msgstr "shows more info"
+
+#. Description for 'version' argument
+msgctxt "ARGS_APP_VERSION"
+msgid "shows program version and exits"
+msgstr "shows program version and exits"
+
+#. Description for argument changing all strings in a resource file, by replacing all letters with similar-looking but different letters.
+msgctxt "ARGS_APP_WARP_ALL_PLURAL"
+msgid ""
+"replaces all strings with warped ones; plural strings will still be plural "
+"(as if English)"
+msgstr ""
+"replaces all strings with warped ones; plural strings will still be plural "
+"(as if English)"
+
+#. Description for argument adding in English strings of missing entries, but replacing all letters with similar-looking but different letters.
+msgctxt "ARGS_APP_WARP_MISSING_SINGULAR"
+msgid ""
+"replaces missing strings with warped ones; resulting strings are always "
+"singular"
+msgstr ""
+"replaces missing strings with warped ones; resulting strings are always "
+"singular"
+
+#. Description for argument allowing for additional, optional block in resulting file
+msgctxt "ARGS_APP_WITH_KEY_BLOCK"
+msgid "adds block of strings with key names"
+msgstr "adds block of strings with key names"
+
+#. Default name of an argument
+msgctxt "ARGS_DEF_META"
+msgid "<arg>"
+msgstr "<arg>"
+
+#. Error message template; placeholder 0 will get the name of program, placeholder 1 an actual message
+msgctxt "ARGS_ERROR_MSG"
+msgid "{0}: error: {1}"
+msgstr "{0}: error: {1}"
+
+#. Description for the -h/--help argument
+msgctxt "ARGS_HELP_DESCRIPTION"
+msgid "shows this help message and exits"
+msgstr "shows this help message and exits"
+
+#. Error message for a numeric argument, when parsing would get outside of representable bounds
+msgctxt "ARGS_NEEDED_NUMBER_EXCEEDED"
+msgid "argument {0}: number outside of expected bounds"
+msgstr "argument {0}: number outside of expected bounds"
+
+#. Error message for a numeric argument, when parsing failed
+msgctxt "ARGS_NEEDS_NUMBER"
+msgid "argument {0}: expected a number"
+msgstr "argument {0}: expected a number"
+
+#. Error message for a missing argument
+msgctxt "ARGS_NEEDS_PARAM"
+msgid "argument {0}: expected one argument"
+msgstr "argument {0}: expected one argument"
+
+#. Header for list of optional arguments
+msgctxt "ARGS_OPTIONALS"
+msgid "optional arguments"
+msgstr "optional arguments"
+
+#. Header for list of positional arguments
+msgctxt "ARGS_POSITIONALS"
+msgid "positional arguments"
+msgstr "positional arguments"
+
+#. Error message for a missing required argument
+msgctxt "ARGS_REQUIRED"
+msgid "argument {0} is required"
+msgstr "argument {0} is required"
+
+#. Error message for an unrecognized argument; the placeholder will contain the name of the argument
+msgctxt "ARGS_UNRECOGNIZED"
+msgid "unrecognized argument: {0}"
+msgstr "unrecognized argument: {0}"
+
+#. Synopsis header; please note there is one space at the end of this entry
+msgctxt "ARGS_USAGE"
+msgid "usage: "
+msgstr "usage: "
 
 #. Used for attributes with no value. The argument represents the name of the attribute.
 msgctxt "ERR_ATTR_EMPTY"

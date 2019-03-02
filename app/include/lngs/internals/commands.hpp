@@ -64,7 +64,7 @@ namespace lngs::app::make {
 
 namespace lngs::app::res {
 	file make_resource(const idl_strings& defs, bool warp_strings, bool with_keys);
-	int update_and_write(outstream& out, file& data, std::string_view include, std::string_view project);
+	int update_and_write(outstream& out, file& data, std::string_view include, std::string_view ns_name);
 }
 
 namespace lngs::app::freeze {

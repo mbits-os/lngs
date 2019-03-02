@@ -43,6 +43,7 @@ namespace lngs::app::testing {
 		{
 #define COMPARE_EQ(fld) EXPECT_EQ(expected.fld, actual.fld)
 			COMPARE_EQ(project);
+			COMPARE_EQ(ns_name);
 			COMPARE_EQ(version);
 			COMPARE_EQ(serial);
 			COMPARE_EQ(serial_offset);

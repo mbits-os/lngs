@@ -1,2 +1,3 @@
-enums -r -i lngs.idl -o ../lngs/strings/lngs.hpp
-res -i lngs.idl -o lngs_res.cpp --include lngs/strings/lngs.hpp
+lngs pot  -i lngs.idl -a 'Marcin Zdun <mzdun@midnightbits.com>' -c midnightBITS -t "Locale File Processor translation" -o ../data/strings/lngs.pot
+lngs enums -r -i lngs.idl -o ../include/lngs/internals/strings/lngs.hpp
+lngs res -i lngs.idl -o lngs_res.cpp --include lngs/internals/strings/lngs.hpp

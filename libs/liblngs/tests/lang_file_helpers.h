@@ -38,7 +38,7 @@ namespace lngs::testing::helper {
 		uint32_t serial{ 0 };
 		template <typename ... Strings>
 		lngs::app::idl_strings make(Strings ... strings) {
-			return { {}, {}, serial, -1, false, { lngs::app::idl_string{ strings }... } };
+			return { {}, {}, {}, serial, -1, false, { lngs::app::idl_string{ strings }... } };
 		}
 	};
 

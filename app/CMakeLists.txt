@@ -73,7 +73,7 @@ get_target_property(LNGS_IDL lngs_app IDL)
 add_custom_target(lngs_pot
 	COMMAND
 		$<TARGET_FILE:lngs> pot -v
-			-o '${CMAKE_CURRENT_SOURCE_DIR}/strings/lngs.pot'
+			-o '${CMAKE_CURRENT_SOURCE_DIR}/data/strings/lngs.pot'
 			-i '${LNGS_IDL}'
 			-a 'Marcin Zdun <mzdun@midnightbits.com>'
 			-c midnightBITS
@@ -83,7 +83,7 @@ add_custom_target(lngs_pot
 		lngs
 		"${LNGS_IDL}"
 	BYPRODUCTS
-		"${CMAKE_CURRENT_SOURCE_DIR}/strings/lngs.pot"
+		"${CMAKE_CURRENT_SOURCE_DIR}/data/strings/lngs.pot"
 	COMMENT "Regenerating POT file...")
 set_target_properties(lngs_pot PROPERTIES FOLDER tools/strings)
 
@@ -137,14 +137,15 @@ add_custom_target(lngs_enums
     $<TARGET_FILE:lngs> res
 			-i "${LNGS_IDL}"
 			-o "${IDL_DIR}/lngs_res.cpp"
-			--include lngs/strings/lngs.hpp
+			--include lngs/internals/strings/lngs.hpp
   COMMAND
     $<TARGET_FILE:lngs> enums -r
 			-i "${LNGS_IDL}"
-			-o "${IDL_DIR}/../lngs/strings/lngs.hpp"
+			-o "${IDL_DIR}/../include/lngs/internals/strings/lngs.hpp"
   DEPENDS
 		lngs
-		"${LNGS_IDL}")
+		"${LNGS_IDL}"
+  COMMENT "Renegerating lng list")
 set_target_properties(lngs_enums PROPERTIES FOLDER tools/strings)
 
 ##################################################################

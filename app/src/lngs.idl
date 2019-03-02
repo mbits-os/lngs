@@ -1,8 +1,120 @@
 [
 	project("lngs"),
+	namespace("lngs::app"),
 	version("0.3"),
-	serial(4)
+	serial(5)
 ] strings {
+	[help("Synopsis header; please note there is one space at the end of this entry"), id(500)]
+	ARGS_USAGE = "usage: ";
+	[help("Default name of an argument"), id(501)]
+	ARGS_DEF_META = "<arg>";
+	[help("Header for list of positional arguments"), id(502)]
+	ARGS_POSITIONALS = "positional arguments";
+	[help("Header for list of optional arguments"), id(503)]
+	ARGS_OPTIONALS = "optional arguments";
+	[help("Description for the -h/--help argument"), id(504)]
+	ARGS_HELP_DESCRIPTION = "shows this help message and exits";
+	[help("Error message for an unrecognized argument; the placeholder will contain the name of the argument"), id(505)]
+	ARGS_UNRECOGNIZED = "unrecognized argument: {0}";
+	[help("Error message for a missing argument"), id(506)]
+	ARGS_NEEDS_PARAM = "argument {0}: expected one argument";
+	[help("Error message for a numeric argument, when parsing failed"), id(507)]
+	ARGS_NEEDS_NUMBER = "argument {0}: expected a number";
+	[help("Error message for a numeric argument, when parsing would get outside of representable bounds"), id(508)]
+	ARGS_NEEDED_NUMBER_EXCEEDED = "argument {0}: number outside of expected bounds";
+	[help("Error message for a missing required argument"), id(509)]
+	ARGS_REQUIRED = "argument {0} is required";
+	[help("Error message template; placeholder 0 will get the name of program, placeholder 1 an actual message"), id(510)]
+	ARGS_ERROR_MSG = "{0}: error: {1}";
+
+	[help("Help description for the 'lngs make' command"), id(511)]
+	ARGS_APP_DESCR_CMD_MAKE = "Translates MO file to LNG file.";
+	[help("Help description for the 'lngs pot' command"), id(512)]
+	ARGS_APP_DESCR_CMD_POT = "Creates POT file from message file.";
+	[help("Help description for the 'lngs enums' command"), id(513)]
+	ARGS_APP_DESCR_CMD_ENUMS = "Creates header file from message file.";
+	[help("Help description for the 'lngs py' command"), id(514)]
+	ARGS_APP_DESCR_CMD_PY = "Creates Python module with string keys.";
+	[help("Help description for the 'lngs res' command"), id(515)]
+	ARGS_APP_DESCR_CMD_RES = "Creates C++ file with fallback resource for the message file.";
+	[help("Help description for the 'lngs freeze' command"), id(516)]
+	ARGS_APP_DESCR_CMD_FREEZE = "Reads the language description file and assigns values to new strings.";
+
+	[help("Synopsis for the app. The \"[-h] [--version]\" part should be left intact, only the \"command\" and \"arguments\" words should be translated."), id(517)]
+	ARGS_APP_DESCR_USAGE = "[-h] [--version] <command> [<arguments>]";
+
+	[help("Title for the description of the flow for different roles"), id(518)]
+	ARGS_APP_FLOW_TITLE = "The flow for string management and creation";
+	[help("Name of a role responsible for finalizing the list of translations"), id(519)]
+	ARGS_APP_FLOW_ROLE_STRMGR = "Translation Manager";
+	[help("Name of a role responsible for supplying translated strings"), id(520)]
+	ARGS_APP_FLOW_ROLE_TRANSLATOR = "Translator";
+	[help("Name of a role responsible for updating the C++ interfaces to project-specific lngs files"), id(521)]
+	ARGS_APP_FLOW_ROLE_DEV_COMPILE = "Developer (compiling existing list)";
+	[help("Name of a role responsible for adding new entries to be used in the code"), id(522)]
+	ARGS_APP_FLOW_ROLE_DEV_ADD = "Developer (adding new string)";
+	[help("Name of a role responsible for transforming .po files to lngs files"), id(523)]
+	ARGS_APP_FLOW_ROLE_DEV_RELEASE = "Developer (releasing a build)";
+
+	[help("Header for list of known commands"), id(524)]
+	ARGS_APP_KNOWN_CMDS = "known commands";
+	[help("Error message displayed, when a command is missing in the command line"), id(525)]
+	ARGS_APP_NO_COMMAND = "command missing";
+	[help("Error message displayed, when a command from command line is not recognized"), id(526)]
+	ARGS_APP_UNK_COMMAND = "unknown command: {0}";
+
+	[help("Name of argument holding a file name"), id(527)]
+	ARGS_APP_META_FILE = "<file>";
+	[help("Name of argument for rights holder"), id(528)]
+	ARGS_APP_META_HOLDER = "<holder>";
+	[help("Name of argument holding an email address"), id(529)]
+	ARGS_APP_META_EMAIL = "<email>";
+	[help("Name of argument holding a heading"), id(530)]
+	ARGS_APP_META_TITLE = "<title>";
+	[help("Name of argument holding a file name for a GetText MO file"), id(531)]
+	ARGS_APP_META_MO_FILE = "<mo file>";
+
+	[help("Description for 'version' argument"), id(532)]
+	ARGS_APP_VERSION = "shows program version and exits";
+	[help("Description for 'verbose' argument"), id(533)]
+	ARGS_APP_VERBOSE = "shows more info";
+	[help("Description for 'copyright' argument"), id(534)]
+	ARGS_APP_COPYRIGHT = "sets the name of copyright holder";
+	[help("Description for 'author' argument"), id(535)]
+	ARGS_APP_AUTHOR = "sets the name and email address of first author";
+	[help("Description for 'title' argument"), id(536)]
+	ARGS_APP_TITLE = "sets a descriptive title for the POT project";
+	[help("Description for 'resource' argument"), id(537)]
+	ARGS_APP_RESOURCE = "instructs the Strings type to use data generated by the `lngs res'.";
+	[help("Description for argument adding in English strings of missing entries, but replacing all letters with similar-looking but different letters."), id(538)]
+	ARGS_APP_WARP_MISSING_SINGULAR = "replaces missing strings with warped ones; resulting strings are always singular";
+	[help("Description for argument changing all strings in a resource file, by replacing all letters with similar-looking but different letters."), id(539)]
+	ARGS_APP_WARP_ALL_PLURAL = "replaces all strings with warped ones; plural strings will still be plural (as if English)";
+	[help("Description for argument allowing for additional, optional block in resulting file"), id(540)]
+	ARGS_APP_WITH_KEY_BLOCK = "adds block of strings with key names";
+	[help("Description for argument allowing to change the name of an include file to be more in-line with project's layout"), id(541)]
+	ARGS_APP_ALT_INCLUDE = "sets file name to #include in the implementation of the Resource class; defaults to \"<project>.hpp\".";
+
+	[help("Description for output argument for lngs pot"), id(542)]
+	ARGS_APP_OUT_POT = "sets POT file name to write results to; use \"-\" for standard output";
+	[help("Description for output argument for lngs enums"), id(543)]
+	ARGS_APP_OUT_CPP = "sets C++ header file name to write results to; use \"-\" for standard output";
+	[help("Description for output argument for lngs res"), id(544)]
+	ARGS_APP_OUT_RES = "sets C++ code file name with builtin strings to write results to; use \"-\" for standard output";
+	[help("Description for output argument for lngs py"), id(545)]
+	ARGS_APP_OUT_PY = "sets Python file name to write results to; use \"-\" for standard output";
+	[help("Description for output argument for lngs make"), id(546)]
+	ARGS_APP_OUT_LNG = "sets LNG binary file name to write results to; use \"-\" for standard output";
+	[help("Description for output argument for lngs freeze"), id(547)]
+	ARGS_APP_OUT_IDL = "sets IDL message file name to write results to; it may be the same as input; use \"-\" for standard output";
+
+	[help("Description for input argument taking IDL file"), id(548)]
+	ARGS_APP_IN_IDL = "sets message file name to read from";
+	[help("Description for input argument taking GetText MO file"), id(549)]
+	ARGS_APP_IN_MO = "sets GetText message file name to read from";
+	[help("Description for input argument taking TXT file with language/country names"), id(550)]
+	ARGS_APP_IN_LLCC = "sets ATTR_LANGUAGE file name with ll_CC (language_COUNTRY) names list";
+
 	[help("Name of the severity label for notes."), id(1001)]
 	SEVERITY_NOTE = "note";
 	[help("Name of the severity label for warnings."), id(1002)]

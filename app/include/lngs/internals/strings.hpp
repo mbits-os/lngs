@@ -40,6 +40,7 @@ namespace lngs::app {
 	struct idl_strings {
 		std::string project;
 		std::string version;
+		std::string ns_name;
 		uint32_t serial = 0;
 		int serial_offset = -1;
 		bool has_new = false;

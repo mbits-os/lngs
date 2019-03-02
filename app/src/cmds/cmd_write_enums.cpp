@@ -36,7 +36,7 @@ namespace lngs::app::enums {
 
 )");
 
-		out.fmt("namespace {0} {{\n", defs.project);
+		out.fmt("namespace {0} {{\n", defs.ns_name.empty() ? defs.project : defs.ns_name);
 		bool has_singular = false;
 		bool has_plural = false;
 

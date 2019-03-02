@@ -4,6 +4,7 @@
 namespace lngs::app::testing {
 	template <typename Tag, typename Storage> struct tagged_t { Storage val; };
 	using ProjectStr = tagged_t<struct ProjectStrTag, std::string>;
+	using NamespaceStr = tagged_t<struct NamespaceStrTag, std::string>;
 	using VersionStr = tagged_t<struct VersionStrTag, std::string>;
 	using HelpStr = tagged_t<struct HelpStrTag, std::string>;
 	using PluralStr = tagged_t<struct PluralStrTag, std::string>;
@@ -59,29 +60,37 @@ namespace lngs::app::testing {
 	struct test_strings {
 		ProjectStr project;
 		VersionStr version;
+		NamespaceStr ns_name;
 		uint32_t serial = 0;
 		int serial_offset = -1;
 		test_strings() = default;
-		test_strings(ProjectStr project, VersionStr version, uint32_t serial, int serial_offset = -1)
+		test_strings(ProjectStr project, VersionStr version = {}, NamespaceStr ns = {}, uint32_t serial = 0, int serial_offset = -1)
 			: project{ std::move(project) }
 			, version{ std::move(version) }
+			, ns_name{ std::move(ns) }
 			, serial{ serial }
 			, serial_offset{ serial_offset }
 		{}
-		test_strings(uint32_t serial, int serial_offset = -1)
-			: test_strings{ {}, {}, serial, serial_offset }
+		test_strings(ProjectStr project, VersionStr version, uint32_t serial, int serial_offset = -1)
+			: test_strings{ std::move(project), std::move(version), {}, serial, serial_offset }
 		{}
-		test_strings(ProjectStr project, VersionStr version = {})
-			: test_strings{ std::move(project), std::move(version), 0, -1 }
-		{}
-		test_strings(VersionStr version)
-			: test_strings{ {}, std::move(version), 0, -1 }
-		{}
-		test_strings(ProjectStr project, uint32_t serial, int serial_offset = -1)
-			: test_strings{ std::move(project), {}, serial, serial_offset }
+		test_strings(VersionStr version, NamespaceStr ns = {}, uint32_t serial = 0, int serial_offset = -1)
+			: test_strings{ {}, std::move(version), std::move(ns), serial, serial_offset }
 		{}
 		test_strings(VersionStr version, uint32_t serial, int serial_offset = -1)
-			: test_strings{ {}, std::move(version), serial, serial_offset }
+			: test_strings{ {}, std::move(version), {}, serial, serial_offset }
+		{}
+		test_strings(ProjectStr project, NamespaceStr ns, uint32_t serial = 0, int serial_offset = -1)
+			: test_strings{ std::move(project), {}, std::move(ns), serial, serial_offset }
+		{}
+		test_strings(ProjectStr project, uint32_t serial, int serial_offset = -1)
+			: test_strings{ std::move(project), {}, {}, serial, serial_offset }
+		{}
+		test_strings(NamespaceStr ns, uint32_t serial = 0, int serial_offset = -1)
+			: test_strings{ {}, {}, std::move(ns), serial, serial_offset }
+		{}
+		test_strings(uint32_t serial, int serial_offset = -1)
+			: test_strings{ {}, {}, {}, serial, serial_offset }
 		{}
 
 		template <typename ... StringType>
@@ -90,6 +99,7 @@ namespace lngs::app::testing {
 			return {
 				project.val,
 				version.val,
+				ns_name.val,
 				serial,
 				serial_offset,
 				has_new,
