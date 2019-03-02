@@ -43,7 +43,7 @@ target_include_directories(lngs_app
 target_link_libraries(lngs_app liblngs args fmt::fmt)
 
 set(SHARE_DIR share/lngs-${LNGS_VERSION_SHORT})
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/dirs.in.hpp ${CMAKE_CURRENT_BINARY_DIR}/src/dirs.hpp @ONLY)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/build.in.hpp ${CMAKE_CURRENT_BINARY_DIR}/src/build.hpp @ONLY)
 
 message(STATUS "SHARE: ${CMAKE_INSTALL_PREFIX}/${SHARE_DIR}")
 
@@ -51,8 +51,8 @@ file(GLOB PO_FILES data/strings/*.po)
 
 set(SOURCES
 	src/lngs.cpp
-	src/dirs.in.hpp
-	${CMAKE_CURRENT_BINARY_DIR}/src/dirs.hpp
+	src/build.in.hpp
+	${CMAKE_CURRENT_BINARY_DIR}/src/build.hpp
 	${PO_FILES})
 
 add_executable(lngs ${SOURCES})
@@ -61,8 +61,8 @@ set_target_properties(lngs PROPERTIES
 	FOLDER app)
 target_include_directories(lngs
 	PRIVATE
-		"${CMAKE_CURRENT_SOURCE_DIR}"
-		"${CMAKE_CURRENT_BINARY_DIR}"
+		"${CMAKE_CURRENT_SOURCE_DIR}/src"
+		"${CMAKE_CURRENT_BINARY_DIR}/src"
 		)
 target_link_libraries(lngs lngs_app)
 

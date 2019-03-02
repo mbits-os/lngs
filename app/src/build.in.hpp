@@ -26,12 +26,21 @@
 
 #include <lngs/file.hpp>
 
-namespace lngs::app {
+namespace lngs::app::build {
 	fs::path get_exec_dir();
 
 	struct directory_info {
 		constexpr static const char share[] = "@SHARE_DIR@";
 		constexpr static const char prefix[] = "@CMAKE_INSTALL_PREFIX@/@SHARE_DIR@";
 		constexpr static const char build[] = "@CMAKE_CURRENT_BINARY_DIR@/@SHARE_DIR@";
+	};
+
+	struct version {
+		constexpr static const unsigned major = @LNGS_VERSION_MAJOR@;
+		constexpr static const unsigned minor = @LNGS_VERSION_MINOR@;
+		constexpr static const unsigned patch = @LNGS_VERSION_PATCH@;
+		constexpr static const unsigned build = @LNGS_VERSION_BUILD@;
+		constexpr static const char stability[] = "@LNGS_VERSION_STABILITY@"; // "-alpha", "-beta", "-rc.1", "-rc.2", and ""
+		constexpr static const char string[] = "@LNGS_VERSION@";
 	};
 }

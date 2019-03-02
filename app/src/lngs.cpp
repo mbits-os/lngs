@@ -29,7 +29,9 @@
 #include <lngs/internals/streams.hpp>
 #include <lngs/internals/strings.hpp>
 #include <lngs/translation.hpp>
-#include "dirs.hpp"
+#include "build.hpp"
+
+using namespace std::literals;
 
 #if defined(_WIN32) && defined(_UNICODE)
 using XChar = wchar_t;
@@ -62,27 +64,16 @@ command commands[] = {
 	{ "freeze","Reads the language description file and assigns values to new strings.", lngs::app::freeze::call },
 };
 
-int main(int argc, XChar* argv[])
-{
-	args::null_translator tr;
-	args::parser base{ {}, argc > 1 ? 2 : 1, argv, &tr };
-	base.usage("[-h] <command> [<args>]");
+[[noreturn]] void show_help(args::parser& p) {
+	auto args = p.printer_arguments();
+	args.resize(args.size() + 1);
+	args.back().title = "known commands";
+	args.back().items.reserve(sizeof(commands) / sizeof(commands[0]));
+	for (auto const& cmd : commands)
+		args.back().items.push_back({ cmd.name, cmd.description });
 
-	if (base.args().empty())
-		base.error("command missing");
-
-	if (base.args().front() == "-h") {
-		base.short_help();
-
-		{
-			args::fmt_list known(1);
-			auto& chunk = known.front();
-			chunk.title = "known commands";
-			for (auto& cmd : commands)
-				chunk.items.push_back(std::make_pair(cmd.name, cmd.description));
-			args::printer{ stdout }.format_list(known);
-		}
-
+	p.short_help();
+	args::printer{ stdout }.format_list(args);
 		printf(R"(
 The flow for string management and creation:
 
@@ -103,15 +94,35 @@ The flow for string management and creation:
    > msgfmt
    > lngs make
 )");
-		return 0;
-	}
 
-	auto& name = base.args().front();
+	std::exit(0);
+}
+
+[[noreturn]] void show_version() {
+	using ver = lngs::app::build::version;
+	fmt::print("lngs {}{}\n", ver::string, ver::stability);
+	std::exit(0);
+}
+
+int main(int argc, XChar* argv[])
+{
+	args::null_translator tr;
+	args::parser base{ {}, args::from_main(argc, argv), &tr };
+	base.usage("[-h] [--version] <command> [<args>]");
+	base.provide_help(false);
+	base.custom(show_help, "h", "help").help(tr(args::lng::help_description, {}, {})).opt();
+	base.custom(show_version, "v", "version").help("shows program version and exits").opt();
+
+	auto const unparsed = base.parse(args::parser::allow_subcommands);
+	if (unparsed.empty())
+		base.error("command missing");
+
+	auto const name = unparsed[0];
 	for (auto& cmd : commands) {
 		if (cmd.name != name)
 			continue;
 
-		args::parser sub{ cmd.description, argc - 1, argv + 1, &tr };
+		args::parser sub{ cmd.description, unparsed, &tr };
 		sub.program(base.program() + " " + sub.program());
 
 		return cmd.call(sub);
@@ -176,10 +187,10 @@ namespace lngs::app {
 	struct main_strings : public strings {
 		main_strings() {
 			m_prefix.path_manager<manager::ExtensionPath>(
-				directory_info::prefix, "lngs"
+				build::directory_info::prefix, "lngs"
 				);
 			m_build.path_manager<manager::ExtensionPath>(
-				directory_info::build, "lngs"
+				build::directory_info::build, "lngs"
 				);
 
 			auto system = system_locales();
