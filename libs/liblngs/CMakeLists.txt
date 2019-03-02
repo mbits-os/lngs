@@ -1,60 +1,82 @@
-set(lngs_SRCS
-  src/cmds/cmd_freeze_ids.cpp
-  src/cmds/cmd_load_mo.cpp
-  src/cmds/cmd_write_enums.cpp
-  src/cmds/cmd_write_pot.cpp
-  src/cmds/cmd_write_py.cpp
-  src/cmds/cmd_write_res.cpp
-  src/diagnostics.cpp
-  src/gettext.cpp
-  src/languages.cpp
-  src/lang_codes.cpp
-  src/lngs_res.cpp
-  src/streams.cpp
-  src/strings.cpp
-  src/utf8.cpp
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/version.in.hpp ${CMAKE_CURRENT_BINARY_DIR}/include/lngs/version.hpp @ONLY)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/lngs.pc.in ${CMAKE_CURRENT_BINARY_DIR}/lngs.pc @ONLY)
+
+set(liblngs_SRCS
+	src/expr_parser.cpp
+	src/file.cpp
+	src/lang_file.cpp
+	src/lngs_storage.cpp
+	src/plurals.cpp
+	src/translation.cpp
+	src/version.cpp
 )
 
-set (lngs_INCS
-  include/lngs/commands.hpp
-  include/lngs/diagnostics.hpp
-  include/lngs/gettext.hpp
-  include/lngs/languages.hpp
-  include/lngs/streams.hpp
-  include/lngs/strings.hpp
-  include/lngs/strings/lngs.hpp
-  include/lngs/utf8.hpp
+set (liblngs_INCS
+	include/lngs/file.hpp
+	include/lngs/lngs.hpp
+	include/lngs/lngs_base.hpp
+	include/lngs/lngs_file.hpp
+	include/lngs/lngs_storage.hpp
+	include/lngs/plurals.hpp
+	include/lngs/translation.hpp
+	src/expr_parser.hpp
+	src/node.hpp
+	src/str.hpp
+	src/version.in.hpp
+	"${CMAKE_CURRENT_BINARY_DIR}/include/lngs/version.hpp"
 )
 
-add_library(liblngs STATIC ${lngs_SRCS} ${lngs_INCS})
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
+set(EXTRA_LIBS)
+
+if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+	include(CheckIncludeFileCXX)
+	check_include_file_cxx(__config HAS_LIBCXX)
+	if (HAS_LIBCXX)
+		list(APPEND EXTRA_LIBS c++abi c++fs)
+	else()
+		list(APPEND EXTRA_LIBS stdc++fs)
+	endif()
+endif()
+if (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+	list(APPEND EXTRA_LIBS stdc++fs)
+endif()
+
+add_library(liblngs STATIC ${liblngs_SRCS} ${liblngs_INCS})
 set_target_properties(liblngs PROPERTIES
-  FOLDER app
-  IDL "${CMAKE_CURRENT_SOURCE_DIR}/src/lngs.idl"
-  OUTPUT_NAME lngs)
-target_compile_definitions(liblngs PRIVATE _CRT_SECURE_NO_WARNINGS)
+	VERSION ${LNGS_VERSION}
+	FOLDER libs
+	OUTPUT_NAME lngs)
 target_include_directories(liblngs
-  PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include
-  PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
+	PUBLIC
+	  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+	  $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
+	  $<INSTALL_INTERFACE:include>
+	PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
+target_link_libraries(liblngs PUBLIC ${EXTRA_LIBS})
 
-target_link_libraries(liblngs locale args fmt::fmt)
+install(TARGETS liblngs
+	ARCHIVE DESTINATION lib
+	LIBRARY DESTINATION lib
+	RUNTIME DESTINATION bin)
+install(DIRECTORY include/lngs/ DESTINATION include/lngs)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/include/lngs/version.hpp DESTINATION include/lngs)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/lngs.pc DESTINATION share/pkgconfig)
 
 ##################################################################
 ##  TESTING
 ##################################################################
 
-if (LOCALE_TESTING)
+if (LNGS_TESTING)
 
-add_test_executable(lngs-test DATA_PATH data LIBRARIES liblngs)
+add_test_executable(liblngs-test DATA_PATH data LIBRARIES liblngs lngs_app)
 
-add_test(NAME lngs.source_location COMMAND lngs-test --gtest_filter=source_location.*)
-add_test(NAME lngs.diagnostics COMMAND lngs-test --gtest_filter=*diag_write.*:*/diag_ne.* --data_path=${DATA_DIR})
-add_test(NAME lngs.read_idl COMMAND lngs-test --gtest_filter=*/read.*:*/read_file.* --data_path=${DATA_DIR})
-add_test(NAME lngs.freeze COMMAND lngs-test --gtest_filter=*/frozen.*)
-add_test(NAME lngs.res COMMAND lngs-test --gtest_filter=*/res_make.*:*/res_write.*:res_read.*)
-add_test(NAME lngs.enums COMMAND lngs-test --gtest_filter=*/enums.*)
-add_test(NAME lngs.python COMMAND lngs-test --gtest_filter=*/python.*)
-add_test(NAME lngs.pot COMMAND lngs-test --gtest_filter=*/pot.*)
-add_test(NAME lngs.utf COMMAND lngs-test --gtest_filter=*/utf_conv.*:*/utf_errors.*)
-add_test(NAME lngs.gettext COMMAND lngs-test --gtest_filter=*/gettext.*:*/gtt_attr_*.*:*/gtt_extract.*:*/mo_*.* --data_path=${DATA_DIR})
+add_test(NAME liblngs.file COMMAND liblngs-test --gtest_filter=file.*)
+add_test(NAME liblngs.plurals COMMAND liblngs-test --gtest_filter=*/plurals.*:*/plural_ops.*)
+add_test(NAME liblngs.lang_file COMMAND liblngs-test --gtest_filter=*/lang_file_*)
+add_test(NAME liblngs.translation COMMAND liblngs-test --gtest_filter=*/translation.*:translation.*)
+add_test(NAME liblngs.storage COMMAND liblngs-test --gtest_filter=*/storage_*:storage.*)
+add_test(NAME liblngs.strings COMMAND liblngs-test --gtest_filter=strings.*)
 
 endif()

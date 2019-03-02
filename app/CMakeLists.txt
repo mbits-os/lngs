@@ -1,34 +1,74 @@
-if (LOCALE_WALL_FLAGS)
+if (LNGS_WALL_FLAGS)
   add_definitions(${ADDITIONAL_WALL_FLAGS})
 endif()
 
-set(SHARE_DIR share/lngs-${LOCALE_VERSION_SHORT})
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/dirs.in.hpp ${CMAKE_CURRENT_BINARY_DIR}/dirs.hpp @ONLY)
+set(lngs_app_SRCS
+  src/cmds/cmd_freeze_ids.cpp
+  src/cmds/cmd_load_mo.cpp
+  src/cmds/cmd_write_enums.cpp
+  src/cmds/cmd_write_pot.cpp
+  src/cmds/cmd_write_py.cpp
+  src/cmds/cmd_write_res.cpp
+  src/diagnostics.cpp
+  src/gettext.cpp
+  src/languages.cpp
+  src/lang_codes.cpp
+  src/lngs_res.cpp
+  src/streams.cpp
+  src/strings.cpp
+  src/utf8.cpp
+)
+
+set (lngs_app_INCS
+  include/lngs/internals/commands.hpp
+  include/lngs/internals/diagnostics.hpp
+  include/lngs/internals/gettext.hpp
+  include/lngs/internals/languages.hpp
+  include/lngs/internals/streams.hpp
+  include/lngs/internals/strings.hpp
+  include/lngs/internals/strings/lngs.hpp
+  include/lngs/internals/utf8.hpp
+)
+
+find_package(fmt)
+add_library(lngs_app STATIC ${lngs_app_SRCS} ${lngs_app_INCS})
+set_target_properties(lngs_app PROPERTIES
+  FOLDER app
+  IDL "${CMAKE_CURRENT_SOURCE_DIR}/src/lngs.idl")
+target_compile_definitions(lngs_app PRIVATE _CRT_SECURE_NO_WARNINGS)
+target_include_directories(lngs_app
+  PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include
+  PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
+
+target_link_libraries(lngs_app liblngs args fmt::fmt)
+
+set(SHARE_DIR share/lngs-${LNGS_VERSION_SHORT})
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/dirs.in.hpp ${CMAKE_CURRENT_BINARY_DIR}/src/dirs.hpp @ONLY)
 
 message(STATUS "SHARE: ${CMAKE_INSTALL_PREFIX}/${SHARE_DIR}")
 
 file(GLOB PO_FILES data/strings/*.po)
 
 set(SOURCES
-	lngs.cpp
-	dirs.in.hpp
-	${CMAKE_CURRENT_BINARY_DIR}/dirs.hpp
+	src/lngs.cpp
+	src/dirs.in.hpp
+	${CMAKE_CURRENT_BINARY_DIR}/src/dirs.hpp
 	${PO_FILES})
 
 add_executable(lngs ${SOURCES})
 set_target_properties(lngs PROPERTIES
-	VERSION ${LOCALE_VERSION_SHORT}
+	VERSION ${LNGS_VERSION_SHORT}
 	FOLDER app)
 target_include_directories(lngs
 	PRIVATE
 		"${CMAKE_CURRENT_SOURCE_DIR}"
 		"${CMAKE_CURRENT_BINARY_DIR}"
 		)
-target_link_libraries(lngs liblngs)
+target_link_libraries(lngs lngs_app)
 
 install(TARGETS lngs DESTINATION bin)
 
-get_target_property(LNGS_IDL liblngs IDL)
+get_target_property(LNGS_IDL lngs_app IDL)
 
 add_custom_target(lngs_pot
 	COMMAND
@@ -106,3 +146,24 @@ add_custom_target(lngs_enums
 		lngs
 		"${LNGS_IDL}")
 set_target_properties(lngs_enums PROPERTIES FOLDER tools/strings)
+
+##################################################################
+##  TESTING
+##################################################################
+
+if (LNGS_TESTING)
+
+add_test_executable(lngs-test DATA_PATH data LIBRARIES lngs_app)
+
+add_test(NAME lngs.source_location COMMAND lngs-test --gtest_filter=source_location.*)
+add_test(NAME lngs.diagnostics COMMAND lngs-test --gtest_filter=*diag_write.*:*/diag_ne.* --data_path=${DATA_DIR})
+add_test(NAME lngs.read_idl COMMAND lngs-test --gtest_filter=*/read.*:*/read_file.* --data_path=${DATA_DIR})
+add_test(NAME lngs.freeze COMMAND lngs-test --gtest_filter=*/frozen.*)
+add_test(NAME lngs.res COMMAND lngs-test --gtest_filter=*/res_make.*:*/res_write.*:res_read.*)
+add_test(NAME lngs.enums COMMAND lngs-test --gtest_filter=*/enums.*)
+add_test(NAME lngs.python COMMAND lngs-test --gtest_filter=*/python.*)
+add_test(NAME lngs.pot COMMAND lngs-test --gtest_filter=*/pot.*)
+add_test(NAME lngs.utf COMMAND lngs-test --gtest_filter=*/utf_conv.*:*/utf_errors.*)
+add_test(NAME lngs.gettext COMMAND lngs-test --gtest_filter=*/gettext.*:*/gtt_attr_*.*:*/gtt_extract.*:*/mo_*.* --data_path=${DATA_DIR})
+
+endif()

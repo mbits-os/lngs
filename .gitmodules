@@ -1,6 +1,3 @@
-[submodule "libs/libfmt"]
-	path = external/libfmt
-	url = https://github.com/fmtlib/fmt
 [submodule "tools/coveralls"]
 	path = tools/coveralls
 	url = https://github.com/mbits-libs/coveralls.git

@@ -1,0 +1,11 @@
+prefix=@CMAKE_INSTALL_PREFIX@
+exec_prefix=${prefix}
+libdir=${prefix}/lib
+includedir=${prefix}/include
+
+Name: lngs
+Description: Locale File Format And Processor
+Version: @LNGS_VERSION_SHORT@
+
+Libs: -L${libdir} -llngs
+Cflags: -I${includedir}
