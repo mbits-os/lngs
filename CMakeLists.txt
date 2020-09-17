@@ -1,18 +1,74 @@
 cmake_minimum_required (VERSION 3.10)
-project (lngs)
+project (lngs
+  VERSION 0.3.7
+  DESCRIPTION "Locale File Format And Processor"
+  LANGUAGES CXX)
 
-set(LNGS_TESTING ON CACHE BOOL "Compile and/or run self-tests")
-set(LNGS_WALL_FLAGS ON CACHE BOOL "Compile with -Wall/-W4 warning levels")
+set(PROJECT_VERSION_SHORT "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}")
+set(PROJECT_VERSION_STABILITY "-alpha")
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-if (LNGS_WALL_FLAGS)
-  if (MSVC)
-    set(ADDITIONAL_WALL_FLAGS /permissive- /W4 /wd4710 /w44905 /w44906 /w44928 /we4946)
+include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+conan_basic_setup(TARGETS)
+
+list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
+
+set(LNGS_TESTING ON CACHE BOOL "Compile and/or run self-tests")
+
+if (MSVC)
+  set(ADDITIONAL_WALL_FLAGS
+      /permissive-
+      /Zc:__cplusplus
+      /W4
+      /w14242
+      /w14254
+      /w14263
+      /w14265
+      /w14287
+      /we4289
+      /w14296
+      /w14311
+      /w14545
+      /w14546
+      /w14547
+      /w14549
+      /w14555
+      /w14619
+      /w14640
+      /w14826
+      /w14905
+      /w14906
+      /w14928
+      /w14946)
+else()
+  set(ADDITIONAL_WALL_FLAGS
+      -Wall -Wextra
+      -Wnon-virtual-dtor
+      -Wold-style-cast
+      -Wcast-align
+      -Wunused
+      -Woverloaded-virtual
+      -Wpedantic
+      -Wconversion
+      -Wsign-conversion
+      -Wnull-dereference
+      -Wdouble-promotion
+      -Wformat=2
+  )
+  if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    list(APPEND ADDITIONAL_WALL_FLAGS -fcolor-diagnostics) # -Wlifetime
   else()
-    set(ADDITIONAL_WALL_FLAGS -Wall -Wextra)
+    list(APPEND ADDITIONAL_WALL_FLAGS
+      -fdiagnostics-color
+      -Wmisleading-indentation
+      -Wduplicated-cond
+      -Wduplicated-branches
+      -Wlogical-op
+      -Wuseless-cast
+      )
   endif()
 endif()
 
@@ -34,54 +90,29 @@ endif()
 
 find_package(Git)
 
-set(LNGS_VERSION_MAJOR 0)
-set(LNGS_VERSION_MINOR 3)
-set(LNGS_VERSION_PATCH 7)
-set(LNGS_VERSION_BUILD 0)
-set(LNGS_VERSION_STABILITY "-alpha")
-set(LNGS_VERSION ${LNGS_VERSION_MAJOR}.${LNGS_VERSION_MINOR}.${LNGS_VERSION_PATCH} )
-set(LNGS_VERSION_SHORT ${LNGS_VERSION_MAJOR}.${LNGS_VERSION_MINOR} )
-if (LNGS_VERSION_BUILD)
-set(LNGS_VERSION_FULL ${LNGS_VERSION_MAJOR}.${LNGS_VERSION_MINOR}.${LNGS_VERSION_PATCH}${LNGS_VERSION_STABILITY}+${LNGS_VERSION_BUILD} )
-else()
-set(LNGS_VERSION_FULL ${LNGS_VERSION_MAJOR}.${LNGS_VERSION_MINOR}.${LNGS_VERSION_PATCH}${LNGS_VERSION_STABILITY} )
-endif()
-
 execute_process(
   COMMAND "${GIT_EXECUTABLE}" describe --tags HEAD
   WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-  RESULT_VARIABLE LNGS_VERSION_COMMIT_res
-  OUTPUT_VARIABLE LNGS_VERSION_COMMIT
+  RESULT_VARIABLE PROJECT_VERSION_COMMIT_res
+  OUTPUT_VARIABLE PROJECT_VERSION_COMMIT
   ERROR_QUIET
   OUTPUT_STRIP_TRAILING_WHITESPACE)
-if(NOT LNGS_VERSION_COMMIT_res EQUAL 0)
-  set(LNGS_VERSION_COMMIT "")
+if(NOT PROJECT_VERSION_COMMIT_res EQUAL 0)
+  set(PROJECT_VERSION_COMMIT "")
 endif()
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 if (LNGS_TESTING)
+  set(EXTERNAL_GTEST ON)
   include( ${CMAKE_CURRENT_SOURCE_DIR}/tools/testing/googletest.cmake )
 endif()
 
-define_property(TARGET PROPERTY IDL BRIEF_DOCS "The language file path" FULL_DOCS "Same...")
+define_property(TARGET PROPERTY IDL
+  BRIEF_DOCS "The language file path"
+  FULL_DOCS "The language file path")
 
-add_subdirectory(external)
 add_subdirectory(libs)
 add_subdirectory(app)
 
-set(CPACK_PACKAGE_NAME "${PROJECT_NAME}")
-set(CPACK_PACKAGE_VENDOR "midnightBITS")
-set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Locale File Format And Processor")
-set(CPACK_PACKAGE_CONTACT "Marcin Zdun <mzdun@midnightbits.com>")
-set(CPACK_PACKAGE_VERSION "${LNGS_VERSION}")
-set(CPACK_PACKAGE_VERSION_MAJOR "${LNGS_VERSION_MAJOR}")
-set(CPACK_PACKAGE_VERSION_MINOR "${LNGS_VERSION_MINOR}")
-set(CPACK_PACKAGE_VERSION_PATCH "${LNGS_VERSION_PATCH}")
-if (LNGS_VERSION_BUILD)
-set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}.${LNGS_VERSION_BUILD}${LNGS_VERSION_STABILITY}-${CMAKE_SYSTEM_NAME}")
-else()
-set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}${LNGS_VERSION_STABILITY}-${CMAKE_SYSTEM_NAME}")
-endif()
-set(CPACK_NSIS_MODIFY_PATH ON)
-include(CPack)
+include(prepare_pack)

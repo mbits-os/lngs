@@ -25,21 +25,7 @@
 #include <lngs/version.hpp>
 
 namespace lngs {
-	template <size_t length>
-	static inline std::string_view view_of(const char(&text)[length]) {
-		return { text, length - 1 };
-	}
-
-	rt_version get_version() {
-		return {
-			version::major,
-			version::minor,
-			version::patch,
-			version::build,
-			view_of(version::stability),
-			view_of(version::string),
-			view_of(version::full),
-			view_of(version::commit)
-		};
+	version_type get_version() {
+		return version;
 	}
 };

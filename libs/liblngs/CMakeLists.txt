@@ -45,7 +45,7 @@ endif()
 
 add_library(liblngs STATIC ${liblngs_SRCS} ${liblngs_INCS})
 set_target_properties(liblngs PROPERTIES
-	VERSION ${LNGS_VERSION}
+	VERSION ${PROJECT_VERSION}
 	FOLDER libs
 	OUTPUT_NAME lngs)
 target_include_directories(liblngs
@@ -70,7 +70,7 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/lngs.pc DESTINATION share/pkgconfig)
 
 if (LNGS_TESTING)
 
-add_test_executable(liblngs-test DATA_PATH data LIBRARIES liblngs lngs_app)
+add_test_executable(liblngs-test CONAN_PKG DATA_PATH data LIBRARIES liblngs lngs_app)
 
 add_test(NAME liblngs.file COMMAND liblngs-test --gtest_filter=file.*)
 add_test(NAME liblngs.plurals COMMAND liblngs-test --gtest_filter=*/plurals.*:*/plural_ops.*)

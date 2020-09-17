@@ -79,7 +79,7 @@ namespace lngs::app {
 		auto args_data = std::make_unique<fmt::format_args::format_arg[]>(args.size());
 		auto it = args_data.get();
 		for (auto const& arg : storage)
-			*it++ = fmt::internal::make_arg<fmt::format_context>(arg);
+			*it++ = fmt::detail::make_arg<fmt::format_context>(arg);
 		fmt::format_args f_args{ args_data.get(), args.size() };
 
 		fmt::memory_buffer buffer;

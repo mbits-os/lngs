@@ -30,7 +30,6 @@ set (lngs_app_INCS
   include/lngs/internals/utf8.hpp
 )
 
-find_package(fmt)
 add_library(lngs_app STATIC ${lngs_app_SRCS} ${lngs_app_INCS})
 set_target_properties(lngs_app PROPERTIES
   FOLDER app
@@ -40,9 +39,9 @@ target_include_directories(lngs_app
   PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include
   PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
-target_link_libraries(lngs_app liblngs args fmt::fmt)
+target_link_libraries(lngs_app liblngs CONAN_PKG::args CONAN_PKG::fmt)
 
-set(SHARE_DIR share/lngs-${LNGS_VERSION_SHORT})
+set(SHARE_DIR share/lngs-${PROJECT_VERSION_SHORT})
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/build.in.hpp ${CMAKE_CURRENT_BINARY_DIR}/src/build.hpp @ONLY)
 
 message(STATUS "SHARE: ${CMAKE_INSTALL_PREFIX}/${SHARE_DIR}")
@@ -57,7 +56,7 @@ set(SOURCES
 
 add_executable(lngs ${SOURCES})
 set_target_properties(lngs PROPERTIES
-	VERSION ${LNGS_VERSION_SHORT}
+	VERSION ${PROJECT_VERSION_SHORT}
 	FOLDER app)
 target_include_directories(lngs
 	PRIVATE
@@ -154,7 +153,7 @@ set_target_properties(lngs_enums PROPERTIES FOLDER tools/strings)
 
 if (LNGS_TESTING)
 
-add_test_executable(lngs-test DATA_PATH data LIBRARIES lngs_app)
+add_test_executable(lngs-test CONAN_PKG DATA_PATH data LIBRARIES lngs_app)
 
 add_test(NAME lngs.source_location COMMAND lngs-test --gtest_filter=source_location.*)
 add_test(NAME lngs.diagnostics COMMAND lngs-test --gtest_filter=*diag_write.*:*/diag_ne.* --data_path=${DATA_DIR})

@@ -3,9 +3,9 @@ exec_prefix=${prefix}
 libdir=${prefix}/lib
 includedir=${prefix}/include
 
-Name: lngs
-Description: Locale File Format And Processor
-Version: @LNGS_VERSION_SHORT@
+Name: @PROJECT_NAME@
+Description: @PROJECT_DESCRIPTION@
+Version: @PROJECT_VERSION_SHORT@
 
-Libs: -L${libdir} -llngs
+Libs: -L${libdir} -l@PROJECT_NAME@
 Cflags: -I${includedir}

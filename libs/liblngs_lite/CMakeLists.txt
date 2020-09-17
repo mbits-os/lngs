@@ -1,8 +1,8 @@
 add_library(lngs_lite SHARED lite.cpp include/lngs/lite.h)
 set_target_properties(lngs_lite PROPERTIES
 	COMPILE_DEFINITIONS STRINGS_EXPORT
-	VERSION ${LNGS_VERSION_SHORT}
-	SOVERSION ${LNGS_VERSION_MAJOR}
+	VERSION ${PROJECT_VERSION_SHORT}
+	SOVERSION ${PROJECT_VERSION_MAJOR}
   FOLDER libs)
 target_include_directories(lngs_lite PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>

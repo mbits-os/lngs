@@ -26,28 +26,32 @@
 #include <string_view>
 
 namespace lngs {
-	struct version {
-		constexpr static const unsigned major = @LNGS_VERSION_MAJOR@;
-		constexpr static const unsigned minor = @LNGS_VERSION_MINOR@;
-		constexpr static const unsigned patch = @LNGS_VERSION_PATCH@;
-		constexpr static const unsigned build = @LNGS_VERSION_BUILD@;
-		constexpr static const char stability[] = "@LNGS_VERSION_STABILITY@"; // "-alpha", "-beta", "-rc.1", "-rc.2", and ""
-		constexpr static const char string[] = "@LNGS_VERSION@";
-		constexpr static const char full[] = "@LNGS_VERSION_FULL@";
-		constexpr static const char commit[] = "@LNGS_VERSION_COMMIT@";
-		constexpr static const bool has_commit = !!*commit;
+	struct version_info {
+		static constexpr unsigned major = @PROJECT_VERSION_MAJOR@;
+		static constexpr unsigned minor = @PROJECT_VERSION_MINOR@;
+		static constexpr unsigned patch = @PROJECT_VERSION_PATCH@;
+		static constexpr char stability[] = "@PROJECT_VERSION_STABILITY@"; // "-alpha", "-beta", "-rc.1", "-rc.2", and ""
+		static constexpr char string[] = "@PROJECT_VERSION@";
+		static constexpr char shrt[] = "@PROJECT_VERSION_SHORT@";
+		static constexpr char commit[] = "@PROJECT_VERSION_COMMIT@";
+		static constexpr bool has_commit = !!*commit;
 	};
 
-	struct rt_version {
-		const unsigned major;
-		const unsigned minor;
-		const unsigned patch;
-		const unsigned build;
-		const std::string_view stability;
-		const std::string_view string;
-		const std::string_view full;
-		const std::string_view commit;
+	struct version_type {
+		unsigned major;
+		unsigned minor;
+		unsigned patch;
+		std::string_view stability;
+		std::string_view commit;
 	};
 
-	rt_version get_version();
+	inline constexpr version_type version{
+		version_info::major,
+		version_info::minor,
+		version_info::patch,
+		version_info::stability,
+		version_info::commit
+	};
+
+	version_type get_version();
 };

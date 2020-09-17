@@ -36,11 +36,10 @@ namespace lngs::app::build {
 	};
 
 	struct version {
-		constexpr static const unsigned major = @LNGS_VERSION_MAJOR@;
-		constexpr static const unsigned minor = @LNGS_VERSION_MINOR@;
-		constexpr static const unsigned patch = @LNGS_VERSION_PATCH@;
-		constexpr static const unsigned build = @LNGS_VERSION_BUILD@;
-		constexpr static const char stability[] = "@LNGS_VERSION_STABILITY@"; // "-alpha", "-beta", "-rc.1", "-rc.2", and ""
-		constexpr static const char string[] = "@LNGS_VERSION@";
+		constexpr static const unsigned major = @PROJECT_VERSION_MAJOR@;
+		constexpr static const unsigned minor = @PROJECT_VERSION_MINOR@;
+		constexpr static const unsigned patch = @PROJECT_VERSION_PATCH@;
+		constexpr static const char stability[] = "@PROJECT_VERSION_STABILITY@"; // "-alpha", "-beta", "-rc.1", "-rc.2", and ""
+		constexpr static const char string[] = "@PROJECT_VERSION@";
 	};
 }
