@@ -87,7 +87,7 @@ namespace lngs::app::testing {
 		case lng::ERR_GETTEXT_NOT_ASCIIZ: return "strings must end with a zero";
 		}
 		return "";
-	};
+	}
 
 	std::string_view alt_strings_mock::get(lng id) const {
 		switch (id) {
@@ -174,7 +174,7 @@ namespace lngs::app::testing {
 		case lng::ERR_GETTEXT_NOT_ASCIIZ: return "ERR_GETTEXT_NOT_ASCIIZ";
 		}
 		return "";
-	};
+	}
 
 	const char* UnexpectedDiags::name(lng val) {
 		switch (val) {

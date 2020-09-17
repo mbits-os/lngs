@@ -32,7 +32,8 @@ namespace lngs {
 	public:
 		std::string operator()(Enum val) const noexcept
 		{
-			auto ptr = Storage::get_string((lang_file::identifier)val);
+			auto const id = static_cast<lang_file::identifier>(val);
+			auto ptr = Storage::get_string(id);
 			return !ptr.empty() ? std::string{ ptr } : std::string{ };
 		}
 
@@ -48,7 +49,9 @@ namespace lngs {
 	public:
 		std::string operator()(Enum val, intmax_t count) const noexcept
 		{
-			auto ptr = Storage::get_string((lang_file::identifier)val, (lang_file::quantity)count);
+			auto const id = static_cast<lang_file::identifier>(val);
+			auto const quantity = static_cast<lang_file::quantity>(count);
+			auto ptr = Storage::get_string(id, quantity);
 			return !ptr.empty() ? std::string{ ptr } : std::string{ };
 		}
 
@@ -65,7 +68,9 @@ namespace lngs {
 		using SingularStrings<SEnum, Storage>::operator(); // un-hide
 		std::string operator()(PEnum val, intmax_t count) const noexcept
 		{
-			auto ptr = SingularStrings<SEnum, Storage>::get_string((lang_file::identifier)val, (lang_file::quantity)count);
+			auto const id = static_cast<lang_file::identifier>(val);
+			auto const quantity = static_cast<lang_file::quantity>(count);
+			auto ptr = SingularStrings<SEnum, Storage>::get_string(id, quantity);
 			return !ptr.empty() ? std::string{ ptr } : std::string{ };
 		}
 	};

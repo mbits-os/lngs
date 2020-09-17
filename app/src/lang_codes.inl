@@ -49,7 +49,7 @@ namespace {
 		return nullptr;
 	}
 
-};
+}
 
 namespace lngs::app {
 	std::string language_name(std::string_view lang)

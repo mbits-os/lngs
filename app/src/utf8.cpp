@@ -34,7 +34,7 @@ namespace utf
 	* left as-is for anyone who may want to do such conversion, which was
 	* allowed in earlier algorithms.
 	*/
-	static constexpr const char trailingBytesForUTF8[256] = {
+	static constexpr const uint8_t trailingBytesForUTF8[256] = {
 		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -91,11 +91,11 @@ namespace utf
 		switch (length) {
 		default: return false;
 			/* Everything else falls through when "true"... */
-		case 4: if ((a = ((uint8_t)*--srcptr)) < 0x80 || a > 0xBF) return false; [[fallthrough]];
-		case 3: if ((a = ((uint8_t)*--srcptr)) < 0x80 || a > 0xBF) return false; [[fallthrough]];
-		case 2: if ((a = ((uint8_t)*--srcptr)) < 0x80 || a > 0xBF) return false;
+		case 4: if ((a = static_cast<uint8_t>(*--srcptr)) < 0x80 || a > 0xBF) return false; [[fallthrough]];
+		case 3: if ((a = static_cast<uint8_t>(*--srcptr)) < 0x80 || a > 0xBF) return false; [[fallthrough]];
+		case 2: if ((a = static_cast<uint8_t>(*--srcptr)) < 0x80 || a > 0xBF) return false;
 
-			switch ((uint8_t) *source) {
+			switch (static_cast<uint8_t>(*source)) {
 				/* no fall-through in this inner switch */
 			case 0xE0: if (a < 0xA0) return false; break;
 			case 0xED: if (a > 0x9F) return false; break;
@@ -105,16 +105,17 @@ namespace utf
 			}
 			[[fallthrough]];
 
-		case 1: if ((uint8_t) *source >= 0x80 && (uint8_t) *source < 0xC2) return false;
+		case 1: if (static_cast<uint8_t>(*source) >= 0x80 && static_cast<uint8_t>(*source) < 0xC2) return false;
 		}
-		if ((uint8_t) *source > 0xF4) return false;
+		if (static_cast<uint8_t>(*source) > 0xF4) return false;
 		return true;
 	}
 
 	using utf8_it = std::string_view::const_iterator;
 	static inline char32_t decode(utf8_it& source, utf8_it sourceEnd, bool& ok) {
 		ok = false;
-		unsigned short extraBytesToRead = trailingBytesForUTF8[(uint8_t)*source];
+		auto const uchar = static_cast<uint8_t>(*source);
+		auto extraBytesToRead = trailingBytesForUTF8[uchar];
 		if (extraBytesToRead >= sourceEnd - source)
 			return 0;
 
@@ -127,10 +128,10 @@ namespace utf
 		*/
 		switch (extraBytesToRead) {
 		// 4 and 5 extra bytes are not passed through by isLegalUTF8
-		case 3: ch += (uint8_t)*source++; ch <<= 6; [[fallthrough]];
-		case 2: ch += (uint8_t)*source++; ch <<= 6; [[fallthrough]];
-		case 1: ch += (uint8_t)*source++; ch <<= 6; [[fallthrough]];
-		case 0: ch += (uint8_t)*source++;
+		case 3: ch += static_cast<uint8_t>(*source++); ch <<= 6; [[fallthrough]];
+		case 2: ch += static_cast<uint8_t>(*source++); ch <<= 6; [[fallthrough]];
+		case 1: ch += static_cast<uint8_t>(*source++); ch <<= 6; [[fallthrough]];
+		case 0: ch += static_cast<uint8_t>(*source++);
 		}
 		ch -= offsetsFromUTF8[extraBytesToRead];
 		ok = true;
@@ -170,12 +171,12 @@ namespace utf
 		unsigned short bytesToWrite = 0;
 
 		/* Figure out how many bytes the result will require */
-		if (ch < (char32_t)0x80) bytesToWrite = 1;
-		else if (ch < (char32_t)0x800) bytesToWrite = 2;
+		if (ch < 0x80u) bytesToWrite = 1;
+		else if (ch < 0x800u) bytesToWrite = 2;
 		else if (ch >= UNI_SUR_HIGH_START && ch <= UNI_SUR_LOW_END) {
 			bytesToWrite = 3;
 			ch = UNI_REPLACEMENT_CHAR;
-		} else if (ch < (char32_t)0x10000) bytesToWrite = 3;
+		} else if (ch < 0x10000u) bytesToWrite = 3;
 		else if (ch <= UNI_MAX_LEGAL_UTF32) bytesToWrite = 4;
 		else {
 			bytesToWrite = 3;
@@ -185,13 +186,13 @@ namespace utf
 		uint8_t mid[4];
 		uint8_t* midp = mid + sizeof(mid);
 		switch (bytesToWrite) { /* note: everything falls through. */
-		case 4: *--midp = (uint8_t)((ch | byteMark) & byteMask); ch >>= 6; [[fallthrough]];
-		case 3: *--midp = (uint8_t)((ch | byteMark) & byteMask); ch >>= 6; [[fallthrough]];
-		case 2: *--midp = (uint8_t)((ch | byteMark) & byteMask); ch >>= 6; [[fallthrough]];
-		case 1: *--midp = (uint8_t)(ch | firstByteMark[bytesToWrite]);
+		case 4: *--midp = static_cast<uint8_t>((ch | byteMark) & byteMask); ch >>= 6; [[fallthrough]];
+		case 3: *--midp = static_cast<uint8_t>((ch | byteMark) & byteMask); ch >>= 6; [[fallthrough]];
+		case 2: *--midp = static_cast<uint8_t>((ch | byteMark) & byteMask); ch >>= 6; [[fallthrough]];
+		case 1: *--midp = static_cast<uint8_t>(ch | firstByteMark[bytesToWrite]);
 		}
 		for (int i = 0; i < bytesToWrite; ++i)
-			*target++ = *midp++;
+			*target++ = static_cast<char>(*midp++);
 	}
 
 	static inline void encode(char32_t ch, std::back_insert_iterator<std::u16string>& target) {
@@ -201,7 +202,7 @@ namespace utf
 				*target++ = UNI_REPLACEMENT_CHAR;
 				return;
 			}
-			*target++ = (char16_t)ch; /* normal case */
+			*target++ = static_cast<char16_t>(ch); /* normal case */
 			return;
 		}
 
@@ -211,8 +212,8 @@ namespace utf
 		}
 
 		ch -= halfBase;
-		*target++ = (char16_t)((ch >> halfShift) + UNI_SUR_HIGH_START);
-		*target++ = (char16_t)((ch & halfMask) + UNI_SUR_LOW_START);
+		*target++ = static_cast<char16_t>((ch >> halfShift) + UNI_SUR_HIGH_START);
+		*target++ = static_cast<char16_t>((ch & halfMask) + UNI_SUR_LOW_START);
 	}
 
 	static inline void encode(char32_t ch, std::back_insert_iterator<std::u32string>& target) {

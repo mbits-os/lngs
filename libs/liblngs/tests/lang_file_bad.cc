@@ -13,7 +13,7 @@ namespace lngs::testing {
 		template <typename T>
 		static void write(fs::file& lngs_file, const T& data) {
 			lngs_file.store(&data, sizeof(data));
-		};
+		}
 
 		static void write_lngs_head(fs::file& lngs_file, uint32_t tag_file = langtext_tag, uint32_t tag_hdr = hdrtext_tag, uint32_t hdr_ints = 2, uint32_t ver = v1_0::version, uint32_t serial = 123) {
 			write(lngs_file, tag_file);
@@ -21,11 +21,12 @@ namespace lngs::testing {
 			write(lngs_file, hdr_ints);
 			write(lngs_file, ver);
 			write(lngs_file, serial);
-		};
+		}
 
 		static void write_lngs_last(fs::file& lngs_file) {
+			static constexpr uint32_t zero = 0;
 			write(lngs_file, v1_0::lasttext_tag);
-			write(lngs_file, (uint32_t)0u);
+			write(lngs_file, zero);
 		}
 
 		static void SetUpTestCase() {

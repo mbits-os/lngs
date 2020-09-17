@@ -30,7 +30,17 @@
 #include <lngs/internals/strings.hpp>
 
 namespace lngs::app {
-	constexpr std::byte operator""_b(char c) { return (std::byte) c; }
+	namespace {
+		constexpr std::byte operator""_b(char c) { return static_cast<std::byte>(c); }
+
+		unsigned char s2uc(char c) {
+			return static_cast<unsigned char>(c);
+		}
+
+		unsigned char b2uc(std::byte b) {
+			return static_cast<unsigned char>(b);
+		}
+	}
 
 	enum tok_t {
 		NONE,
@@ -98,7 +108,7 @@ namespace lngs::app {
 			}
 			assert(type != NONE && type != END_OF_FILE);
 			char buffer[] = "` '";
-			buffer[1] = (char)type;
+			buffer[1] = static_cast<char>(type);
 			return arg(buffer);
 		}
 
@@ -113,7 +123,7 @@ namespace lngs::app {
 			default: break;
 			}
 			char buffer[] = "` '";
-			buffer[1] = (char)type;
+			buffer[1] = static_cast<char>(type);
 			return arg(buffer);
 		}
 	};
@@ -188,7 +198,7 @@ namespace lngs::app {
 
 		do {
 			found_comment = false;
-			while (!eof_ && std::isspace((uint8_t)in_.peek())) {
+			while (!eof_ && std::isspace(b2uc(in_.peek()))) {
 				auto c = nextc();
 				if (c == '\n') {
 					++line_;
@@ -264,26 +274,26 @@ namespace lngs::app {
 			return set_next(offset, s, STRING);
 		}
 		default:
-			if (std::isdigit((uint8_t)c) || c == '-' || c == '+') {
+			if (std::isdigit(s2uc(c)) || c == '-' || c == '+') {
 				if (c == '-' || c == '+') {
-					if (eof_ || !std::isdigit((uint8_t)in_.peek()))
+					if (eof_ || !std::isdigit(b2uc(in_.peek())))
 						break;
 				}
 
 				std::string s;
 				s.push_back(c);
 
-				while (!eof_ && std::isdigit((uint8_t)in_.peek())) {
+				while (!eof_ && std::isdigit(b2uc(in_.peek()))) {
 					s.push_back(nextc());
 				}
 
 				return set_next(offset, s, NUMBER);
 			}
 
-			if (c == '_' || std::isalpha((uint8_t)c)) {
+			if (c == '_' || std::isalpha(s2uc(c))) {
 				std::string s;
 				s.push_back(c);
-				while (!eof_ && (std::isalnum((uint8_t)in_.peek()) || in_.peek() == '_'_b)) {
+				while (!eof_ && (std::isalnum(b2uc(in_.peek())) || in_.peek() == '_'_b)) {
 					s.push_back(nextc());
 				}
 
@@ -431,7 +441,7 @@ namespace lngs::app {
 	}
 
 	void store(uint32_t& dst, const std::string& src) {
-		dst = atoi(src.c_str());
+		dst = static_cast<uint32_t>(atoi(src.c_str()));
 	}
 
 	template <typename T>
@@ -515,7 +525,7 @@ namespace lngs::app {
 				if (!tok.expect(BRAKET_O, true, diag))
 					return false;
 
-				auto& store = ((store_attr_base&)*att);
+				auto& store = *static_cast<store_attr_base*>(att.get());
 
 				tok.get();
 

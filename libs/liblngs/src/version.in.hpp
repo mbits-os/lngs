@@ -22,6 +22,8 @@
  * SOFTWARE.
  */
 
+#line 26 "libs/liblngs/src/version.in.hpp"
+
 #pragma once
 #include <string_view>
 
@@ -54,4 +56,4 @@ namespace lngs {
 	};
 
 	version_type get_version();
-};
+}

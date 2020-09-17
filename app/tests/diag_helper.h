@@ -54,7 +54,7 @@ namespace lngs::app::testing {
 			if (rhs.use_string)
 				o << '"' << rhs.str << '"';
 			else
-				o << "lng:" << (unsigned)rhs.id;
+				o << "lng:" << static_cast<unsigned>(rhs.id);
 			if (!rhs.args.empty()) {
 				o << '(';
 				bool first = true;
@@ -101,7 +101,7 @@ namespace lngs::app::testing {
 			o << ':' << diag.column_end;
 		return o
 			<< ','
-			<< (int)diag.sev << ","
+			<< static_cast<int>(diag.sev) << ","
 			<< diag.message << ","
 			<< (diag.link == link_type::gcc ? "gcc" : "vc") << ","
 			<< (diag.use_alt_tr ? "alt" : "tr") << '}';

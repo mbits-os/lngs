@@ -28,6 +28,12 @@
 #include <cctype>
 
 namespace lngs::plurals::parser {
+	namespace {
+		unsigned char s2uc(char c) {
+			return static_cast<unsigned char>(c);
+		}
+	}
+
 	std::vector<token> tokenizer::tokenize(const std::string& value) {
 		std::vector<token> out;
 
@@ -121,9 +127,9 @@ namespace lngs::plurals::parser {
 			case '\n':
 				break;
 			default:
-				if (std::isdigit((uint8_t)*c)) {
+				if (std::isdigit(s2uc(*c))) {
 					int val = 0;
-					while (c != e && std::isdigit((uint8_t)*c)) {
+					while (c != e && std::isdigit(s2uc(*c))) {
 						val *= 10;
 						val += *c - '0';
 						++c;

@@ -32,6 +32,17 @@
 #include <lngs/internals/utf8.hpp>
 
 namespace lngs::app {
+	namespace {
+		constexpr std::byte operator""_b(char c) { return static_cast<std::byte>(c); }
+
+		unsigned char s2uc(char c) {
+			return static_cast<unsigned char>(c);
+		}
+
+		unsigned char b2uc(std::byte b) {
+			return static_cast<unsigned char>(b);
+		}
+	}
 
 	std::string warp(const std::string& s)
 	{
@@ -120,29 +131,29 @@ namespace lngs::app {
 		auto c = std::begin(attrs);
 		auto e = std::end(attrs);
 		while (c != e) {
-			while (c != e && std::isspace((uint8_t)*c)) ++c;
+			while (c != e && std::isspace(s2uc(*c))) ++c;
 
 			auto s_name = c;
-			while (c != e && !std::isspace((uint8_t)*c)) {
+			while (c != e && !std::isspace(s2uc(*c))) {
 				if (*c == ':')
 					break;
 				++c;
 			}
 			auto name = std::string{ s_name, c };
 
-			while (c != e && std::isspace((uint8_t)*c)) ++c;
+			while (c != e && std::isspace(s2uc(*c))) ++c;
 			if (c == e || *c != ':')
 				continue;
 			++c;
 
-			while (c != e && std::isspace((uint8_t)*c) && *c != '\n') ++c;
+			while (c != e && std::isspace(s2uc(*c)) && *c != '\n') ++c;
 
 			auto s_value = c;
 			while (c != e && *c != '\n') ++c;
 			if (c != e) ++c;
 			auto e_value = c;
 
-			while (s_value != e_value && std::isspace((uint8_t)e_value[-1])) --e_value;
+			while (s_value != e_value && std::isspace(s2uc(e_value[-1]))) --e_value;
 			out[name] = { s_value, e_value };
 		}
 
@@ -223,7 +234,7 @@ namespace lngs::app {
 			std::string code;
 			std::string name;
 
-			while (!is.eof() && std::isspace((uint8_t)is.peek()))
+			while (!is.eof() && std::isspace(b2uc(is.peek())))
 				adv(nextc(is));
 
 			if (is.eof())
@@ -231,7 +242,7 @@ namespace lngs::app {
 
 			const auto pos = is.position(line, column);
 
-			while (!is.eof() && !std::isspace((uint8_t)is.peek())) {
+			while (!is.eof() && !std::isspace(b2uc(is.peek()))) {
 				const auto c = nextc(is);
 				code.push_back(c);
 				adv(c);
@@ -239,7 +250,7 @@ namespace lngs::app {
 
 			const auto end_pos = is.position(line, column);
 
-			while (!is.eof() && std::isspace((uint8_t)is.peek())) {
+			while (!is.eof() && std::isspace(b2uc(is.peek()))) {
 				auto c = nextc(is);
 				if (c == '\n') {
 					diags.push_back(
@@ -250,7 +261,7 @@ namespace lngs::app {
 				}
 			}
 
-			while (!is.eof() && is.peek() != (std::byte)'\n') {
+			while (!is.eof() && is.peek() != '\n'_b) {
 				const auto c = nextc(is);
 				name.push_back(c);
 				adv(c);
@@ -260,7 +271,7 @@ namespace lngs::app {
 				adv(nextc(is));
 
 			auto len = name.length();
-			while (len > 0 && std::isspace((uint8_t)name[len - 1]))
+			while (len > 0 && std::isspace(s2uc(name[len - 1])))
 				--len;
 			if (len != name.length())
 				name = name.substr(0, len);
@@ -323,13 +334,13 @@ namespace lngs::app {
 				return 0;
 
 			uint32_t key_size = sizeof(string_key) / sizeof(uint32_t);
-			key_size *= (uint32_t)block.size();
+			key_size *= static_cast<uint32_t>(block.size());
 
 			string_header hdr;
 			hdr.id = section_id;
 			hdr.string_offset = key_size + sizeof(string_header) / sizeof(uint32_t);
-			hdr.ints = hdr.string_offset - sizeof(section_header) / sizeof(uint32_t);
-			hdr.string_count = (uint32_t)block.size();
+			hdr.ints = static_cast<uint32_t>(hdr.string_offset - sizeof(section_header) / sizeof(uint32_t));
+			hdr.string_count = static_cast<uint32_t>(block.size());
 
 			uint32_t offset = 0;
 			update_offsets(offset, block);
@@ -392,7 +403,7 @@ namespace lngs::app {
 #endif
 
 		WRITE(os, lasttext_tag);
-		WRITE(os, (uint32_t)0);
+		WRITE(os, static_cast<uint32_t>(0));
 
 		return 0;
 	}

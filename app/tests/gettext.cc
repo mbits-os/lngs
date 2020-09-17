@@ -115,7 +115,7 @@ namespace lngs::app::testing {
 		template <typename T>
 		static void write(fs::file& mo_file, const T& data) {
 			mo_file.store(&data, sizeof(data));
-		};
+		}
 
 		static uint32_t reverse(uint32_t val) {
 			return ((val & 0xFF) << 24) |
@@ -138,14 +138,14 @@ namespace lngs::app::testing {
 
 		template <typename Pred>
 		static void write_mo_head(fs::file& mo_file, uint32_t count, uint32_t originals, uint32_t translations, uint32_t hash_size, uint32_t hash_offset, Pred store, uint32_t rev = 0u) {
-			write(mo_file, store((uint32_t)0x950412de));
+			write(mo_file, store(0x950412deU));
 			write(mo_file, store(rev));
 			write(mo_file, store(count));
 			write(mo_file, store(originals));
 			write(mo_file, store(translations));
 			write(mo_file, store(hash_size));
 			write(mo_file, store(hash_offset));
-		};
+		}
 
 		static void SetUpTestCase() {
 			if constexpr (false) {
@@ -165,10 +165,10 @@ namespace lngs::app::testing {
 
 				mo_file = fs::fopen(TESTING_data_path / "ab_BE.mo", "wb");
 				write_mo_head(mo_file, 1, 28, 36, 0, 44, reverse);
-				be(mo_file, (uint32_t)1);
-				be(mo_file, (uint32_t)44);
-				be(mo_file, (uint32_t)1);
-				be(mo_file, (uint32_t)44 + 2);
+				be(mo_file, 1u);
+				be(mo_file, 44u);
+				be(mo_file, 1u);
+				be(mo_file, 44u + 2u);
 				constexpr const char a[] = "a";
 				constexpr const char b[] = "b";
 				mo_file.store(a, sizeof(a));
@@ -176,63 +176,63 @@ namespace lngs::app::testing {
 
 				mo_file = fs::fopen(TESTING_data_path / "ab_LE.mo", "wb");
 				write_mo_head(mo_file, 1, 28, 36, 0, 44, direct);
-				write(mo_file, (uint32_t)1);
-				write(mo_file, (uint32_t)44);
-				write(mo_file, (uint32_t)1);
-				write(mo_file, (uint32_t)44 + 2);
+				le(mo_file, 1u);
+				le(mo_file, 44u);
+				le(mo_file, 1u);
+				le(mo_file, 44u + 2u);
 				mo_file.store(a, sizeof(a));
 				mo_file.store(b, sizeof(b));
 
 				mo_file = fs::fopen(TESTING_data_path / "not_asciiz.mo", "wb");
 				write_mo_head(mo_file, 1, 28, 36, 0, 44, reverse);
-				be(mo_file, (uint32_t)1);
-				be(mo_file, (uint32_t)44);
-				be(mo_file, (uint32_t)1);
-				be(mo_file, (uint32_t)44 + 2);
+				be(mo_file, 1u);
+				be(mo_file, 44u);
+				be(mo_file, 1u);
+				be(mo_file, 44u + 2u);
 				constexpr const char noasciiz[] = { 'a', 'b' };
 				mo_file.store(noasciiz, sizeof(noasciiz));
 
 				mo_file = fs::fopen(TESTING_data_path / "string_missing.mo", "wb");
 				write_mo_head(mo_file, 1, 28, 36, 0, 44, reverse);
-				be(mo_file, (uint32_t)1);
-				be(mo_file, (uint32_t)44);
-				be(mo_file, (uint32_t)1);
-				be(mo_file, (uint32_t)44 + 2);
+				be(mo_file, 1u);
+				be(mo_file, 44u);
+				be(mo_file, 1u);
+				be(mo_file, 44u + 2u);
 				mo_file.store(a, sizeof(a));
 
 				mo_file = fs::fopen(TESTING_data_path / "within_hash.mo", "wb");
 				write_mo_head(mo_file, 1, 28, 36, 2, 44, reverse);
-				be(mo_file, (uint32_t)1);
-				be(mo_file, (uint32_t)44);
+				be(mo_file, 1u);
+				be(mo_file, 44u);
 
 				mo_file = fs::fopen(TESTING_data_path / "over_the_top.mo", "wb");
 				write_mo_head(mo_file, 1, 28, 36, 0, 44, reverse);
-				be(mo_file, (uint32_t)1);
-				be(mo_file, (uint32_t)44);
+				be(mo_file, 1u);
+				be(mo_file, 44u);
 
 				mo_file = fs::fopen(TESTING_data_path / "no_space_for_0.mo", "wb");
 				write_mo_head(mo_file, 1, 28, 36, 0, 44, reverse);
-				be(mo_file, (uint32_t)1);
-				be(mo_file, (uint32_t)44);
-				be(mo_file, (uint32_t)1);
-				be(mo_file, (uint32_t)44);
+				be(mo_file, 1u);
+				be(mo_file, 44u);
+				be(mo_file, 1u);
+				be(mo_file, 44u);
 				mo_file.store(a, 1);
 
 				mo_file = fs::fopen(TESTING_data_path / "no_space_for_strings_1.mo", "wb");
 				write_mo_head(mo_file, 2, 28, 36, 0, 44, reverse);
-				be(mo_file, (uint32_t)1);
-				be(mo_file, (uint32_t)44);
-				be(mo_file, (uint32_t)1);
-				be(mo_file, (uint32_t)44);
+				be(mo_file, 1u);
+				be(mo_file, 44u);
+				be(mo_file, 1u);
+				be(mo_file, 44u);
 				mo_file.store(a, sizeof(a));
 				mo_file.store(b, sizeof(b));
 
 				mo_file = fs::fopen(TESTING_data_path / "no_space_for_strings_2.mo", "wb");
 				write_mo_head(mo_file, 2, 28, 44, 0, 44, reverse);
-				be(mo_file, (uint32_t)1);
-				be(mo_file, (uint32_t)44);
-				be(mo_file, (uint32_t)1);
-				be(mo_file, (uint32_t)44);
+				be(mo_file, 1u);
+				be(mo_file, 44u);
+				be(mo_file, 1u);
+				be(mo_file, 44u);
 				mo_file.store(a, sizeof(a));
 				mo_file.store(b, sizeof(b));
 			}
@@ -281,9 +281,9 @@ namespace lngs::app::testing {
 		auto result = app::attributes(attrs);
 
 		size_t expected_attrs =
-			(culture ? 1 : 0) +
-			(language ? 1 : 0) +
-			(plurals ? 1 : 0);
+			(culture ? 1u : 0u) +
+			(language ? 1u : 0u) +
+			(plurals ? 1u : 0u);
 
 		EXPECT_EQ(expected_attrs, result.size());
 
@@ -300,7 +300,7 @@ namespace lngs::app::testing {
 			case EXPECT_ATTR(ATTR_PLURALS, plurals);
 			default:
 				GTEST_FAIL()
-					<< " Unknown key: " << (int)actual.key.id << "\n"
+					<< " Unknown key: " << actual.key.id << "\n"
 					<< " With value:  " << actual.value;
 			}
 		}

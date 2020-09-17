@@ -69,34 +69,43 @@ namespace lngs {
 
 }
 
+namespace {
+	inline auto from(HSTRINGS opaque) {
+		return reinterpret_cast<lngs::DllTranslation*>(opaque);
+	}
+}
+
 API(HSTRINGS, OpenStrings)(const char* path)
 {
 	auto tr = std::make_unique<lngs::DllTranslation>();
 	if (!tr->open(path))
 		return nullptr;
 
-	return (HSTRINGS)tr.release();
+	return reinterpret_cast<HSTRINGS>(tr.release());
 }
 
 API(const char*, ReadString)(HSTRINGS opaque, uint32_t id)
 {
-	auto tr = (lngs::DllTranslation*)opaque;
+	auto tr = from(opaque);
 	if (!tr)
 		return nullptr;
-	return tr->get_string((lngs::lang_file::identifier)id);
+	auto const ident = static_cast<lngs::lang_file::identifier>(id);
+	return tr->get_string(ident);
 }
 
 API(const char*, ReadStringPl)(HSTRINGS opaque, uint32_t id, intmax_t count)
 {
-	auto tr = (lngs::DllTranslation*)opaque;
+	auto tr = from(opaque);
 	if (!tr)
 		return nullptr;
-	return tr->get_string((lngs::lang_file::identifier)id, (lngs::lang_file::quantity)count);
+	auto const ident = static_cast<lngs::lang_file::identifier>(id);
+	auto const quantity = static_cast<lngs::lang_file::quantity>(count);
+	return tr->get_string(ident, quantity);
 }
 
 API(void, CloseStrings)(HSTRINGS opaque)
 {
-	auto tr = (lngs::DllTranslation*)opaque;
+	auto tr = from(opaque);
 	delete tr;
 }
 

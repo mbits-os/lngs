@@ -30,6 +30,7 @@
 #include <string>
 #include <string_view>
 #include <vector>
+#include <limits>
 
 namespace lngs {
 	std::vector<std::string> system_locales(bool init_setlocale = true);
@@ -177,7 +178,7 @@ namespace lngs {
 			{
 				m_file = std::make_shared<lang_file>();
 				memory_view view;
-				view.contents = (const std::byte*)ResourceT::data();
+				view.contents = reinterpret_cast<std::byte const*>(ResourceT::data());
 				view.size = ResourceT::size();
 				return m_file->open(view);
 			}
@@ -226,7 +227,7 @@ namespace lngs {
 			uint32_t find_key(std::string_view val) const noexcept
 			{
 				auto ret = B1::find_key(val);
-				if (ret != (uint32_t)-1)
+				if (ret != std::numeric_limits<uint32_t>::max())
 					return ret;
 				return B2::find_key(val);
 			}

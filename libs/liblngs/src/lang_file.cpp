@@ -24,11 +24,12 @@
 
 #include <lngs/lngs_file.hpp>
 #include <cstring>
+#include <limits>
 
 namespace lngs {
 	const string_key* lang_file::section::get(identifier id) const noexcept
 	{
-		const auto comp = (uint32_t)id;
+		const auto comp = static_cast<uint32_t>(id);
 		auto end = keys + count;
 		auto cur = keys;
 		while (end != cur) {
@@ -89,7 +90,7 @@ namespace lngs {
 		strings = in_strings;
 		keys = in_keys;
 		return true;
-	};
+	}
 
 	bool lang_file::open(const memory_view& view) noexcept
 	{
@@ -115,26 +116,27 @@ namespace lngs {
 				return false;
 		}
 
-		auto sec = static_cast<const section_header*>(fhdr);
+		auto sec = static_cast<section_header const*>(fhdr);
 		while (sec->id != lasttext_tag) {
 			const auto sec_ints = sec->ints + sizeof(section_header) / sizeof(uint32_t);
 			if (sec_ints >= ints)
 				return false;
 			uints += sec_ints;
 			ints -= sec_ints;
-			sec = reinterpret_cast<const section_header*>(uints);
+			sec = reinterpret_cast<section_header const*>(uints);
+			auto strsec = static_cast<string_header const*>(sec);
 
 			switch (sec->id) {
 			case attrtext_tag:
-				if (!attrs.read_strings((const string_header*)sec))
+				if (!attrs.read_strings(strsec))
 					return false;
 				break;
 			case strstext_tag:
-				if (!strings.read_strings((const string_header*)sec))
+				if (!strings.read_strings(strsec))
 					return false;
 				break;
 			case keystext_tag:
-				if (!keys.read_strings((const string_header*)sec))
+				if (!keys.read_strings(strsec))
 					return false;
 				break;
 			}
@@ -176,7 +178,7 @@ namespace lngs {
 
 			++pos;
 			cur = cur.substr(pos);
-			length -= (uint32_t)(pos);
+			length -= static_cast<uint32_t>(pos);
 		}
 
 		return cur.substr(0, cur.find('\x00', 0));
@@ -184,18 +186,18 @@ namespace lngs {
 
 	std::string_view lang_file::get_attr(uint32_t id) const noexcept
 	{
-		return attrs.string((identifier)id);
+		return attrs.string(static_cast<identifier>(id));
 	}
 
 	std::string_view lang_file::get_key(uint32_t id) const noexcept
 	{
-		return keys.string((identifier)id);
+		return keys.string(static_cast<identifier>(id));
 	}
 
 	uint32_t lang_file::find_key(std::string_view id) const noexcept
 	{
 		if (id.empty())
-			return (uint32_t)-1;
+			return std::numeric_limits<uint32_t>::max();
 
 		for (auto const& cur : keys) {
 			auto key = keys.string(cur);
@@ -204,13 +206,13 @@ namespace lngs {
 				return cur.id;
 		}
 
-		return (uint32_t)-1;
+		return std::numeric_limits<uint32_t>::max();
 	}
 
 	intmax_t lang_file::calc_substring(quantity count) const
 	{
 		if (!lex) {
-			auto entry = attrs.string((identifier)ATTR_PLURALS);
+			auto entry = attrs.string(static_cast<identifier>(ATTR_PLURALS));
 			if (!entry.empty())
 				lex = plurals::decode(entry);
 			if (!lex)
@@ -220,6 +222,6 @@ namespace lngs {
 				return 0;
 		}
 
-		return lex.eval((intmax_t) count);
+		return lex.eval(static_cast<intmax_t>(count));
 	}
 }

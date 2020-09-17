@@ -90,13 +90,13 @@ namespace lngs::app {
 	std::string argumented_string::str(const strings& tr) const {
 		struct string_builder : outstream {
 			std::string s;
-			std::size_t write(const void* buffer, std::size_t length) noexcept {
+			std::size_t write(void const* buffer, std::size_t length) noexcept {
 				try {
 					s.reserve(s.length() + length + 1);
 				} catch (std::bad_alloc&) {
 					return 0;
 				}
-				s.append((const char*)buffer, length);
+				s.append(static_cast<char const*>(buffer), length);
 				return length;
 			}
 		} out;
@@ -192,7 +192,7 @@ namespace lngs::app {
 					auto it = std::find(data, end, endline);
 
 					if (it != end) {
-						endlines_.push_back(it - content_.data());
+						endlines_.push_back(static_cast<size_t>(it - content_.data()));
 						continue;
 					}
 				}
@@ -333,11 +333,11 @@ namespace lngs::app {
 				o.write(line);
 				o.write('\n');
 				if (pos.column) {
-					for (unsigned i = 0; i < start_col; ++i)
+					for (size_t i = 0; i < start_col; ++i)
 						o.write(' ');
 					o.write('^');
 					if (end_pos.column) {
-						for (unsigned i = start_col + 1; i < end_col; ++i)
+						for (size_t i = start_col + 1; i < end_col; ++i)
 							o.write('~');
 					}
 					o.write('\n');

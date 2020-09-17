@@ -81,17 +81,17 @@ namespace lngs::app::testing {
 				o << std::hex;
 				for (auto c : utf::as_u32(s)) {
 					if (c <= 127) {
-						o << (char)c;
+						o << static_cast<char>(c);
 						continue;
 					}
 
 					o << '\\';
-					if (c <= 0xFFFF)
+					if (c <= 0xFFFFu)
 						o << 'u' << std::setw(4);
 					else
 						o << 'U' << std::setw(8);
 
-					o << std::setfill('0') << (int)c;
+					o << std::setfill('0') << static_cast<uint32_t>(c);
 				}
 				o << '\n' << std::dec;
 			}

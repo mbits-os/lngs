@@ -47,13 +47,14 @@ namespace lngs::testing {
 		for (auto const& str : defs.strings) {
 			auto expected = split_view(str.value, "\0"sv);
 			EXPECT_EQ(expected[0], file.get_string(static_cast<lang_file::identifier>(str.id)));
+			auto const unsiged_id = static_cast<uint32_t>(str.id);
 			if (with_keys) {
-				EXPECT_EQ(str.key, file.get_key(str.id));
+				EXPECT_EQ(str.key, file.get_key(unsiged_id));
 			} else {
 				if (!str.key.empty()) {
-					EXPECT_NE(str.key, file.get_key(str.id));
+					EXPECT_NE(str.key, file.get_key(unsiged_id));
 				}
-				EXPECT_EQ("", file.get_key(str.id));
+				EXPECT_EQ("", file.get_key(unsiged_id));
 			}
 		}
 
@@ -83,7 +84,7 @@ namespace lngs::testing {
 		} else {
 			for (auto const& str : defs.strings) {
 				auto id = file.find_key(str.key);
-				EXPECT_NE(str.id, (int)id);
+				EXPECT_NE(static_cast<uint32_t>(str.id), id);
 				auto expected = split_view(str.value, "\0"sv);
 				if (!expected[0].empty()) {
 					EXPECT_NE(expected[0], file.get_string(static_cast<lang_file::identifier>(id)));
@@ -124,11 +125,10 @@ namespace lngs::testing {
 			if (expected.size() > 1) {
 				for (intmax_t count = -100; count < 100; ++count) {
 					auto expected_plural = attrs.plural_map(count);
-					if (expected_plural < 0 || ((size_t)expected_plural) >= expected.size()) {
+					if (expected_plural < 0 || static_cast<size_t>(expected_plural) >= expected.size()) {
 						GTEST_FAIL() << "Mapping for " << count << " outside of tested range: " << expected_plural << " vs. " << str.value;
 					}
-					auto plural = (size_t)expected_plural;
-					EXPECT_EQ(expected[plural],
+					EXPECT_EQ(expected[static_cast<size_t>(expected_plural)],
 						file.get_string(
 							static_cast<lang_file::identifier>(str.id),
 							static_cast<lang_file::quantity>(count)
@@ -152,7 +152,7 @@ namespace lngs::testing {
 		else {
 			for (auto const& str : defs.strings) {
 				auto id = file.find_key(str.key);
-				EXPECT_NE(str.id, (int)id);
+				EXPECT_NE(static_cast<uint32_t>(str.id), id);
 				auto expected = split_view(str.value, "\0"sv);
 				if (!expected[0].empty()) {
 					EXPECT_NE(expected[0], file.get_string(static_cast<lang_file::identifier>(id)));

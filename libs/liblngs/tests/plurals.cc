@@ -188,7 +188,7 @@ namespace lngs::plurals::testing {
 		{"plural=n<5<2*n<n*n"sv, { R(0, 3).map([](intmax_t n) -> intmax_t { return ((n < 5) < 2 * n) < n * n; }) } },
 		{"plural=n==5!=0*n"sv, { R(0, 6).map([](intmax_t n) -> intmax_t { return (n == 5) != 0; }) } },
 		{"plural=n&&n<2||n>5&&10>n"sv, { R(0, 10).map([](intmax_t n) -> intmax_t { return (n && n < 2) || (n > 5 && 10 > n); }) } },
-		{"plural=n||n<2&&n>5||10>n"sv, { R(0, 10).map([](intmax_t n) -> intmax_t { return n || (n < 2 && n > 5) || 10 > n; }) } },
+		{"plural=n||n>2&&n<5||10>n"sv, { R(0, 10).map([](intmax_t n) -> intmax_t { return n || (n > 2 && n < 5) || 10 > n; }) } },
 		{"plural=n!=1?!n:n"sv, { R(0,1) <= 1, R(2,100) <= 0 } },
 	};
 

@@ -28,4 +28,4 @@ namespace lngs {
 	version_type get_version() {
 		return version;
 	}
-};
+}

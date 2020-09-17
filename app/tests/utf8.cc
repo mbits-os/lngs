@@ -98,19 +98,23 @@ namespace utf::testing {
 
 	template <class ... Char>
 	std::u32string utf32(Char ... chars) {
-		char32_t data[] = { char32_t(chars)..., 0u };
+		char32_t data[] = { static_cast<char32_t>(chars)..., 0u };
 		return data;
 	}
 
 	template <class ... Char>
 	std::u16string utf16(Char ... chars) {
-		char16_t data[] = { char16_t(chars)..., 0u };
+		char16_t data[] = { static_cast<char16_t>(chars)..., 0u };
 		return data;
 	}
 
+	template <class Char>
+	char u2s(Char c) {
+		return static_cast<char>(static_cast<unsigned char>(c));
+	}
 	template <class ... Char>
 	std::string utf8(Char ... chars) {
-		char data[] = { (char)(unsigned char)(chars)..., 0u };
+		char data[] = { u2s(chars)..., 0u };
 		return data;
 	}
 

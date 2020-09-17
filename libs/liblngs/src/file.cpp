@@ -94,6 +94,6 @@ size_t file::store(const void* buffer, size_t length) const noexcept
 
 file fopen(const path& file, char const* mode) noexcept {
 	return { file, mode };
-};
+}
 
 }

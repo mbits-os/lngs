@@ -99,7 +99,7 @@ namespace lngs::app::testing {
 		EXPECT_TRUE(src.valid());
 		EXPECT_EQ(src.line(0), ""sv) << "Line: 0";
 
-		for (size_t ln = 2 * std::size(raven); ln > 0; --ln) {
+		for (unsigned ln = 2 * static_cast<unsigned>(std::size(raven)); ln > 0; --ln) {
 			if (ln <= std::size(raven)) {
 				EXPECT_EQ(src.line(ln), raven[ln - 1]) << "Line: " << ln;
 			}
@@ -116,7 +116,7 @@ namespace lngs::app::testing {
 		EXPECT_FALSE(src.valid());
 		EXPECT_EQ(src.line(0), ""sv) << "Line: 0";
 
-		for (size_t ln = 12; ln > 0; --ln) {
+		for (unsigned ln = 12; ln > 0; --ln) {
 			EXPECT_EQ(src.line(ln), ""sv) << "Line: " << ln;
 		}
 		EXPECT_TRUE(src.valid());

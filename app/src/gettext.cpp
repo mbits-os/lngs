@@ -113,7 +113,7 @@ namespace gtt {
 			auto chunk = off + i * 8;
 			auto length = intFromOffset(chunk);
 			auto offset = intFromOffset(chunk + 4);
-			return{ (const char*)m_ref.data() + offset, length };
+			return{ reinterpret_cast<const char*>(m_ref.data()) + offset, length };
 		}
 	};
 

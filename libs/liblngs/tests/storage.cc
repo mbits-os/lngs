@@ -33,7 +33,7 @@ namespace lngs::storage::testing {
 
 	struct vector_resource {
 		static const std::vector<std::byte>* bytes;
-		static const char* data() { return (const char*)bytes->data(); }
+		static const char* data() { return reinterpret_cast<const char*>(bytes->data()); }
 		static std::size_t size() { return bytes->size(); }
 	};
 	const std::vector<std::byte>* vector_resource::bytes{nullptr};

@@ -94,4 +94,4 @@ namespace lngs::app {
     };
 
     using Strings = lngs::SingularStrings<lng, lngs::storage::FileWithBuiltin<Resource>>;
-}; // namespace lngs
+} // namespace lngs

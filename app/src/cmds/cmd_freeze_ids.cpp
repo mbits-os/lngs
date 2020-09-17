@@ -49,12 +49,12 @@ namespace lngs::app::freeze {
 		return true;
 	}
 
-	constexpr std::byte operator""_b(char c) { return (std::byte) c; }
-	std::pair<int, int> value_pos(const std::byte* start)
+	constexpr std::byte operator""_b(char c) { return static_cast<std::byte>(c); }
+	std::pair<size_t, size_t> value_pos(const std::byte* start)
 	{
-		int first = 0;
+		size_t first = 0;
 		while (*start != '('_b) ++start, ++first;
-		int second = first;
+		size_t second = first;
 		while (*start != ')'_b) ++start, ++second;
 
 		return{ first, second };
@@ -64,17 +64,19 @@ namespace lngs::app::freeze {
 	{
 		const auto& data = source.data();
 		const std::byte* bytes = data.data();
-		int offset = 0;
-		auto [from, to] = value_pos(bytes + defs.serial_offset);
-		out.write(bytes, defs.serial_offset + from + 1);
+		size_t offset = 0;
+		auto const serial_offset = static_cast<size_t>(defs.serial_offset);
+		auto [from, to] = value_pos(bytes + serial_offset);
+		out.write(bytes, serial_offset + from + 1);
 		out.fmt("{}", defs.serial);
-		offset = defs.serial_offset + to;
+		offset = serial_offset + to;
 
 		for (auto& str : defs.strings) {
-			auto[str_from, str_to] = value_pos(bytes + str.id_offset);
-			out.write(bytes + offset, str.id_offset + str_from + 1 - offset);
+			auto const id_offset = static_cast<size_t>(str.id_offset);
+			auto[str_from, str_to] = value_pos(bytes + id_offset);
+			out.write(bytes + offset, id_offset + str_from + 1 - offset);
 			out.fmt("{}", str.id);
-			offset = str.id_offset + str_to;
+			offset = id_offset + str_to;
 		}
 
 		out.write(bytes + offset, data.size() - offset);

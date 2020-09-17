@@ -43,7 +43,7 @@ namespace lngs::app {
 		tr_string(uint32_t id, std::string val) : value(std::move(val))
 		{
 			key.id = id;
-			key.length = (uint32_t)value.length();
+			key.length = static_cast<uint32_t>(value.length());
 		}
 	};
 

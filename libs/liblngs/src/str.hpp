@@ -28,6 +28,12 @@
 #include <string_view>
 #include <cctype>
 
+namespace {
+	unsigned char s2uc(char c) {
+		return static_cast<unsigned char>(c);
+	}
+}
+
 inline std::vector<std::string_view> split_view(std::string_view str, std::string_view sep)
 {
 	std::vector<std::string_view> out;
@@ -84,10 +90,10 @@ inline std::string strip(std::string_view s) {
 	auto b = std::begin(s);
 	auto e = std::end(s);
 
-	while (b != e && std::isspace((uint8_t)b[0]))
+	while (b != e && std::isspace(s2uc(b[0])))
 		++b;
 
-	while (b != e && std::isspace((uint8_t)e[-1]))
+	while (b != e && std::isspace(s2uc(e[-1])))
 		--e;
 
 	return{ b, e };
