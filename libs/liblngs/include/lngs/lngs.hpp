@@ -30,48 +30,46 @@ namespace lngs {
 	template <typename Enum, typename Storage = storage::FileBased>
 	class SingularStrings : public Storage {
 	public:
-		std::string operator()(Enum val) const noexcept
-		{
+		std::string operator()(Enum val) const noexcept {
 			auto const id = static_cast<lang_file::identifier>(val);
 			auto ptr = Storage::get_string(id);
-			return !ptr.empty() ? std::string{ ptr } : std::string{ };
+			return !ptr.empty() ? std::string{ptr} : std::string{};
 		}
 
-		std::string attr(v1_0::attr_t val) const noexcept
-		{
+		std::string attr(v1_0::attr_t val) const noexcept {
 			auto ptr = Storage::get_attr(val);
-			return !ptr.empty() ? std::string{ ptr } : std::string{ };
+			return !ptr.empty() ? std::string{ptr} : std::string{};
 		}
 	};
 
 	template <typename Enum, typename Storage = storage::FileBased>
 	class PluralOnlyStrings : public Storage {
 	public:
-		std::string operator()(Enum val, intmax_t count) const noexcept
-		{
+		std::string operator()(Enum val, intmax_t count) const noexcept {
 			auto const id = static_cast<lang_file::identifier>(val);
 			auto const quantity = static_cast<lang_file::quantity>(count);
 			auto ptr = Storage::get_string(id, quantity);
-			return !ptr.empty() ? std::string{ ptr } : std::string{ };
+			return !ptr.empty() ? std::string{ptr} : std::string{};
 		}
 
-		std::string attr(v1_0::attr_t val) const noexcept
-		{
+		std::string attr(v1_0::attr_t val) const noexcept {
 			auto ptr = Storage::get_attr(val);
-			return !ptr.empty() ? std::string{ ptr } : std::string{ };
+			return !ptr.empty() ? std::string{ptr} : std::string{};
 		}
 	};
 
-	template <typename SEnum, typename PEnum, typename Storage = storage::FileBased>
+	template <typename SEnum,
+	          typename PEnum,
+	          typename Storage = storage::FileBased>
 	class StringsWithPlurals : public SingularStrings<SEnum, Storage> {
 	public:
-		using SingularStrings<SEnum, Storage>::operator(); // un-hide
-		std::string operator()(PEnum val, intmax_t count) const noexcept
-		{
+		using SingularStrings<SEnum, Storage>::operator();  // un-hide
+		std::string operator()(PEnum val, intmax_t count) const noexcept {
 			auto const id = static_cast<lang_file::identifier>(val);
 			auto const quantity = static_cast<lang_file::quantity>(count);
-			auto ptr = SingularStrings<SEnum, Storage>::get_string(id, quantity);
-			return !ptr.empty() ? std::string{ ptr } : std::string{ };
+			auto ptr =
+			    SingularStrings<SEnum, Storage>::get_string(id, quantity);
+			return !ptr.empty() ? std::string{ptr} : std::string{};
 		}
 	};
-}
+}  // namespace lngs

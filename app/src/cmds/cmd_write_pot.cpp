@@ -22,13 +22,13 @@
  * SOFTWARE.
  */
 
+#include <algorithm>
 #include <ctime>
 #include <iterator>
-#include <algorithm>
 
 #include <lngs/internals/commands.hpp>
-#include <lngs/internals/strings.hpp>
 #include <lngs/internals/streams.hpp>
+#include <lngs/internals/strings.hpp>
 
 namespace lngs::app {
 	std::string straighten(std::string str) {
@@ -36,7 +36,7 @@ namespace lngs::app {
 			if (c == '\n') c = ' ';
 		return str;
 	}
-}
+}  // namespace lngs::app
 
 namespace lngs::app::pot {
 	auto now_recalc() {
@@ -69,26 +69,45 @@ namespace lngs::app::pot {
 		out.reserve(in.length() * 11 / 10);
 		for (auto c : in) {
 			switch (c) {
-			case '\\': out.append("\\\\"); break;
-			case '\a': out.append("\\a"); break;
-			case '\b': out.append("\\b"); break;
-			case '\f': out.append("\\f"); break;
-			case '\n': out.append("\\n"); break;
-			case '\r': out.append("\\r"); break;
-			case '\t': out.append("\\t"); break;
-			case '\v': out.append("\\v"); break;
-			case '\"': out.append("\\\""); break;
-			default:
-				out.push_back(c);
+				case '\\':
+					out.append("\\\\");
+					break;
+				case '\a':
+					out.append("\\a");
+					break;
+				case '\b':
+					out.append("\\b");
+					break;
+				case '\f':
+					out.append("\\f");
+					break;
+				case '\n':
+					out.append("\\n");
+					break;
+				case '\r':
+					out.append("\\r");
+					break;
+				case '\t':
+					out.append("\\t");
+					break;
+				case '\v':
+					out.append("\\v");
+					break;
+				case '\"':
+					out.append("\\\"");
+					break;
+				default:
+					out.push_back(c);
 			}
 		}
 		return out;
 	}
 
-	int write(outstream& out, const idl_strings& defs, const info& nfo)
-	{
-		auto has_plurals = find_if(begin(defs.strings), end(defs.strings),
-			[](auto& str) { return !str.plural.empty(); }) != end(defs.strings);
+	int write(outstream& out, const idl_strings& defs, const info& nfo) {
+		auto has_plurals =
+		    find_if(begin(defs.strings), end(defs.strings), [](auto& str) {
+			    return !str.plural.empty();
+		    }) != end(defs.strings);
 
 		out.fmt(R"(# {5}.
 # Copyright (C) {0} {3}
@@ -110,10 +129,10 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 )",
 
-/*0*/ thisYear(),
-/*1*/ defs.project, /*2*/ defs.version,
-/*3*/ nfo.copy, /*4*/ nfo.first_author, /*5*/ nfo.title,
-/*6*/ creationDate());
+		        /*0*/ thisYear(),
+		        /*1*/ defs.project, /*2*/ defs.version,
+		        /*3*/ nfo.copy, /*4*/ nfo.first_author, /*5*/ nfo.title,
+		        /*6*/ creationDate());
 
 		if (has_plurals)
 			out.fmt(R"("Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -121,16 +140,17 @@ msgstr ""
 
 		std::vector<std::string> ids;
 		ids.reserve(defs.strings.size());
-		transform(begin(defs.strings), end(defs.strings), back_inserter(ids), [](auto& str) {return str.key; });
+		transform(begin(defs.strings), end(defs.strings), back_inserter(ids),
+		          [](auto& str) { return str.key; });
 		sort(begin(ids), end(ids));
 
 		for (auto& id : ids) {
-			auto it = find_if(begin(defs.strings), end(defs.strings), [&](auto& str) { return str.key == id; });
+			auto it = find_if(begin(defs.strings), end(defs.strings),
+			                  [&](auto& str) { return str.key == id; });
 
 			auto& def = *it;
 			out.fmt("\n");
-			if (!def.help.empty())
-				out.fmt("#. {}\n", def.help);
+			if (!def.help.empty()) out.fmt("#. {}\n", def.help);
 			out.fmt("msgctxt \"{}\"\n", def.key);
 			out.fmt("msgid \"{}\"\n", escape(def.value));
 			if (def.plural.empty())
@@ -146,4 +166,4 @@ msgstr ""
 
 		return 0;
 	}
-}
+}  // namespace lngs::app::pot

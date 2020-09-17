@@ -23,12 +23,11 @@
  */
 
 #include <lngs/internals/commands.hpp>
-#include <lngs/internals/strings.hpp>
 #include <lngs/internals/streams.hpp>
+#include <lngs/internals/strings.hpp>
 
 namespace lngs::app::py {
-	int write(outstream& out, const idl_strings& defs)
-	{
+	int write(outstream& out, const idl_strings& defs) {
 		out.fmt(R"(#!/usr/bin/python
 # -*- coding: UTF-8 -*-
 
@@ -50,30 +49,25 @@ namespace lngs::app::py {
 			auto help = straighten(str.help);
 
 			out.fmt("{0} = {1} # {2}", str.key, str.id, message);
-			if (!help.empty())
-				out.fmt(" ({})", help.c_str());
+			if (!help.empty()) out.fmt(" ({})", help.c_str());
 			out.fmt("\n");
 		}
 
-		if (has_singular && has_plural)
-			out.fmt("\n");
+		if (has_singular && has_plural) out.fmt("\n");
 
 		for (auto& str : defs.strings) {
-			if (str.plural.empty())
-				continue;
+			if (str.plural.empty()) continue;
 
 			auto message = straighten(str.value);
 			auto plural = straighten(str.plural);
 			auto help = straighten(str.help);
 
 			out.fmt("{0} = {1} # {2}", str.key, str.id, message);
-			if (!plural.empty())
-				out.fmt(" | {}", plural.c_str());
-			if (!help.empty())
-				out.fmt(" ({})", help.c_str());
+			if (!plural.empty()) out.fmt(" | {}", plural.c_str());
+			if (!help.empty()) out.fmt(" ({})", help.c_str());
 			out.fmt("\n");
 		}
 
 		return 0;
 	}
-}
+}  // namespace lngs::app::py

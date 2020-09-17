@@ -46,7 +46,7 @@ extern "C" {
 
 typedef struct StringsTag {
 	int _Placeholder;
-} *HSTRINGS;
+} * HSTRINGS;
 
 STRINGS_API(HSTRINGS) OpenStrings(const char* path);
 STRINGS_API(const char*) ReadString(HSTRINGS, uint32_t);

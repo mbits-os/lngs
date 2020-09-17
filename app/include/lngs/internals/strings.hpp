@@ -50,5 +50,9 @@ namespace lngs::app {
 	class diagnostics;
 	class source_file;
 	bool read_strings(source_file in, idl_strings& str, diagnostics& diag);
-	bool read_strings(const std::string& progname, const fs::path& inname, idl_strings& str, bool verbose, diagnostics& diag);
-}
+	bool read_strings(const std::string& progname,
+	                  const fs::path& inname,
+	                  idl_strings& str,
+	                  bool verbose,
+	                  diagnostics& diag);
+}  // namespace lngs::app

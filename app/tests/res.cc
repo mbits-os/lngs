@@ -1,21 +1,22 @@
 #include <gtest/gtest.h>
-#include "diag_helper.h"
-#include <lngs/internals/strings/lngs.hpp>
 #include <lngs/internals/commands.hpp>
-#include <lngs/internals/strings.hpp>
 #include <lngs/internals/languages.hpp>
+#include <lngs/internals/strings.hpp>
+#include <lngs/internals/strings/lngs.hpp>
 #include <lngs/internals/utf8.hpp>
-#include "strings_helper.h"
+#include "diag_helper.h"
 #include "ostrstream.h"
+#include "strings_helper.h"
 
 namespace lngs {
 	void PrintTo(const string_key& key, std::ostream* o) {
 		*o << '(' << key.id << ',' << key.length << '@' << key.offset << ')';
 	}
 	bool operator==(const string_key& lhs, const string_key& rhs) {
-		return lhs.id == rhs.id && lhs.length == rhs.length && lhs.offset == rhs.offset;
+		return lhs.id == rhs.id && lhs.length == rhs.length &&
+		       lhs.offset == rhs.offset;
 	}
-}
+}  // namespace lngs
 
 namespace lngs::app {
 	void PrintTo(const tr_string& s, std::ostream* o) {
@@ -26,28 +27,22 @@ namespace lngs::app {
 	bool operator==(const tr_string& lhs, const tr_string& rhs) {
 		return lhs.key == rhs.key && lhs.value == rhs.value;
 	}
-}
+}  // namespace lngs::app
 
 namespace lngs::app::testing {
 	using namespace ::std::literals;
 	using ::testing::TestWithParam;
 	using ::testing::ValuesIn;
 
-	enum class Keys {
-		Exclude = false,
-		Include = true
-	};
+	enum class Keys { Exclude = false, Include = true };
 
-	enum class Result {
-		Unmodifed = false,
-		Warped = true
-	};
+	enum class Result { Unmodifed = false, Warped = true };
 
 	struct make_result {
 		idl_strings input;
 		file output;
-		Keys with_keys{ Keys::Exclude };
-		Result wrapped_string{ Result::Unmodifed };
+		Keys with_keys{Keys::Exclude};
+		Result wrapped_string{Result::Unmodifed};
 	};
 
 	struct res_make : TestWithParam<make_result> {
@@ -55,7 +50,10 @@ namespace lngs::app::testing {
 			const std::vector<tr_string>& expected;
 			const std::vector<tr_string>& actual;
 
-			static void print(std::ostream& o, char prefix, const std::vector<tr_string>& list, size_t skip) {
+			static void print(std::ostream& o,
+			                  char prefix,
+			                  const std::vector<tr_string>& list,
+			                  size_t skip) {
 				for (size_t i = skip; i < list.size(); ++i) {
 					const auto& str = list[i];
 					o << "  " << prefix;
@@ -64,11 +62,14 @@ namespace lngs::app::testing {
 				}
 			}
 
-			friend std::ostream& operator<<(std::ostream& o, const UnexpectedStrings& data) {
+			friend std::ostream& operator<<(std::ostream& o,
+			                                const UnexpectedStrings& data) {
 				if (data.actual.size() > data.expected.size())
-					UnexpectedStrings::print(o, '+', data.actual, data.expected.size());
+					UnexpectedStrings::print(o, '+', data.actual,
+					                         data.expected.size());
 				else
-					UnexpectedStrings::print(o, '-', data.expected, data.actual.size());
+					UnexpectedStrings::print(o, '-', data.expected,
+					                         data.actual.size());
 				return o;
 			}
 		};
@@ -104,145 +105,166 @@ namespace lngs::app::testing {
 	};
 
 	TEST_P(res_make, convert) {
-		auto[input, expected, with_keys, wrapped_strings] = GetParam();
+		auto [input, expected, with_keys, wrapped_strings] = GetParam();
 
-		auto file = res::make_resource(input, wrapped_strings == Result::Warped, with_keys == Keys::Include);
+		auto file = res::make_resource(input, wrapped_strings == Result::Warped,
+		                               with_keys == Keys::Include);
 
 		EXPECT_EQ(expected.serial, file.serial);
-#define EXPECT_STRINGS(name) \
-		EXPECT_EQ(expected.name.size(), file.name.size()) << UnexpectedStrings{ expected.name, file.name }; \
-		{ \
-			size_t max = std::min(expected.name.size(), file.name.size()); \
-			for (size_t i = 0; i < max; ++i) { \
-				EXPECT_EQ(expected.name[i], file.name[i]) << Bytes{expected.name[i].value, file.name[i].value}; \
-				EXPECT_EQ(utf::as_u32(expected.name[i].value), utf::as_u32(file.name[i].value)); \
-			} \
-		}
+#define EXPECT_STRINGS(name)                                           \
+	EXPECT_EQ(expected.name.size(), file.name.size())                  \
+	    << UnexpectedStrings{expected.name, file.name};                \
+	{                                                                  \
+		size_t max = std::min(expected.name.size(), file.name.size()); \
+		for (size_t i = 0; i < max; ++i) {                             \
+			EXPECT_EQ(expected.name[i], file.name[i])                  \
+			    << Bytes{expected.name[i].value, file.name[i].value};  \
+			EXPECT_EQ(utf::as_u32(expected.name[i].value),             \
+			          utf::as_u32(file.name[i].value));                \
+		}                                                              \
+	}
 		EXPECT_STRINGS(strings);
 		EXPECT_STRINGS(keys);
 		EXPECT_STRINGS(attrs);
 	}
 
 	inline tr_string make_str(uint32_t id, std::string val) {
-		return { id, std::move(val) };
+		return {id, std::move(val)};
 	}
 
 	const make_result make_strings[] = {
-		{
-		},
-		{
-			test_strings(1234567).make(
-				test_string(1001, "ID", "value")
-			),
-			{
-				1234567,
-				{},
-				{
-					make_str(1001, "value")
-				}
-			}
-		},
-		{
-			test_strings(1234567).make(
-				test_string(1001, "ID", "value")
-			),
-			{
-				1234567,
-				{},
-				{
-					make_str(1001, "value")
-				},
-				{
-					make_str(1001, "ID")
-				}
-			},
-			Keys::Include
-		},
-		{
-			test_strings(1234567).make(
-				test_string(1001, "ID", "value", PluralStr{"values"})
-			),
-			{
-				1234567,
-				{
-					make_str(ATTR_PLURALS, "nplurals=2; plural=(n != 1);")
-				},
-				{
-					make_str(1001, "value\0values"s)
-				}
-			}
-		},
-		{
-			test_strings(1234567).make(
-				test_string(1001, "ID", "value", PluralStr{"values"})
-			),
-			{
-				1234567,
-				{
-					make_str(ATTR_PLURALS, "nplurals=2; plural=(n != 1);")
-				},
-				{
-					make_str(1001, "value\0values"s)
-				},
-				{
-					make_str(1001, "ID")
-				}
-			},
-			Keys::Include
-		},
-		{
-			test_strings(1234567).make(
-				test_string(1001, "ID", "value", PluralStr{"values"}),
-				test_string(1002, "ID_PANGRAM_LOWER", "the quick brown fox jumps over a lazy dog"),
-				test_string(1003, "ID_PANGRAM_UPPER", "THE QUICK BROWN FOX JUMPS OVER A LAZY DOG")
-			),
-			{
-				1234567,
-				{
-					make_str(ATTR_PLURALS, "nplurals=2; plural=(n != 1);")
-				},
-				{
-					make_str(1001, u8"v\u0227\u013a\u0169\u00ea\0v\u0227\u013a\u0169\u00ea\u015f"s),
-					make_str(1002, u8"\u0167\u0125\u00ea q\u0169\u00ef\u00e7\u0137 \u018b\u0213\u00f4\u0175\u00f1 "
-								   u8"\u0192\u00f4x \u0135\u0169mp\u015f \u00f4v\u00ea\u0213 \u0227 "
-								   u8"\u013a\u0227\u0225\u00ff \u0111\u00f4\u011f"),
-					make_str(1003, u8"\u023e\u0126\u0204 Q\u00d9\u00cd\u00c7\u0136 \u00df\u0154\u00d6\u0174\u00d1 "
-								   u8"\u0191\u00d6X \u0134\u00d9MP\u015e \u00d6V\u0204\u0154 \u00c4 "
-								   u8"\u023d\u00c4\u0224\u00dd \u00d0\u00d6\u0120")
-				}
-			},
-			Keys::Exclude,
-			Result::Warped
-		},
-		{
-			test_strings(1234567).make(
-				test_string(1001, "ID", "value", PluralStr{"values"}),
-				test_string(1002, "ID_PANGRAM_LOWER", "the quick brown fox jumps over a lazy dog \"01234569\""),
-				test_string(1003, "ID_PANGRAM_UPPER", "THE QUICK BROWN FOX JUMPS OVER A LAZY DOG \"01234569\"")
-			),
-			{
-				1234567,
-				{
-					make_str(ATTR_PLURALS, "nplurals=2; plural=(n != 1);")
-				},
-				{
-					make_str(1001, u8"v\u0227\u013a\u0169\u00ea\0v\u0227\u013a\u0169\u00ea\u015f"s),
-					make_str(1002, u8"\u0167\u0125\u00ea q\u0169\u00ef\u00e7\u0137 \u018b\u0213\u00f4\u0175\u00f1 "
-								   u8"\u0192\u00f4x \u0135\u0169mp\u015f \u00f4v\u00ea\u0213 \u0227 "
-								   u8"\u013a\u0227\u0225\u00ff \u0111\u00f4\u011f ?01234569?"),
-					make_str(1003, u8"\u023e\u0126\u0204 Q\u00d9\u00cd\u00c7\u0136 \u00df\u0154\u00d6\u0174\u00d1 "
-								   u8"\u0191\u00d6X \u0134\u00d9MP\u015e \u00d6V\u0204\u0154 \u00c4 "
-								   u8"\u023d\u00c4\u0224\u00dd \u00d0\u00d6\u0120 ?01234569?")
-				},
-				{
-					make_str(1001, "ID"),
-					make_str(1002, "ID_PANGRAM_LOWER"),
-					make_str(1003, "ID_PANGRAM_UPPER")
-				}
-			},
-			Keys::Include,
-			Result::Warped
-		}
+	    {},
+	    {
+	        test_strings(1234567).make(test_string(1001, "ID", "value")),
+	        {
+	            1234567,
+	            {},
+	            {
+	                make_str(1001, "value"),
+	            },
+	        },
+	    },
+	    {
+	        test_strings(1234567).make(test_string(1001, "ID", "value")),
+	        {
+	            1234567,
+	            {},
+	            {
+	                make_str(1001, "value"),
+	            },
+	            {
+	                make_str(1001, "ID"),
+	            },
+	        },
+	        Keys::Include,
+	    },
+	    {
+	        test_strings(1234567).make(
+	            test_string(1001, "ID", "value", PluralStr{"values"})),
+	        {
+	            1234567,
+	            {
+	                make_str(ATTR_PLURALS, "nplurals=2; plural=(n != 1);"),
+	            },
+	            {
+	                make_str(1001, "value\0values"s),
+	            },
+	        },
+	    },
+	    {
+	        test_strings(1234567).make(
+	            test_string(1001, "ID", "value", PluralStr{"values"})),
+	        {
+	            1234567,
+	            {
+	                make_str(ATTR_PLURALS, "nplurals=2; plural=(n != 1);"),
+	            },
+	            {
+	                make_str(1001, "value\0values"s),
+	            },
+	            {
+	                make_str(1001, "ID"),
+	            },
+	        },
+	        Keys::Include,
+	    },
+	    {
+	        test_strings(1234567).make(
+	            test_string(1001, "ID", "value", PluralStr{"values"}),
+	            test_string(1002,
+	                        "ID_PANGRAM_LOWER",
+	                        "the quick brown fox jumps over a lazy dog"),
+	            test_string(1003,
+	                        "ID_PANGRAM_UPPER",
+	                        "THE QUICK BROWN FOX JUMPS OVER A LAZY DOG")),
+	        {
+	            1234567,
+	            {
+	                make_str(ATTR_PLURALS, "nplurals=2; plural=(n != 1);"),
+	            },
+	            {
+	                make_str(
+	                    1001,
+	                    u8"v\u0227\u013a\u0169\u00ea\0v\u0227\u013a\u0169\u00ea\u015f"s),
+	                make_str(
+	                    1002,
+	                    u8"\u0167\u0125\u00ea q\u0169\u00ef\u00e7\u0137 "
+	                    u8"\u018b\u0213\u00f4\u0175\u00f1 \u0192\u00f4x "
+	                    u8"\u0135\u0169mp\u015f \u00f4v\u00ea\u0213 \u0227 "
+	                    u8"\u013a\u0227\u0225\u00ff \u0111\u00f4\u011f"),
+	                make_str(
+	                    1003,
+	                    u8"\u023e\u0126\u0204 Q\u00d9\u00cd\u00c7\u0136 "
+	                    u8"\u00df\u0154\u00d6\u0174\u00d1 \u0191\u00d6X "
+	                    u8"\u0134\u00d9MP\u015e \u00d6V\u0204\u0154 \u00c4 "
+	                    u8"\u023d\u00c4\u0224\u00dd \u00d0\u00d6\u0120"),
+	            },
+	        },
+	        Keys::Exclude,
+	        Result::Warped,
+	    },
+	    {
+	        test_strings(1234567).make(
+	            test_string(1001, "ID", "value", PluralStr{"values"}),
+	            test_string(
+	                1002,
+	                "ID_PANGRAM_LOWER",
+	                "the quick brown fox jumps over a lazy dog \"01234569\""),
+	            test_string(
+	                1003,
+	                "ID_PANGRAM_UPPER",
+	                "THE QUICK BROWN FOX JUMPS OVER A LAZY DOG \"01234569\"")),
+	        {1234567,
+	         {
+	             make_str(ATTR_PLURALS, "nplurals=2; plural=(n != 1);"),
+	         },
+	         {
+	             make_str(
+	                 1001,
+	                 u8"v\u0227\u013a\u0169\u00ea\0v\u0227\u013a\u0169\u00ea\u015f"s),
+	             make_str(1002,
+	                      u8"\u0167\u0125\u00ea q\u0169\u00ef\u00e7\u0137 "
+	                      u8"\u018b\u0213\u00f4\u0175\u00f1 \u0192\u00f4x "
+	                      u8"\u0135\u0169mp\u015f \u00f4v\u00ea\u0213 \u0227 "
+	                      u8"\u013a\u0227\u0225\u00ff \u0111\u00f4\u011f "
+	                      u8"?01234569?"),
+	             make_str(
+	                 1003,
+	                 u8"\u023e\u0126\u0204 Q\u00d9\u00cd\u00c7\u0136 "
+	                 u8"\u00df\u0154\u00d6\u0174\u00d1 "
+	                 u8"\u0191\u00d6X \u0134\u00d9MP\u015e \u00d6V\u0204\u0154 "
+	                 u8"\u00c4 "
+	                 u8"\u023d\u00c4\u0224\u00dd \u00d0\u00d6\u0120 "
+	                 u8"?01234569?"),
+	         },
+	         {
+	             make_str(1001, "ID"),
+	             make_str(1002, "ID_PANGRAM_LOWER"),
+	             make_str(1003, "ID_PANGRAM_UPPER"),
+	         }},
+	        Keys::Include,
+	        Result::Warped,
+	    },
 	};
 
 	INSTANTIATE_TEST_SUITE_P(strings, res_make, ValuesIn(make_strings));
@@ -257,13 +279,11 @@ namespace lngs::app::testing {
 		const size_t chars;
 		std::string contents;
 
-		partial_ostrstream(size_t chars) : chars{ chars } {}
+		partial_ostrstream(size_t chars) : chars{chars} {}
 
-		std::size_t write(const void* data, std::size_t length) noexcept final
-		{
+		std::size_t write(const void* data, std::size_t length) noexcept final {
 			auto rest = chars > contents.size() ? chars - contents.size() : 0;
-			if (length > rest)
-				length = rest;
+			if (length > rest) length = rest;
 
 			auto b = static_cast<const char*>(data);
 			auto e = b + length;
@@ -276,7 +296,7 @@ namespace lngs::app::testing {
 	struct res_write : TestWithParam<write_result> {};
 
 	TEST_P(res_write, compile) {
-		auto[input, include, project, expected] = GetParam();
+		auto [input, include, project, expected] = GetParam();
 
 		outstrstream actual;
 		res::update_and_write(actual, input, include, project);
@@ -284,55 +304,57 @@ namespace lngs::app::testing {
 	}
 
 	TEST_P(res_write, partial_middle) {
-		auto[input, include, project, expected] = GetParam();
+		auto [input, include, project, expected] = GetParam();
 
 		const auto pos1 = expected.find("const char __resource[] = {") + 27;
 		const auto pos2 = expected.find("}; // __resource", pos1);
 
-		partial_ostrstream actual{ pos1 + (pos2 - pos1) / 2 };
+		partial_ostrstream actual{pos1 + (pos2 - pos1) / 2};
 		res::update_and_write(actual, input, include, project);
 		EXPECT_EQ(expected.substr(0, actual.chars), actual.contents);
 	}
 
 	TEST_P(res_write, partial_start) {
-		auto[input, include, project, expected] = GetParam();
+		auto [input, include, project, expected] = GetParam();
 
 		const auto pos = expected.find("const char __resource[] = {") + 30;
 
-		partial_ostrstream actual{ pos };
+		partial_ostrstream actual{pos};
 		res::update_and_write(actual, input, include, project);
 		EXPECT_EQ(expected.substr(0, actual.chars), actual.contents);
 	}
 
 	TEST_P(res_write, partial_endline) {
-		auto[input, include, project, expected] = GetParam();
+		auto [input, include, project, expected] = GetParam();
 
 		const auto pos1 = expected.find("const char __resource[] = {") + 27;
 		const auto pos2 = expected.find("}; // __resource", pos1);
 		const auto pos = expected.rfind("\"\n", pos2);
 
-		partial_ostrstream actual{ pos };
+		partial_ostrstream actual{pos};
 		res::update_and_write(actual, input, include, project);
 		EXPECT_EQ(expected.substr(0, actual.chars), actual.contents);
 	}
 
 	TEST_P(res_write, partial_finalize) {
-		auto[input, include, project, expected] = GetParam();
+		auto [input, include, project, expected] = GetParam();
 
 		const auto pos1 = expected.find("const char __resource[] = {") + 27;
 		const auto pos = expected.find("\"\n", pos1) + 1;
 
-		partial_ostrstream actual{ pos };
+		partial_ostrstream actual{pos};
 		res::update_and_write(actual, input, include, project);
 		EXPECT_EQ(expected.substr(0, actual.chars), actual.contents);
 	}
 
 	const write_result write_resources[] = {
-		{
-			{}, {}, {},
-			R"(// THIS FILE IS AUTOGENERATED
+	    {{},
+	     {},
+	     {},
+	     R"(// THIS FILE IS AUTOGENERATED
 #include ""
 
+// clang-format off
 namespace  {
     namespace {
         const char __resource[] = {
@@ -344,13 +366,15 @@ namespace  {
     /*static*/ const char* Resource::data() { return __resource; }
     /*static*/ std::size_t Resource::size() { return sizeof(__resource); }
 } // namespace 
-)"
-		},
-		{
-			{}, "enums.h", "project",
-			R"(// THIS FILE IS AUTOGENERATED
+// clang-format on
+)"},
+	    {{},
+	     "enums.h",
+	     "project",
+	     R"(// THIS FILE IS AUTOGENERATED
 #include "enums.h"
 
+// clang-format off
 namespace project {
     namespace {
         const char __resource[] = {
@@ -362,23 +386,19 @@ namespace project {
     /*static*/ const char* Resource::data() { return __resource; }
     /*static*/ std::size_t Resource::size() { return sizeof(__resource); }
 } // namespace project
-)"
-		},
-		{
-			{
-				1234567,
-				{
-					make_str(ATTR_PLURALS, "nplurals=2; plural=(n != 1);")
-				},
-				{
-					make_str(1001, u8"value\0values"s),
-					make_str(1002, u8"the quick brown fox jumps over a lazy dog"),
-					make_str(1003, u8"THE QUICK BROWN FOX JUMPS OVER A LAZY DOG")
-				}
-			}, "enums.h", "project",
-			R"(// THIS FILE IS AUTOGENERATED
+// clang-format on
+)"},
+	    {{1234567,
+	      {make_str(ATTR_PLURALS, "nplurals=2; plural=(n != 1);")},
+	      {make_str(1001, u8"value\0values"s),
+	       make_str(1002, u8"the quick brown fox jumps over a lazy dog"),
+	       make_str(1003, u8"THE QUICK BROWN FOX JUMPS OVER A LAZY DOG")}},
+	     "enums.h",
+	     "project",
+	     R"(// THIS FILE IS AUTOGENERATED
 #include "enums.h"
 
+// clang-format off
 namespace project {
     namespace {
         const char __resource[] = {
@@ -403,32 +423,31 @@ namespace project {
     /*static*/ const char* Resource::data() { return __resource; }
     /*static*/ std::size_t Resource::size() { return sizeof(__resource); }
 } // namespace project
-)"
-		},
-		{
-			{
-				1234567,
-				{
-					make_str(ATTR_PLURALS, "nplurals=2; plural=(n != 1);")
-				},
-				{
-					make_str(1001, u8"v\u0227\u013a\u0169\u00ea\0v\u0227\u013a\u0169\u00ea\u015f"s),
-					make_str(1002, u8"\u0167\u0125\u00ea q\u0169\u00ef\u00e7\u0137 \u018b\u0213\u00f4\u0175\u00f1 "
-								   u8"\u0192\u00f4x \u0135\u0169mp\u015f \u00f4v\u00ea\u0213 \u0227 "
-								   u8"\u013a\u0227\u0225\u00ff \u0111\u00f4\u011f"),
-					make_str(1003, u8"\u023e\u0126\u0204 Q\u00d9\u00cd\u00c7\u0136 \u00df\u0154\u00d6\u0174\u00d1 "
-								   u8"\u0191\u00d6X \u0134\u00d9MP\u015e \u00d6V\u0204\u0154 \u00c4 "
-								   u8"\u023d\u00c4\u0224\u00dd \u00d0\u00d6\u0120")
-				},
-				{
-					make_str(1001, "ID"),
-					make_str(1002, "ID_PANGRAM_LOWER"),
-					make_str(1003, "ID_PANGRAM_UPPER")
-				}
-			}, "enums.h", "project",
-			R"(// THIS FILE IS AUTOGENERATED
+// clang-format on
+)"},
+	    {{1234567,
+	      {make_str(ATTR_PLURALS, "nplurals=2; plural=(n != 1);")},
+	      {make_str(
+	           1001,
+	           u8"v\u0227\u013a\u0169\u00ea\0v\u0227\u013a\u0169\u00ea\u015f"s),
+	       make_str(1002,
+	                u8"\u0167\u0125\u00ea q\u0169\u00ef\u00e7\u0137 "
+	                u8"\u018b\u0213\u00f4\u0175\u00f1 \u0192\u00f4x "
+	                u8"\u0135\u0169mp\u015f \u00f4v\u00ea\u0213 \u0227 "
+	                u8"\u013a\u0227\u0225\u00ff \u0111\u00f4\u011f"),
+	       make_str(1003,
+	                u8"\u023e\u0126\u0204 Q\u00d9\u00cd\u00c7\u0136 "
+	                u8"\u00df\u0154\u00d6\u0174\u00d1 \u0191\u00d6X "
+	                u8"\u0134\u00d9MP\u015e \u00d6V\u0204\u0154 \u00c4 "
+	                u8"\u023d\u00c4\u0224\u00dd \u00d0\u00d6\u0120")},
+	      {make_str(1001, "ID"), make_str(1002, "ID_PANGRAM_LOWER"),
+	       make_str(1003, "ID_PANGRAM_UPPER")}},
+	     "enums.h",
+	     "project",
+	     R"(// THIS FILE IS AUTOGENERATED
 #include "enums.h"
 
+// clang-format off
 namespace project {
     namespace {
         const char __resource[] = {
@@ -463,27 +482,29 @@ namespace project {
     /*static*/ const char* Resource::data() { return __resource; }
     /*static*/ std::size_t Resource::size() { return sizeof(__resource); }
 } // namespace project
-)"
-		},
-		{
-			{
-				1234567,
-				{
-					make_str(ATTR_PLURALS, "nplurals=2; plural=(n != 1);")
-				},
-				{
-					make_str(1001, u8"v\u0227\u013a\u0169\u00ea\0v\u0227\u013a\u0169\u00ea\u015f"s),
-					make_str(1002, u8"\u0167\u0125\u00ea q\u0169\u00ef\u00e7\u0137 \u018b\u0213\u00f4\u0175\u00f1 "
-								   u8"\u0192\u00f4x \u0135\u0169mp\u015f \u00f4v\u00ea\u0213 \u0227 "
-								   u8"\u013a\u0227\u0225\u00ff \u0111\u00f4\u011f"),
-					make_str(1003, u8"\u023e\u0126\u0204 Q\u00d9\u00cd\u00c7\u0136 \u00df\u0154\u00d6\u0174\u00d1 "
-								   u8"\u0191\u00d6X \u0134\u00d9MP\u015e \u00d6V\u0204\u0154 \u00c4 "
-								   u8"\u023d\u00c4\u0224\u00dd \u00d0\u00d6\u0120")
-				}
-			}, "enums.h", "project",
-			R"(// THIS FILE IS AUTOGENERATED
+// clang-format on
+)"},
+	    {{1234567,
+	      {make_str(ATTR_PLURALS, "nplurals=2; plural=(n != 1);")},
+	      {make_str(
+	           1001,
+	           u8"v\u0227\u013a\u0169\u00ea\0v\u0227\u013a\u0169\u00ea\u015f"s),
+	       make_str(1002,
+	                u8"\u0167\u0125\u00ea q\u0169\u00ef\u00e7\u0137 "
+	                u8"\u018b\u0213\u00f4\u0175\u00f1 \u0192\u00f4x "
+	                u8"\u0135\u0169mp\u015f \u00f4v\u00ea\u0213 \u0227 "
+	                u8"\u013a\u0227\u0225\u00ff \u0111\u00f4\u011f"),
+	       make_str(1003,
+	                u8"\u023e\u0126\u0204 Q\u00d9\u00cd\u00c7\u0136 "
+	                u8"\u00df\u0154\u00d6\u0174\u00d1 \u0191\u00d6X "
+	                u8"\u0134\u00d9MP\u015e \u00d6V\u0204\u0154 \u00c4 "
+	                u8"\u023d\u00c4\u0224\u00dd \u00d0\u00d6\u0120")}},
+	     "enums.h",
+	     "project",
+	     R"(// THIS FILE IS AUTOGENERATED
 #include "enums.h"
 
+// clang-format off
 namespace project {
     namespace {
         const char __resource[] = {
@@ -512,8 +533,8 @@ namespace project {
     /*static*/ const char* Resource::data() { return __resource; }
     /*static*/ std::size_t Resource::size() { return sizeof(__resource); }
 } // namespace project
-)"
-		},
+// clang-format on
+)"},
 	};
 
 	INSTANTIATE_TEST_SUITE_P(resources, res_write, ValuesIn(write_resources));
@@ -523,4 +544,4 @@ namespace project {
 		ASSERT_TRUE(res.init());
 		ASSERT_FALSE(res(lng::ERR_EXPECTED).empty());
 	}
-}
+}  // namespace lngs::app::testing

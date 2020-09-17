@@ -23,14 +23,15 @@
  */
 
 #pragma once
+#include <lngs/file.hpp>
 #include <map>
 #include <string>
-#include <lngs/file.hpp>
 
 namespace lngs::app {
 	class source_file;
 	class diagnostics;
-}
+}  // namespace lngs::app
 namespace gtt {
-	std::map<std::string, std::string> open(lngs::app::source_file& src, lngs::app::diagnostics& diags);
+	std::map<std::string, std::string> open(lngs::app::source_file& src,
+	                                        lngs::app::diagnostics& diags);
 }

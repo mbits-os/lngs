@@ -29,6 +29,7 @@
 namespace lngs::app::build {
 	fs::path get_exec_dir();
 
+	// clang-format off
 	struct directory_info {
 		constexpr static const char share[] = "@SHARE_DIR@";
 		constexpr static const char prefix[] = "@CMAKE_INSTALL_PREFIX@/@SHARE_DIR@";
@@ -39,7 +40,9 @@ namespace lngs::app::build {
 		constexpr static const unsigned major = @PROJECT_VERSION_MAJOR@;
 		constexpr static const unsigned minor = @PROJECT_VERSION_MINOR@;
 		constexpr static const unsigned patch = @PROJECT_VERSION_PATCH@;
-		constexpr static const char stability[] = "@PROJECT_VERSION_STABILITY@"; // "-alpha", "-beta", "-rc.1", "-rc.2", and ""
+		// "-alpha", "-beta", "-rc.1", "-rc.2", and ""
+		constexpr static const char stability[] = "@PROJECT_VERSION_STABILITY@";
 		constexpr static const char string[] = "@PROJECT_VERSION@";
 	};
-}
+	// clang-format on
+}  // namespace lngs::app::build

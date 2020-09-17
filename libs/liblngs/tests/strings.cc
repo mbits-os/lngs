@@ -13,9 +13,7 @@ namespace lngs::testing {
 		NO = 1001,
 	};
 
-	enum class ids {
-		MAYBE = 1002
-	};
+	enum class ids { MAYBE = 1002 };
 
 	using Singulars = SingularStrings<id>;
 	using Plurals = PluralOnlyStrings<ids>;
@@ -47,7 +45,7 @@ namespace lngs::testing {
 		auto& current = tr2;
 		ASSERT_TRUE(current.open("bar"));
 		EXPECT_EQ("Meta (BAR)", current.attr(ATTR_LANGUAGE));
-		EXPECT_EQ("", current.attr(ATTR_PLURALS)); // sic!
+		EXPECT_EQ("", current.attr(ATTR_PLURALS));  // sic!
 		EXPECT_EQ("bar:maybe", current(ids::MAYBE, 0));
 		EXPECT_EQ("bar:maybe", current(ids::MAYBE, 1));
 	}
@@ -57,10 +55,10 @@ namespace lngs::testing {
 		ASSERT_FALSE(current.open("fred"));
 		ASSERT_TRUE(current.open("fred-XYZZY"));
 		EXPECT_EQ("Wilhelmina (Harker)", current.attr(ATTR_LANGUAGE));
-		EXPECT_EQ("", current.attr(ATTR_PLURALS)); // sic!
+		EXPECT_EQ("", current.attr(ATTR_PLURALS));  // sic!
 		EXPECT_EQ("Pebble", current(id::YES));
 		EXPECT_EQ("Bam!", current(id::NO));
 		EXPECT_EQ("I'm home!", current(ids::MAYBE, 0));
 		EXPECT_EQ("I'm home!", current(ids::MAYBE, 1));
 	}
-}
+}  // namespace lngs::testing

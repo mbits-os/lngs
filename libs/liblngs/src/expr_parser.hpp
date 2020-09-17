@@ -1,7 +1,8 @@
 #pragma once
-#include <vector>
-#include <string>
+#include <lngs/plurals.hpp>
 #include <memory>
+#include <string>
+#include <vector>
 
 namespace lngs::plurals::parser {
 	inline namespace tokenizer {
@@ -38,7 +39,7 @@ namespace lngs::plurals::parser {
 		};
 
 		std::vector<token> tokenize(const std::string& value);
-	}
+	}  // namespace tokenizer
 
 	std::unique_ptr<plurals::expr> parse(const std::string& value);
-}
+}  // namespace lngs::plurals::parser

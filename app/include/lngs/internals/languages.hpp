@@ -23,25 +23,17 @@
  */
 
 #pragma once
+#include <lngs/file.hpp>
+#include <lngs/lngs_base.hpp>
 #include <map>
 #include <vector>
-#include <lngs/lngs_base.hpp>
-#include <lngs/file.hpp>
 
 namespace lngs::app {
 	struct tr_string {
-		string_key key;
-		std::string value;
+		string_key key{};
+		std::string value{};
 
-		tr_string();
-		~tr_string();
-		tr_string(tr_string&&);
-		tr_string& operator=(tr_string&&);
-		tr_string(const tr_string&);
-		tr_string& operator=(const tr_string&);
-
-		tr_string(uint32_t id, std::string val) : value(std::move(val))
-		{
+		tr_string(uint32_t id, std::string val) : value(std::move(val)) {
 			key.id = id;
 			key.length = static_cast<uint32_t>(value.length());
 		}
@@ -52,13 +44,20 @@ namespace lngs::app {
 	class diagnostics;
 
 	std::string warp(const std::string& s);
-	std::map<std::string, std::string, std::less<>> attrGTT(std::string_view attrs);
-	std::vector<tr_string> attributes(const std::map<std::string, std::string>& gtt);
-	std::vector<tr_string> translations(const std::map<std::string, std::string>& gtt,
-	                                    const std::vector<idl_string>& strings,
-	                                    bool warp_missing, bool verbose,
-	                                    source_file& src, diagnostics& diags);
-	bool ll_CC(source_file is, diagnostics& diags, std::map<std::string, std::string>& langs);
+	std::map<std::string, std::string, std::less<>> attrGTT(
+	    std::string_view attrs);
+	std::vector<tr_string> attributes(
+	    const std::map<std::string, std::string>& gtt);
+	std::vector<tr_string> translations(
+	    const std::map<std::string, std::string>& gtt,
+	    const std::vector<idl_string>& strings,
+	    bool warp_missing,
+	    bool verbose,
+	    source_file& src,
+	    diagnostics& diags);
+	bool ll_CC(source_file is,
+	           diagnostics& diags,
+	           std::map<std::string, std::string>& langs);
 
 	struct outstream;
 	struct file {
@@ -69,4 +68,4 @@ namespace lngs::app {
 
 		int write(outstream& os);
 	};
-}
+}  // namespace lngs::app

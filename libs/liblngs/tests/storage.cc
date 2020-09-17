@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
+#include <clocale>
+#include <cstdlib>
 #include <lngs/lngs_storage.hpp>
 #include "lang_file_helpers.h"
-#include <cstdlib>
-#include <clocale>
 
 extern fs::path TESTING_data_path;
 
@@ -13,9 +13,11 @@ namespace lngs::storage::testing {
 
 	struct simple_culture {
 		std::string lang;
-		simple_culture(const char* lang) : lang{ lang } {}
+		simple_culture(const char* lang) : lang{lang} {}
 		bool operator==(const culture& rhs) const { return lang == rhs.lang; }
-		friend bool operator==(const culture& lhs, const simple_culture& rhs) { return rhs == lhs; }
+		friend bool operator==(const culture& lhs, const simple_culture& rhs) {
+			return rhs == lhs;
+		}
 	};
 
 	struct stg_info {
@@ -33,7 +35,9 @@ namespace lngs::storage::testing {
 
 	struct vector_resource {
 		static const std::vector<std::byte>* bytes;
-		static const char* data() { return reinterpret_cast<const char*>(bytes->data()); }
+		static const char* data() {
+			return reinterpret_cast<const char*>(bytes->data());
+		}
 		static std::size_t size() { return bytes->size(); }
 	};
 	const std::vector<std::byte>* vector_resource::bytes{nullptr};
@@ -41,19 +45,32 @@ namespace lngs::storage::testing {
 	using vector_builtin = Builtin<vector_resource>;
 	using vector_file_builtin = FileWithBuiltin<vector_resource>;
 
-	template <typename Storage, typename = void> struct has_builtin : std::false_type {};
-	template <typename Storage> struct has_builtin<Storage, std::enable_if_t<
-		std::is_same_v<decltype(std::declval<Storage>().init()), bool>
-		>> : std::true_type {};
+	template <typename Storage, typename = void>
+	struct has_builtin : std::false_type {};
+	template <typename Storage>
+	struct has_builtin<
+	    Storage,
+	    std::enable_if_t<
+	        std::is_same_v<decltype(std::declval<Storage>().init()), bool>>>
+	    : std::true_type {};
 
-	template <typename Storage, typename = void> struct has_file_based : std::false_type {};
-	template <typename Storage> struct has_file_based<Storage, std::void_t<
-		std::enable_if_t< std::is_same_v<decltype(std::declval<Storage>().open(std::declval<std::string>())), bool> >,
-		std::enable_if_t< std::is_same_v<decltype(std::declval<Storage>().known()), std::vector<culture>> >
-		>> : std::true_type {};
+	template <typename Storage, typename = void>
+	struct has_file_based : std::false_type {};
+	template <typename Storage>
+	struct has_file_based<
+	    Storage,
+	    std::void_t<std::enable_if_t<
+	                    std::is_same_v<decltype(std::declval<Storage>().open(
+	                                       std::declval<std::string>())),
+	                                   bool>>,
+	                std::enable_if_t<std::is_same_v<
+	                    decltype(std::declval<Storage>().known()),
+	                    std::vector<culture>>>>> : std::true_type {};
 
-	template <typename Storage> constexpr bool has_builtin_v = has_builtin<Storage>::value;
-	template <typename Storage> constexpr bool has_file_based_v = has_file_based<Storage>::value;
+	template <typename Storage>
+	constexpr bool has_builtin_v = has_builtin<Storage>::value;
+	template <typename Storage>
+	constexpr bool has_file_based_v = has_file_based<Storage>::value;
 
 	static_assert(has_builtin_v<vector_builtin>);
 	static_assert(has_builtin_v<vector_file_builtin>);
@@ -73,10 +90,11 @@ namespace lngs::storage::testing {
 			if constexpr (has_file_based_v<Storage>) {
 				auto root = TESTING_data_path / param.root;
 				if (root.extension() == ".ext") {
-					tr.template path_manager<manager::ExtensionPath>(root, param.name);
-				}
-				else {
-					tr.template path_manager<manager::SubdirPath>(root, param.name);
+					tr.template path_manager<manager::ExtensionPath>(
+					    root, param.name);
+				} else {
+					tr.template path_manager<manager::SubdirPath>(root,
+					                                              param.name);
 				}
 			}
 
@@ -86,10 +104,8 @@ namespace lngs::storage::testing {
 			}
 		};
 
-		template <typename StorageType=Storage>
-		std::enable_if_t<has_file_based_v<StorageType>>
-			test_known()
-		{
+		template <typename StorageType = Storage>
+		std::enable_if_t<has_file_based_v<StorageType>> test_known() {
 			auto& param = GetParam();
 
 			auto actual = tr.known();
@@ -109,12 +125,10 @@ namespace lngs::storage::testing {
 		}
 
 		template <typename StorageType = Storage>
-		std::enable_if_t<has_file_based_v<StorageType>>
-			test_onupdate()
-		{
+		std::enable_if_t<has_file_based_v<StorageType>> test_onupdate() {
 			auto& param = GetParam();
 
-			size_t counter{ 0 };
+			size_t counter{0};
 			std::string expected_culture;
 			auto callback = [&] {
 				++counter;
@@ -162,7 +176,8 @@ namespace lngs::storage::testing {
 				auto ident = static_cast<lang_file::identifier>(id);
 				auto s = tr.get_string(ident);
 				EXPECT_FALSE(s.empty());
-				EXPECT_EQ(s, tr.get_string(ident, static_cast<lang_file::quantity>(2)));
+				EXPECT_EQ(s, tr.get_string(
+				                 ident, static_cast<lang_file::quantity>(2)));
 			}
 		}
 
@@ -179,7 +194,8 @@ namespace lngs::storage::testing {
 				auto ident = static_cast<lang_file::identifier>(id);
 				auto s = tr.get_string(ident);
 				EXPECT_TRUE(s.empty());
-				EXPECT_EQ(s, tr.get_string(ident, static_cast<lang_file::quantity>(2)));
+				EXPECT_EQ(s, tr.get_string(
+				                 ident, static_cast<lang_file::quantity>(2)));
 			}
 		}
 
@@ -193,17 +209,18 @@ namespace lngs::storage::testing {
 				auto ident = static_cast<lang_file::identifier>(id);
 				auto s = tr.get_string(ident);
 				EXPECT_FALSE(s.empty());
-				EXPECT_EQ(s, tr.get_string(ident, static_cast<lang_file::quantity>(2)));
+				EXPECT_EQ(s, tr.get_string(
+				                 ident, static_cast<lang_file::quantity>(2)));
 			}
 		}
 	};
 
 	template <typename Storage>
 	struct publicize : Storage {
-		using Storage::get_string;
+		using Storage::find_key;
 		using Storage::get_attr;
 		using Storage::get_key;
-		using Storage::find_key;
+		using Storage::get_string;
 	};
 
 	using storage_FileBased = storage<publicize<FileBased>>;
@@ -223,7 +240,7 @@ namespace lngs::storage::testing {
 	struct open_first_of {
 		std::string package;
 		std::initializer_list<std::string> one_of;
-		bool expected{ true };
+		bool expected{true};
 	};
 
 	struct storage_FileBased_open : TestWithParam<open_first_of> {};
@@ -234,8 +251,7 @@ namespace lngs::storage::testing {
 		publicize<FileBased> tr;
 
 		tr.path_manager<manager::ExtensionPath>(
-			TESTING_data_path / "testset1.ext",
-			param.package);
+		    TESTING_data_path / "testset1.ext", param.package);
 
 		auto vectored = std::vector(param.one_of);
 		EXPECT_EQ(param.expected, tr.open_first_of(vectored));
@@ -265,22 +281,23 @@ namespace lngs::storage::testing {
 
 	namespace helper = lngs::testing::helper;
 
-	std::vector<std::byte> build_bytes(const app::idl_strings& defs, const helper::attrs_t& attrs) {
+	std::vector<std::byte> build_bytes(const app::idl_strings& defs,
+	                                   const helper::attrs_t& attrs) {
 		std::vector<std::byte> out;
 
 		struct stream : app::outstream {
 			std::vector<std::byte>& contents;
 
-			stream(std::vector<std::byte>& contents) : contents{ contents } {}
-			std::size_t write(const void* data, std::size_t length) noexcept final
-			{
+			stream(std::vector<std::byte>& contents) : contents{contents} {}
+			std::size_t write(const void* data,
+			                  std::size_t length) noexcept final {
 				auto b = static_cast<const std::byte*>(data);
 				auto e = b + length;
 				auto size = contents.size();
 				contents.insert(end(contents), b, e);
 				return contents.size() - size;
 			}
-		} output{ out };
+		} output{out};
 
 		helper::build_strings(output, defs, attrs, true);
 		return out;
@@ -288,89 +305,138 @@ namespace lngs::storage::testing {
 
 	static const std::vector<std::byte>& pkg1_builtin() {
 		using namespace helper;
-		static auto bytes = build_bytes(
-			builder{ 123 }.make(
-				str(1000, "YES", "builtin:yes"),
-				str(1001, "NO", "builtin:no"),
-				str(1002, "MAYBE", "builtin:maybe"),
-				str(1003, "EX", "builtin:additional"),
-				str(1004, "TRA", "builtin:extra"),
-				str(1005, "KEYS", "builtin:keys")
-			),
-			attrs_t{}
-		);
+		static auto bytes =
+		    build_bytes(builder{123}.make(str(1000, "YES", "builtin:yes"),
+		                                  str(1001, "NO", "builtin:no"),
+		                                  str(1002, "MAYBE", "builtin:maybe"),
+		                                  str(1003, "EX", "builtin:additional"),
+		                                  str(1004, "TRA", "builtin:extra"),
+		                                  str(1005, "KEYS", "builtin:keys")),
+		                attrs_t{});
 		return bytes;
 	}
 
 	static const std::vector<std::byte>& pkg2_builtin() {
 		using namespace helper;
-		static auto bytes = build_bytes(
-			builder{ 123 }.make(
-				str(1000, "LEFT", "builtin:left"),
-				str(1001, "RIGHT", "builtin:right"),
-				str(1002, "FRONT", "builtin:front"),
-				str(1003, "BACK", "builtin:back"),
-				str(1004, "EX", "builtin:additional"),
-				str(1005, "TRA", "builtin:extra"),
-				str(1006, "KEYS", "builtin:keys")
-			),
-			attrs_t{}
-		);
+		static auto bytes =
+		    build_bytes(builder{123}.make(str(1000, "LEFT", "builtin:left"),
+		                                  str(1001, "RIGHT", "builtin:right"),
+		                                  str(1002, "FRONT", "builtin:front"),
+		                                  str(1003, "BACK", "builtin:back"),
+		                                  str(1004, "EX", "builtin:additional"),
+		                                  str(1005, "TRA", "builtin:extra"),
+		                                  str(1006, "KEYS", "builtin:keys")),
+		                attrs_t{});
 		return bytes;
 	}
 
 	static const std::vector<std::byte>& pkg3_builtin() {
 		using namespace helper;
-		static auto bytes = build_bytes(
-			builder{ 123 }.make(
-				str(1000, "ADJ1", "builtin:advanced"),
-				str(1001, "ADJ2", "builtin:freeware"),
-				str(1002, "ADJ3", "builtin:audio"),
-				str(1003, "NOUN", "builtin:player"),
-				str(1004, "EX", "builtin:additional"),
-				str(1005, "TRA", "builtin:extra"),
-				str(1006, "KEYS", "builtin:keys")
-			),
-			attrs_t{}
-		);
+		static auto bytes =
+		    build_bytes(builder{123}.make(str(1000, "ADJ1", "builtin:advanced"),
+		                                  str(1001, "ADJ2", "builtin:freeware"),
+		                                  str(1002, "ADJ3", "builtin:audio"),
+		                                  str(1003, "NOUN", "builtin:player"),
+		                                  str(1004, "EX", "builtin:additional"),
+		                                  str(1005, "TRA", "builtin:extra"),
+		                                  str(1006, "KEYS", "builtin:keys")),
+		                attrs_t{});
 		return bytes;
 	}
 
-	static const std::initializer_list<std::string> pkg1_keys{ "YES", "NO", "MAYBE" };
-	static const std::initializer_list<std::string> pkg2_keys{ "LEFT", "RIGHT", "FRONT", "BACK" };
-	static const std::initializer_list<std::string> pkg3_keys{ "ADJ1", "ADJ2", "ADJ3", "NOUN" };
+	static const std::initializer_list<std::string> pkg1_keys{"YES", "NO",
+	                                                          "MAYBE"};
+	static const std::initializer_list<std::string> pkg2_keys{"LEFT", "RIGHT",
+	                                                          "FRONT", "BACK"};
+	static const std::initializer_list<std::string> pkg3_keys{"ADJ1", "ADJ2",
+	                                                          "ADJ3", "NOUN"};
 
-	static const std::initializer_list<std::string> builtin_keys{ "EX", "TRA", "KEYS" };
+	static const std::initializer_list<std::string> builtin_keys{"EX", "TRA",
+	                                                             "KEYS"};
 
 	static const stg_info packages[] = {
-		{ "testset1.ext", "pkg1", { "foo", "bar", "fred-XYZZY" }, pkg1_keys, builtin_keys, pkg1_builtin },
-		{ "testset1.ext", "pkg2", { "foo", "bar" }, pkg2_keys, builtin_keys, pkg2_builtin },
-		{ "testset1.ext", "pkg3", { "foo", "bar", "baz-QUUX" }, pkg3_keys, builtin_keys, pkg3_builtin },
-		{ "testset2.sub", "pkg1", { "foo", "bar", "fred-XYZZY" }, pkg1_keys, builtin_keys, pkg1_builtin },
-		{ "testset2.sub", "pkg2", { "foo", "bar" }, pkg2_keys, builtin_keys, pkg2_builtin },
-		{ "testset2.sub", "pkg3", { "foo", "bar", "baz-QUUX" }, pkg3_keys, builtin_keys, pkg3_builtin },
+	    {
+	        "testset1.ext",
+	        "pkg1",
+	        {"foo", "bar", "fred-XYZZY"},
+	        pkg1_keys,
+	        builtin_keys,
+	        pkg1_builtin,
+	    },
+	    {
+	        "testset1.ext",
+	        "pkg2",
+	        {"foo", "bar"},
+	        pkg2_keys,
+	        builtin_keys,
+	        pkg2_builtin,
+	    },
+	    {
+	        "testset1.ext",
+	        "pkg3",
+	        {"foo", "bar", "baz-QUUX"},
+	        pkg3_keys,
+	        builtin_keys,
+	        pkg3_builtin,
+	    },
+	    {
+	        "testset2.sub",
+	        "pkg1",
+	        {"foo", "bar", "fred-XYZZY"},
+	        pkg1_keys,
+	        builtin_keys,
+	        pkg1_builtin,
+	    },
+	    {
+	        "testset2.sub",
+	        "pkg2",
+	        {"foo", "bar"},
+	        pkg2_keys,
+	        builtin_keys,
+	        pkg2_builtin,
+	    },
+	    {
+	        "testset2.sub",
+	        "pkg3",
+	        {"foo", "bar", "baz-QUUX"},
+	        pkg3_keys,
+	        builtin_keys,
+	        pkg3_builtin,
+	    },
 	};
 
 	INSTANTIATE_TEST_SUITE_P(packages, storage_FileBased, ValuesIn(packages));
 	INSTANTIATE_TEST_SUITE_P(packages, storage_Builtin, ValuesIn(packages));
-	INSTANTIATE_TEST_SUITE_P(packages, storage_FileWithBuiltin, ValuesIn(packages));
+	INSTANTIATE_TEST_SUITE_P(packages,
+	                         storage_FileWithBuiltin,
+	                         ValuesIn(packages));
 
 	static const open_first_of groups[] = {
-		{"pkg1", { "fred-XYZZY", "fred", "foo" }},
-		{"pkg2", { "fred-XYZZY", "fred", "foo" }},
-		{"pkg3", { "no", "recognized", "names" }, false},
+	    {"pkg1", {"fred-XYZZY", "fred", "foo"}},
+	    {"pkg2", {"fred-XYZZY", "fred", "foo"}},
+	    {"pkg3", {"no", "recognized", "names"}, false},
 	};
 
 	INSTANTIATE_TEST_SUITE_P(groups, storage_FileBased_open, ValuesIn(groups));
 
 	static const header headers[] = {
-		{ {}, { "en" } },
-		{ "da, en-gb;q=0.8, en;q=0.7"sv, { "da", "en-gb", "en" }},
-		{ "da, en-gb;q=0.8, pl-PL;q=0.5, en;q=0.7, fr;q=0.8, pl-PL;dun-dun=dunn;q=0.999"sv, { "da", "pl-PL", "pl", "en-gb", "fr", "en" }},
-		{ "da, en-gb;q=0.8888, en;q=0.7a8, fr;q=0.77, pl;q=0.7.8"sv, { "da", "en-gb", "fr", "en", "pl" }}
-	};
+	    {{}, {"en"}},
+	    {
+	        "da, en-gb;q=0.8, en;q=0.7"sv,
+	        {"da", "en-gb", "en"},
+	    },
+	    {
+	        "da, en-gb;q=0.8, pl-PL;q=0.5, en;q=0.7, fr;q=0.8, pl-PL;dun-dun=dunn;q=0.999"sv,
+	        {"da", "pl-PL", "pl", "en-gb", "fr", "en"},
+	    },
+	    {
+	        "da, en-gb;q=0.8888, en;q=0.7a8, fr;q=0.77, pl;q=0.7.8"sv,
+	        {"da", "en-gb", "fr", "en", "pl"},
+	    }};
 
-	INSTANTIATE_TEST_SUITE_P(headers, storage_AcceptLanguage, ValuesIn(headers));
+	INSTANTIATE_TEST_SUITE_P(headers,
+	                         storage_AcceptLanguage,
+	                         ValuesIn(headers));
 
 	struct List {
 		const std::vector<std::string>& strings;
@@ -379,9 +445,11 @@ namespace lngs::storage::testing {
 	static inline std::ostream& operator<<(std::ostream& o, const List& refs) {
 		o << "{";
 		bool first = true;
-		for (auto const & s : refs.strings) {
-			if (first) first = false;
-			else o << ",";
+		for (auto const& s : refs.strings) {
+			if (first)
+				first = false;
+			else
+				o << ",";
 			o << ' ' << s;
 		}
 		return o << " }";
@@ -396,7 +464,7 @@ namespace lngs::storage::testing {
 #endif
 		auto actual = system_locales();
 #ifndef _WIN32
-		auto expected = std::vector{ "king", "king-KONG", "en" };
+		auto expected = std::vector{"king", "king-KONG", "en"};
 		ASSERT_LE(expected.size(), actual.size());
 		for (auto const& exp : expected) {
 			bool found = false;
@@ -406,8 +474,9 @@ namespace lngs::storage::testing {
 					break;
 				}
 			}
-			EXPECT_TRUE(found) << "  while looking for: " << exp << " with " << List{ actual };
+			EXPECT_TRUE(found)
+			    << "  while looking for: " << exp << " with " << List{actual};
 		}
 #endif
 	}
-}
+}  // namespace lngs::storage::testing

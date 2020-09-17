@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
-#include "diag_helper.h"
 #include <lngs/internals/commands.hpp>
 #include <lngs/internals/strings.hpp>
 #include <regex>
+#include "diag_helper.h"
 
 namespace lngs::app::testing {
 	using namespace ::std::literals;
@@ -12,13 +12,14 @@ namespace lngs::app::testing {
 	struct pot_result {
 		std::string_view input;
 		std::string output;
-		app::pot::info info{ "HOLDER", "AUTHOR-EMAIL-ADDRESS", "JUST SO STORIES" };
+		app::pot::info info{"HOLDER", "AUTHOR-EMAIL-ADDRESS",
+		                    "JUST SO STORIES"};
 	};
 
 	class pot : public TestWithParam<pot_result> {};
 
 	TEST_P(pot, text) {
-		auto[input, expected_template, info] = GetParam();
+		auto [input, expected_template, info] = GetParam();
 
 		diagnostics diag;
 		diag.set_contents("", input);
@@ -30,27 +31,29 @@ namespace lngs::app::testing {
 		outstrstream output;
 		app::pot::write(output, strings, info);
 
-		std::regex pot_creation_date{ R"("POT-Creation-Date: ((\d{4})-\d{2}-\d{2} \d{2}:\d{2}[+-]\d{4})\\n")" };
+		std::regex pot_creation_date{
+		    R"("POT-Creation-Date: ((\d{4})-\d{2}-\d{2} \d{2}:\d{2}[+-]\d{4})\\n")"};
 		std::smatch matches;
-		ASSERT_TRUE(std::regex_search(output.contents, matches, pot_creation_date));
+		ASSERT_TRUE(
+		    std::regex_search(output.contents, matches, pot_creation_date));
 
-		auto expected = fmt::format(expected_template,
-			fmt::arg("ThisYear", matches.str(2)),
-			fmt::arg("CurrentDate", matches.str(1)));
+		auto expected =
+		    fmt::format(expected_template, fmt::arg("ThisYear", matches.str(2)),
+		                fmt::arg("CurrentDate", matches.str(1)));
 
 		EXPECT_EQ(expected, output.contents);
 	}
 
 	const pot_result sources[] = {
-		{
-			R"([serial(0), project("name")]
+	    {
+	        R"([serial(0), project("name")]
 strings {
 	[id(-1), help("help string"), plural("values")] ID = "value";
 	[id(1001), plural("values")] ID2 = "value2";
 	[id(-1), help("help string")] ID3 = "value3";
 	[id(-1)] ID4 = "value4";
 })",
-			R"(# JUST SO STORIES.
+	        R"(# JUST SO STORIES.
 # Copyright (C) {ThisYear} HOLDER
 # This file is distributed under the same license as the name package.
 # AUTHOR-EMAIL-ADDRESS, {ThisYear}.
@@ -92,17 +95,16 @@ msgctxt "ID4"
 msgid "value4"
 msgstr ""
 
-)"
-		},
-		{
-			R"([serial(0), project("library"), version("1.0")]
+)"},
+	    {
+	        R"([serial(0), project("library"), version("1.0")]
 strings {
 	[id(-1), help("help string")] ID = "value";
 	[id(1001), help("second help string")] ID2 = "value2";
 	[id(-1), help("third help string")] ID3 = "value3";
 	[id(-1)] ID4 = "value4\\special chars:	\"\r\n\"\tand also: \a\b\f\v";
 })",
-			R"(# JUST SO STORIES.
+	        R"(# JUST SO STORIES.
 # Copyright (C) {ThisYear} HOLDER
 # This file is distributed under the same license as the library package.
 # AUTHOR-EMAIL-ADDRESS, {ThisYear}.
@@ -140,9 +142,7 @@ msgctxt "ID4"
 msgid "value4\\special chars:\t\"\r\n\"\tand also: \a\b\f\v"
 msgstr ""
 
-)"
-		}
-	};
+)"}};
 
 	INSTANTIATE_TEST_SUITE_P(sources, pot, ValuesIn(sources));
-}
+}  // namespace lngs::app::testing

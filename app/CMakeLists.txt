@@ -165,5 +165,6 @@ add_test(NAME lngs.python COMMAND lngs-test --gtest_filter=*/python.*)
 add_test(NAME lngs.pot COMMAND lngs-test --gtest_filter=*/pot.*)
 add_test(NAME lngs.utf COMMAND lngs-test --gtest_filter=*/utf_conv.*:*/utf_errors.*)
 add_test(NAME lngs.gettext COMMAND lngs-test --gtest_filter=*/gettext.*:*/gtt_attr_*.*:*/gtt_extract.*:*/mo_*.* --data_path=${DATA_DIR})
+add_test(NAME lngs.streams COMMAND lngs-test --gtest_filter=streams.* --data_path=${DATA_DIR})
 
 endif()

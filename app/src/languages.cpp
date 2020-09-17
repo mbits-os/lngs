@@ -33,75 +33,123 @@
 
 namespace lngs::app {
 	namespace {
-		constexpr std::byte operator""_b(char c) { return static_cast<std::byte>(c); }
-
-		unsigned char s2uc(char c) {
-			return static_cast<unsigned char>(c);
+		constexpr std::byte operator""_b(char c) {
+			return static_cast<std::byte>(c);
 		}
+
+		unsigned char s2uc(char c) { return static_cast<unsigned char>(c); }
 
 		unsigned char b2uc(std::byte b) {
 			return static_cast<unsigned char>(b);
 		}
-	}
 
-	std::string warp(const std::string& s)
-	{
-		auto u32 = utf::as_u32(s);
-		for (auto& c : u32) {
+		char32_t warped(char32_t c) {
 			switch (c) {
-			case U'a': c = U'\u0227'; break; // 'ȧ'
-			case U'b': c = U'\u018b'; break; // 'Ƌ'
-			case U'c': c = U'\u00e7'; break; // 'ç'
-			case U'd': c = U'\u0111'; break; // 'đ'
-			case U'e': c = U'\u00ea'; break; // 'ê'
-			case U'f': c = U'\u0192'; break; // 'ƒ'
-			case U'g': c = U'\u011f'; break; // 'ğ'
-			case U'h': c = U'\u0125'; break; // 'ĥ'
-			case U'i': c = U'\u00ef'; break; // 'ï'
-			case U'j': c = U'\u0135'; break; // 'ĵ'
-			case U'k': c = U'\u0137'; break; // 'ķ'
-			case U'l': c = U'\u013a'; break; // 'ĺ'
-			case U'n': c = U'\u00f1'; break; // 'ñ'
-			case U'o': c = U'\u00f4'; break; // 'ô'
-			case U'r': c = U'\u0213'; break; // 'ȓ'
-			case U's': c = U'\u015f'; break; // 'ş'
-			case U't': c = U'\u0167'; break; // 'ŧ'
-			case U'u': c = U'\u0169'; break; // 'ũ'
-			case U'w': c = U'\u0175'; break; // 'ŵ'
-			case U'y': c = U'\u00ff'; break; // 'ÿ'
-			case U'z': c = U'\u0225'; break; // 'ȥ'
-			case U'A': c = U'\u00c4'; break; // 'Ä'
-			case U'B': c = U'\u00df'; break; // 'ß'
-			case U'C': c = U'\u00c7'; break; // 'Ç'
-			case U'D': c = U'\u00d0'; break; // 'Ð'
-			case U'E': c = U'\u0204'; break; // 'Ȅ'
-			case U'F': c = U'\u0191'; break; // 'Ƒ'
-			case U'G': c = U'\u0120'; break; // 'Ġ'
-			case U'H': c = U'\u0126'; break; // 'Ħ'
-			case U'I': c = U'\u00cd'; break; // 'Í'
-			case U'J': c = U'\u0134'; break; // 'Ĵ'
-			case U'K': c = U'\u0136'; break; // 'Ķ'
-			case U'L': c = U'\u023d'; break; // 'Ƚ'
-			case U'N': c = U'\u00d1'; break; // 'Ñ'
-			case U'O': c = U'\u00d6'; break; // 'Ö'
-			case U'R': c = U'\u0154'; break; // 'Ŕ'
-			case U'S': c = U'\u015e'; break; // 'Ş'
-			case U'T': c = U'\u023e'; break; // 'Ⱦ'
-			case U'U': c = U'\u00d9'; break; // 'Ù'
-			case U'W': c = U'\u0174'; break; // 'Ŵ'
-			case U'Y': c = U'\u00dd'; break; // 'Ý'
-			case U'Z': c = U'\u0224'; break; // 'Ȥ'
-			case U'"': c = U'?';   break; // '?'
-			};
+				case U'a':
+					return U'\u0227';  // 'ȧ'
+				case U'b':
+					return U'\u018b';  // 'Ƌ'
+				case U'c':
+					return U'\u00e7';  // 'ç'
+				case U'd':
+					return U'\u0111';  // 'đ'
+				case U'e':
+					return U'\u00ea';  // 'ê'
+				case U'f':
+					return U'\u0192';  // 'ƒ'
+				case U'g':
+					return U'\u011f';  // 'ğ'
+				case U'h':
+					return U'\u0125';  // 'ĥ'
+				case U'i':
+					return U'\u00ef';  // 'ï'
+				case U'j':
+					return U'\u0135';  // 'ĵ'
+				case U'k':
+					return U'\u0137';  // 'ķ'
+				case U'l':
+					return U'\u013a';  // 'ĺ'
+				case U'n':
+					return U'\u00f1';  // 'ñ'
+				case U'o':
+					return U'\u00f4';  // 'ô'
+				case U'r':
+					return U'\u0213';  // 'ȓ'
+				case U's':
+					return U'\u015f';  // 'ş'
+				case U't':
+					return U'\u0167';  // 'ŧ'
+				case U'u':
+					return U'\u0169';  // 'ũ'
+				case U'w':
+					return U'\u0175';  // 'ŵ'
+				case U'y':
+					return U'\u00ff';  // 'ÿ'
+				case U'z':
+					return U'\u0225';  // 'ȥ'
+				case U'A':
+					return U'\u00c4';  // 'Ä'
+				case U'B':
+					return U'\u00df';  // 'ß'
+				case U'C':
+					return U'\u00c7';  // 'Ç'
+				case U'D':
+					return U'\u00d0';  // 'Ð'
+				case U'E':
+					return U'\u0204';  // 'Ȅ'
+				case U'F':
+					return U'\u0191';  // 'Ƒ'
+				case U'G':
+					return U'\u0120';  // 'Ġ'
+				case U'H':
+					return U'\u0126';  // 'Ħ'
+				case U'I':
+					return U'\u00cd';  // 'Í'
+				case U'J':
+					return U'\u0134';  // 'Ĵ'
+				case U'K':
+					return U'\u0136';  // 'Ķ'
+				case U'L':
+					return U'\u023d';  // 'Ƚ'
+				case U'N':
+					return U'\u00d1';  // 'Ñ'
+				case U'O':
+					return U'\u00d6';  // 'Ö'
+				case U'R':
+					return U'\u0154';  // 'Ŕ'
+				case U'S':
+					return U'\u015e';  // 'Ş'
+				case U'T':
+					return U'\u023e';  // 'Ⱦ'
+				case U'U':
+					return U'\u00d9';  // 'Ù'
+				case U'W':
+					return U'\u0174';  // 'Ŵ'
+				case U'Y':
+					return U'\u00dd';  // 'Ý'
+				case U'Z':
+					return U'\u0224';  // 'Ȥ'
+				case U'"':
+					return U'?';  // '?'
+			}
+			return c;
 		}
+	}  // namespace
+
+	std::string warp(const std::string& s) {
+		auto u32 = utf::as_u32(s);
+		for (auto& c : u32)
+			c = warped(c);
 		return utf::as_u8(u32);
 	}
 
-	std::vector<tr_string> translations(const std::map<std::string, std::string>& gtt,
-	                                    const std::vector<idl_string>& strings,
-	                                    bool warp_missing, bool verbose,
-	                                    source_file& src, diagnostics& diags)
-	{
+	std::vector<tr_string> translations(
+	    const std::map<std::string, std::string>& gtt,
+	    const std::vector<idl_string>& strings,
+	    bool warp_missing,
+	    bool verbose,
+	    source_file& src,
+	    diagnostics& diags) {
 		std::vector<tr_string> out;
 		out.reserve(gtt.empty() ? 0 : gtt.size() - 1);
 
@@ -110,12 +158,10 @@ namespace lngs::app {
 			if (it == gtt.end()) {
 				if (verbose) {
 					diags.push_back(
-						src.position()[severity::warning]
-							<< arg(lng::ERR_MSGS_TRANSLATION_MISSING, str.key)
-					);
+					    src.position()[severity::warning]
+					    << arg(lng::ERR_MSGS_TRANSLATION_MISSING, str.key));
 				}
-				if (warp_missing)
-					out.emplace_back(str.id, warp(str.value));
+				if (warp_missing) out.emplace_back(str.id, warp(str.value));
 				continue;
 			}
 			out.emplace_back(str.id, it->second);
@@ -124,49 +170,51 @@ namespace lngs::app {
 		return out;
 	}
 
-	std::map<std::string, std::string, std::less<>> attrGTT(std::string_view attrs)
-	{
+	std::map<std::string, std::string, std::less<>> attrGTT(
+	    std::string_view attrs) {
 		std::map<std::string, std::string, std::less<>> out;
 
 		auto c = std::begin(attrs);
 		auto e = std::end(attrs);
 		while (c != e) {
-			while (c != e && std::isspace(s2uc(*c))) ++c;
+			while (c != e && std::isspace(s2uc(*c)))
+				++c;
 
 			auto s_name = c;
 			while (c != e && !std::isspace(s2uc(*c))) {
-				if (*c == ':')
-					break;
+				if (*c == ':') break;
 				++c;
 			}
-			auto name = std::string{ s_name, c };
+			auto name = std::string{s_name, c};
 
-			while (c != e && std::isspace(s2uc(*c))) ++c;
-			if (c == e || *c != ':')
-				continue;
+			while (c != e && std::isspace(s2uc(*c)))
+				++c;
+			if (c == e || *c != ':') continue;
 			++c;
 
-			while (c != e && std::isspace(s2uc(*c)) && *c != '\n') ++c;
+			while (c != e && std::isspace(s2uc(*c)) && *c != '\n')
+				++c;
 
 			auto s_value = c;
-			while (c != e && *c != '\n') ++c;
+			while (c != e && *c != '\n')
+				++c;
 			if (c != e) ++c;
 			auto e_value = c;
 
-			while (s_value != e_value && std::isspace(s2uc(e_value[-1]))) --e_value;
-			out[name] = { s_value, e_value };
+			while (s_value != e_value && std::isspace(s2uc(e_value[-1])))
+				--e_value;
+			out[name] = {s_value, e_value};
 		}
 
 		return out;
 	}
 
-	static std::string gnu2iso(std::string s)
-	{
+	static std::string gnu2iso(std::string s) {
 		size_t i = 0;
 		for (auto& c : s) {
 			if (c == '_') {
 				c = '-';
-			} else if (c == '.') { // ll_CC.code?
+			} else if (c == '.') {  // ll_CC.code?
 				s = s.substr(0, i);
 				break;
 			}
@@ -178,22 +226,23 @@ namespace lngs::app {
 	}
 
 	template <attr_t Name>
-	static inline void copy_attr(const std::map<std::string, std::string, std::less<>>& src,
-		std::vector<tr_string>& dst, std::string_view key) {
+	static inline void copy_attr(
+	    const std::map<std::string, std::string, std::less<>>& src,
+	    std::vector<tr_string>& dst,
+	    std::string_view key) {
 		auto attr = src.find(key);
-		if (attr == end(src))
-			return;
-		if constexpr(Name == ATTR_CULTURE)
-			dst.push_back({ Name, gnu2iso(attr->second) });
+		if (attr == end(src)) return;
+		if constexpr (Name == ATTR_CULTURE)
+			dst.push_back({Name, gnu2iso(attr->second)});
 		else
-			dst.push_back({ Name, attr->second });
+			dst.push_back({Name, attr->second});
 	}
 
-	std::vector<tr_string> attributes(const std::map<std::string, std::string>& gtt)
-	{
+	std::vector<tr_string> attributes(
+	    const std::map<std::string, std::string>& gtt) {
 		std::vector<tr_string> props;
 		auto it = gtt.find("");
-		auto attrs = attrGTT(it == gtt.end() ? std::string{ } : it->second);
+		auto attrs = attrGTT(it == gtt.end() ? std::string{} : it->second);
 
 		copy_attr<ATTR_CULTURE>(attrs, props, "Language");
 		copy_attr<ATTR_PLURALS>(attrs, props, "Plural-Forms");
@@ -201,8 +250,7 @@ namespace lngs::app {
 		return props;
 	}
 
-	char nextc(instream& is)
-	{
+	char nextc(instream& is) {
 		char c;
 		is.read(&c, 1);
 		return c;
@@ -216,11 +264,7 @@ namespace lngs::app {
 		unsigned line = 1;
 		unsigned column = 1;
 
-		enum result {
-			next,
-			done,
-			error
-		};
+		enum result { next, done, error };
 
 		void adv(const char c) {
 			++column;
@@ -237,8 +281,7 @@ namespace lngs::app {
 			while (!is.eof() && std::isspace(b2uc(is.peek())))
 				adv(nextc(is));
 
-			if (is.eof())
-				return done;
+			if (is.eof()) return done;
 
 			const auto pos = is.position(line, column);
 
@@ -253,10 +296,8 @@ namespace lngs::app {
 			while (!is.eof() && std::isspace(b2uc(is.peek()))) {
 				auto c = nextc(is);
 				if (c == '\n') {
-					diags.push_back(
-						(pos/end_pos)[severity::error]
-							<< arg(lng::ERR_UNANMED_LOCALE, code)
-					);
+					diags.push_back((pos / end_pos)[severity::error]
+					                << arg(lng::ERR_UNANMED_LOCALE, code));
 					return error;
 				}
 			}
@@ -267,42 +308,49 @@ namespace lngs::app {
 				adv(c);
 			}
 
-			if (!is.eof())
-				adv(nextc(is));
+			if (!is.eof()) adv(nextc(is));
 
 			auto len = name.length();
 			while (len > 0 && std::isspace(s2uc(name[len - 1])))
 				--len;
-			if (len != name.length())
-				name = name.substr(0, len);
+			if (len != name.length()) name = name.substr(0, len);
 
 			names[std::move(code)] = std::move(name);
 			return next;
 		}
 	};
 
-	bool ll_CC(source_file is, diagnostics& diags, std::map<std::string, std::string>& langs)
-	{
+	bool ll_CC(source_file is,
+	           diagnostics& diags,
+	           std::map<std::string, std::string>& langs) {
 		if (!is.valid()) {
-			diags.push_back(is.position()[severity::error] << lng::ERR_FILE_NOT_FOUND);
+			diags.push_back(is.position()[severity::error]
+			                << lng::ERR_FILE_NOT_FOUND);
 			return false;
 		}
 
-		ll_parse parser{ langs, std::move(is), diags };
+		ll_parse parser{langs, std::move(is), diags};
 		ll_parse::result res = ll_parse::done;
 
-		while (!(res = parser.next_code()));
+		while (!(res = parser.next_code()))
+			;
 
 		return res != ll_parse::error;
 	}
 
-#define WRITE(os, I) if (!os.write(I)) return -1;
-#define WRITESTR(os, S) if (os.write(S) != (S).length()) return -1;
-#define CARRY(ex) do { auto ret = (ex); if (ret) return ret; } while (0)
+#define WRITE(os, I) \
+	if (!os.write(I)) return -1;
+#define WRITESTR(os, S) \
+	if (os.write(S) != (S).length()) return -1;
+#define CARRY(ex)            \
+	do {                     \
+		auto ret = (ex);     \
+		if (ret) return ret; \
+	} while (0)
 
 	namespace {
-		void update_offsets(uint32_t& next_offset, std::vector<tr_string>& block)
-		{
+		void update_offsets(uint32_t& next_offset,
+		                    std::vector<tr_string>& block) {
 			for (auto& str : block) {
 				str.key.offset = next_offset;
 				next_offset += str.key.length;
@@ -310,16 +358,14 @@ namespace lngs::app {
 			}
 		}
 
-		int list(outstream& os, std::vector<tr_string>& block)
-		{
+		int list(outstream& os, std::vector<tr_string>& block) {
 			for (auto& str : block)
 				WRITE(os, str.key);
 
 			return 0;
 		}
 
-		int data(outstream& os, std::vector<tr_string>& block)
-		{
+		int data(outstream& os, std::vector<tr_string>& block) {
 			for (auto& str : block) {
 				WRITESTR(os, str.value);
 				WRITE(os, '\0');
@@ -328,18 +374,20 @@ namespace lngs::app {
 			return 0;
 		}
 
-		int section(outstream& os, uint32_t section_id, std::vector<tr_string>& block)
-		{
-			if (block.empty())
-				return 0;
+		int section(outstream& os,
+		            uint32_t section_id,
+		            std::vector<tr_string>& block) {
+			if (block.empty()) return 0;
 
 			uint32_t key_size = sizeof(string_key) / sizeof(uint32_t);
 			key_size *= static_cast<uint32_t>(block.size());
 
 			string_header hdr;
 			hdr.id = section_id;
-			hdr.string_offset = key_size + sizeof(string_header) / sizeof(uint32_t);
-			hdr.ints = static_cast<uint32_t>(hdr.string_offset - sizeof(section_header) / sizeof(uint32_t));
+			hdr.string_offset =
+			    key_size + sizeof(string_header) / sizeof(uint32_t);
+			hdr.ints = static_cast<uint32_t>(
+			    hdr.string_offset - sizeof(section_header) / sizeof(uint32_t));
 			hdr.string_count = static_cast<uint32_t>(block.size());
 
 			uint32_t offset = 0;
@@ -353,7 +401,7 @@ namespace lngs::app {
 
 #ifdef _MSC_VER
 #pragma warning(push)
-#pragma warning(disable: 4127)
+#pragma warning(disable : 4127)
 #endif
 
 			CARRY(list(os, block));
@@ -369,20 +417,13 @@ namespace lngs::app {
 
 			return 0;
 		}
-	}
+	}  // namespace
 
-	tr_string::tr_string() = default;
-	tr_string::~tr_string() = default;
-	tr_string::tr_string(tr_string&&) = default;
-	tr_string& tr_string::operator=(tr_string&&) = default;
-	tr_string::tr_string(const tr_string&) = default;
-	tr_string& tr_string::operator=(const tr_string&) = default;
-
-	int file::write(outstream& os)
-	{
+	int file::write(outstream& os) {
 		file_header hdr;
 		hdr.id = hdrtext_tag;
-		hdr.ints = (sizeof(file_header) - sizeof(section_header)) / sizeof(uint32_t);
+		hdr.ints =
+		    (sizeof(file_header) - sizeof(section_header)) / sizeof(uint32_t);
 		hdr.version = v1_0::version;
 		hdr.serial = serial;
 
@@ -391,7 +432,7 @@ namespace lngs::app {
 
 #ifdef _MSC_VER
 #pragma warning(push)
-#pragma warning(disable: 4127)
+#pragma warning(disable : 4127)
 #endif
 
 		CARRY(section(os, attrtext_tag, attrs));
@@ -411,4 +452,4 @@ namespace lngs::app {
 #undef WRITE
 #undef WRITESTR
 #undef CARRY
-}
+}  // namespace lngs::app

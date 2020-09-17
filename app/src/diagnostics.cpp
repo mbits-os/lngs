@@ -22,11 +22,11 @@
  * SOFTWARE.
  */
 
-#include <lngs/internals/diagnostics.hpp>
 #include <fmt/format.h>
+#include <lngs/internals/diagnostics.hpp>
 #ifdef _WIN32
-#include <lngs/internals/utf8.hpp>
 #include <windows.h>
+#include <lngs/internals/utf8.hpp>
 #undef SEVERITY_ERROR
 #undef min
 #undef max
@@ -39,14 +39,15 @@ namespace lngs::app {
 	inline std::string oem_cp(std::string_view view) {
 		auto u16 = utf::as_u16(view);
 		auto cp = GetOEMCP();
-		size_t str_size = WideCharToMultiByte(cp, 0, (LPCWSTR)u16.c_str(), -1, nullptr, 0, nullptr, nullptr);
-		if (!str_size)
-			return { view.data(), view.length() };
+		size_t str_size = WideCharToMultiByte(cp, 0, (LPCWSTR)u16.c_str(), -1,
+		                                      nullptr, 0, nullptr, nullptr);
+		if (!str_size) return {view.data(), view.length()};
 
 		std::string out(str_size - 1, ' ');
-		auto result = WideCharToMultiByte(cp, 0, (LPCWSTR)u16.c_str(), -1, out.data(), str_size, nullptr, nullptr);
-		if (!result)
-			return { view.data(), view.length() };
+		auto result =
+		    WideCharToMultiByte(cp, 0, (LPCWSTR)u16.c_str(), -1, out.data(),
+		                        str_size, nullptr, nullptr);
+		if (!result) return {view.data(), view.length()};
 
 		return out;
 	}
@@ -55,16 +56,18 @@ namespace lngs::app {
 #endif
 
 	void argumented_string::print(outstream& o, const strings& tr) const {
-		auto oem = std::visit([&](const auto& arg) {
-			if constexpr (std::is_same_v<decltype(arg), const std::string&>) {
-				return oem_cp(arg);
-			} else
-				return oem_cp(tr.get(arg));
-		}, value);
-		auto str = std::string_view{ oem };
+		auto oem = std::visit(
+		    [&](const auto& arg) {
+			    if constexpr (std::is_same_v<decltype(arg),
+			                                 const std::string&>) {
+				    return oem_cp(arg);
+			    } else
+				    return oem_cp(tr.get(arg));
+		    },
+		    value);
+		auto str = std::string_view{oem};
 
-		if (str.empty())
-			return;
+		if (str.empty()) return;
 
 		if (args.empty()) {
 			o.write(str.data(), str.length());
@@ -76,11 +79,12 @@ namespace lngs::app {
 		for (auto const& arg : args)
 			storage.push_back(arg.str(tr));
 
-		auto args_data = std::make_unique<fmt::format_args::format_arg[]>(args.size());
+		auto args_data =
+		    std::make_unique<fmt::format_args::format_arg[]>(args.size());
 		auto it = args_data.get();
 		for (auto const& arg : storage)
 			*it++ = fmt::detail::make_arg<fmt::format_context>(arg);
-		fmt::format_args f_args{ args_data.get(), args.size() };
+		fmt::format_args f_args{args_data.get(), args.size()};
 
 		fmt::memory_buffer buffer;
 		vformat_to(buffer, str, f_args);
@@ -104,25 +108,25 @@ namespace lngs::app {
 		return std::move(out.s);
 	}
 
-	bool argumented_string::operator==(const argumented_string& rhs) const noexcept {
-		if (value.index() != rhs.value.index())
+	bool argumented_string::operator==(
+	    const argumented_string& rhs) const noexcept {
+		if (value.index() != rhs.value.index()) return false;
+
+		if (!std::visit(
+		        [](const auto& lhs, const auto& rhs) {
+			        if constexpr (std::is_same_v<decltype(lhs), decltype(rhs)>)
+				        return lhs == rhs;
+			        else
+				        return false;
+		        },
+		        value, rhs.value))
 			return false;
 
-		if (!std::visit([](const auto& lhs, const auto& rhs) {
-			if constexpr (std::is_same_v<decltype(lhs), decltype(rhs)>)
-				return lhs == rhs;
-			else
-				return false;
-		}, value, rhs.value))
-			return false;
-
-		if (args.size() != rhs.args.size())
-			return false;
+		if (args.size() != rhs.args.size()) return false;
 
 		auto it = begin(rhs.args);
 		for (const auto& sub : args) {
-			if (!(sub == *it++))
-				return false;
+			if (!(sub == *it++)) return false;
 		}
 		return true;
 	}
@@ -132,18 +136,16 @@ namespace lngs::app {
 		fs::file file_;
 		std::vector<std::byte> content_;
 		std::vector<std::size_t> endlines_;
-		bool eof_{ false };
+		bool eof_{false};
+
 	public:
-		source_view(diagnostics::bucket_item* item) : item_{ item } {}
+		source_view(diagnostics::bucket_item* item) : item_{item} {}
 		void open(const char* mode) { file_.open(item_->path, mode); }
 
-		unsigned key() const noexcept {
-			return item_->key;
-		}
+		unsigned key() const noexcept { return item_->key; }
 
 		void ensure(size_t size) {
-			if (!valid())
-				eof_ = true;
+			if (!valid()) eof_ = true;
 
 			std::byte buffer[8192];
 			while (!eof_ && content_.size() < size) {
@@ -151,8 +153,7 @@ namespace lngs::app {
 				if (read)
 					content_.insert(content_.end(), buffer, buffer + read);
 
-				if (file_.feof())
-					eof_ = true;
+				if (file_.feof()) eof_ = true;
 			}
 		}
 
@@ -163,8 +164,7 @@ namespace lngs::app {
 				if (read)
 					content_.insert(content_.end(), buffer, buffer + read);
 
-				if (file_.feof())
-					eof_ = true;
+				if (file_.feof()) eof_ = true;
 			}
 
 			return content_;
@@ -178,10 +178,9 @@ namespace lngs::app {
 		}
 
 		std::string_view line(unsigned no) noexcept {
-			constexpr auto endline = std::byte{ '\n' };
+			constexpr auto endline = std::byte{'\n'};
 
-			if (!no)
-				return {};
+			if (!no) return {};
 			--no;
 
 			while (no >= endlines_.size()) {
@@ -192,13 +191,15 @@ namespace lngs::app {
 					auto it = std::find(data, end, endline);
 
 					if (it != end) {
-						endlines_.push_back(static_cast<size_t>(it - content_.data()));
+						endlines_.push_back(
+						    static_cast<size_t>(it - content_.data()));
 						continue;
 					}
 				}
 
 				if (eof_) {
-					if (endlines_.empty() || endlines_.back() != content_.size())
+					if (endlines_.empty() ||
+					    endlines_.back() != content_.size())
 						endlines_.push_back(content_.size());
 					break;
 				}
@@ -208,10 +209,9 @@ namespace lngs::app {
 
 			if (no < endlines_.size()) {
 				auto data = reinterpret_cast<const char*>(content_.data());
-				if (!no)
-					return { data, endlines_[0] };
+				if (!no) return {data, endlines_[0]};
 				const auto prev = endlines_[no - 1];
-				return { data + prev + 1, endlines_[no] - prev - 1 };
+				return {data + prev + 1, endlines_[no] - prev - 1};
 			}
 
 			return {};
@@ -225,8 +225,7 @@ namespace lngs::app {
 
 		std::byte peek(size_t at) noexcept {
 			ensure(at + 1);
-			if (at >= content_.size())
-				return std::byte{ 0 };
+			if (at >= content_.size()) return std::byte{0};
 			return content_[at];
 		}
 
@@ -238,20 +237,16 @@ namespace lngs::app {
 			else
 				rest = 0;
 
-			if (rest > length)
-				rest = length;
+			if (rest > length) rest = length;
 
-			if (rest)
-				std::memcpy(buffer, content_.data() + at, rest);
+			if (rest) std::memcpy(buffer, content_.data() + at, rest);
 			return rest;
 		}
 	};
 
 	source_file::~source_file() = default;
 
-	bool source_file::valid() const noexcept {
-		return view_ && view_->valid();
-	}
+	bool source_file::valid() const noexcept { return view_ && view_->valid(); }
 
 	std::size_t source_file::read(void* buffer, std::size_t length) noexcept {
 		auto read = view_->read(position_, buffer, length);
@@ -259,13 +254,9 @@ namespace lngs::app {
 		return read;
 	}
 
-	bool source_file::eof() const noexcept {
-		return view_->eof(position_);
-	}
+	bool source_file::eof() const noexcept { return view_->eof(position_); }
 
-	std::byte source_file::peek() noexcept {
-		return view_->peek(position_);
-	}
+	std::byte source_file::peek() noexcept { return view_->peek(position_); }
 
 	const std::vector<std::byte>& source_file::data() const noexcept {
 		return view_->data();
@@ -276,10 +267,14 @@ namespace lngs::app {
 	}
 
 	location source_file::position(unsigned line, unsigned column) {
-		return { view_ ? view_->key() : 0u, line, column };
+		return {view_ ? view_->key() : 0u, line, column};
 	}
 
-	void diagnostic::print(outstream& o, const class diagnostics& host, const strings& tr, link_type links, size_t depth) const {
+	void diagnostic::print(outstream& o,
+	                       const class diagnostics& host,
+	                       const strings& tr,
+	                       link_type links,
+	                       size_t depth) const {
 		if (links == link_type::vc) {
 			for (size_t i = 0; i < depth; ++i) {
 				static constexpr const char pre[] = "    ";
@@ -312,10 +307,14 @@ namespace lngs::app {
 
 			const auto id = [](severity sev) {
 				switch (sev) {
-				case severity::warning: return app::lng::SEVERITY_WARNING;
-				case severity::error:   return app::lng::SEVERITY_ERROR;
-				case severity::fatal:   return app::lng::SEVERITY_FATAL;
-				default: break;
+					case severity::warning:
+						return app::lng::SEVERITY_WARNING;
+					case severity::error:
+						return app::lng::SEVERITY_ERROR;
+					case severity::fatal:
+						return app::lng::SEVERITY_FATAL;
+					default:
+						break;
 				}
 				return app::lng::SEVERITY_NOTE;
 			}(sev);
@@ -329,7 +328,8 @@ namespace lngs::app {
 		if (!file.empty() && pos.line) {
 			auto src = host.source(file);
 			if (src.valid()) {
-				auto [line, start_col, end_col] = prepare(src.line(pos.line), pos.column, end_pos.column);
+				auto [line, start_col, end_col] =
+				    prepare(src.line(pos.line), pos.column, end_pos.column);
 				o.write(line);
 				o.write('\n');
 				if (pos.column) {
@@ -349,10 +349,13 @@ namespace lngs::app {
 			child.print(o, host, tr, links, depth + 1);
 	}
 
-	std::tuple<std::string, std::size_t, std::size_t> diagnostic::prepare(std::string_view line, std::size_t start_col, std::size_t end_col) {
+	std::tuple<std::string, std::size_t, std::size_t> diagnostic::prepare(
+	    std::string_view line,
+	    std::size_t start_col,
+	    std::size_t end_col) {
 		struct index {
-			size_t raw, mapped{ 0 };
-		} col{ start_col }, col_end{ end_col };
+			size_t raw, mapped{0};
+		} col{start_col}, col_end{end_col};
 
 		size_t len = 0;
 		size_t pos = 0;
@@ -360,18 +363,15 @@ namespace lngs::app {
 		for (auto c : line) {
 			++len;
 			++pos;
-			if (col.raw == pos)
-				col.mapped = len;
-			if (col_end.raw == pos)
-				col_end.mapped = len;
+			if (col.raw == pos) col.mapped = len;
+			if (col_end.raw == pos) col_end.mapped = len;
 			if (c == '\t') {
 				while (len % diagnostic::tab_size) {
 					++len;
 				}
 			}
 		}
-		if (col.raw && !col.mapped)
-			col.mapped = len + (col.raw - pos);
+		if (col.raw && !col.mapped) col.mapped = len + (col.raw - pos);
 		if (col_end.raw && !col_end.mapped)
 			col_end.mapped = len + (col_end.raw - pos);
 
@@ -386,10 +386,11 @@ namespace lngs::app {
 					++len;
 					s.push_back(' ');
 				}
-			} else s.push_back(c);
+			} else
+				s.push_back(c);
 		}
 
-		return { s, col.mapped - 1, col_end.mapped - 1 };
+		return {s, col.mapped - 1, col_end.mapped - 1};
 	}
 
 	template <typename Key>
@@ -397,16 +398,15 @@ namespace lngs::app {
 		auto key = std::hash<Key>{}(path);
 		auto it = files_.lower_bound(key);
 		if (it == end(files_) || it->first != key) {
-			it = files_.insert(it, { key, bucket{} });
+			it = files_.insert(it, {key, bucket{}});
 		}
 
 		for (auto& item : it->second) {
-			if (item.path == path)
-				return &item;
+			if (item.path == path) return &item;
 		}
 
 		auto current = ++current_value_;
-		it->second.push_back({ std::string{ path }, {}, current });
+		it->second.push_back({std::string{path}, {}, current});
 		reverse_[current] = key;
 
 		return &it->second.back();
@@ -416,12 +416,10 @@ namespace lngs::app {
 	const diagnostics::bucket_item* diagnostics::lookup(const Key& path) const {
 		auto key = std::hash<Key>{}(path);
 		auto it = files_.lower_bound(key);
-		if (it == end(files_) || it->first != key)
-			return nullptr;
+		if (it == end(files_) || it->first != key) return nullptr;
 
 		for (auto& item : it->second) {
-			if (item.path == path)
-				return &item;
+			if (item.path == path) return &item;
 		}
 
 		return nullptr;
@@ -429,15 +427,12 @@ namespace lngs::app {
 
 	std::string_view diagnostics::filename(const location& loc) const {
 		auto it_hash = reverse_.find(loc.token);
-		if (it_hash == end(reverse_))
-			return {};
+		if (it_hash == end(reverse_)) return {};
 		auto it = files_.lower_bound(it_hash->second);
-		if (it == end(files_))
-			return {};
+		if (it == end(files_)) return {};
 
 		for (const auto& item : it->second) {
-			if (item.key == loc.token)
-				return item.path;
+			if (item.key == loc.token) return item.path;
 		}
 
 		return {};
@@ -446,7 +441,8 @@ namespace lngs::app {
 	source_file diagnostics::open(const std::string& path, const char* mode) {
 		auto item = lookup(path);
 		if (!item->contents) {
-			(item->contents = std::make_shared<source_file::source_view>(item))->open(mode);
+			(item->contents = std::make_shared<source_file::source_view>(item))
+			    ->open(mode);
 		}
 		return item->contents;
 	}
@@ -464,19 +460,23 @@ namespace lngs::app {
 		return item ? item->contents : source_file{};
 	}
 
-	void diagnostics::set_contents(const std::string& path, std::vector<std::byte> data) {
+	void diagnostics::set_contents(const std::string& path,
+	                               std::vector<std::byte> data) {
 		auto item = lookup(path);
 		if (item) {
-			(item->contents = std::make_shared<source_file::source_view>(item))->data(std::move(data));
+			(item->contents = std::make_shared<source_file::source_view>(item))
+			    ->data(std::move(data));
 		}
 	}
 
-	void diagnostics::set_contents(const std::string& path, std::string_view data) {
+	void diagnostics::set_contents(const std::string& path,
+	                               std::string_view data) {
 		auto item = lookup(path);
 		if (item) {
 			std::vector<std::byte> bytes(data.length());
 			memcpy(bytes.data(), data.data(), data.length());
-			(item->contents = std::make_shared<source_file::source_view>(item))->data(std::move(bytes));
+			(item->contents = std::make_shared<source_file::source_view>(item))
+			    ->data(std::move(bytes));
 		}
 	}
 
@@ -486,9 +486,8 @@ namespace lngs::app {
 
 	bool diagnostics::has_errors() const noexcept {
 		for (auto const& diag : set_) {
-			if (diag.sev > severity::warning)
-				return true;
+			if (diag.sev > severity::warning) return true;
 		}
 		return false;
 	}
-}
+}  // namespace lngs::app

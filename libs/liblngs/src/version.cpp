@@ -25,7 +25,5 @@
 #include <lngs/version.hpp>
 
 namespace lngs {
-	version_type get_version() {
-		return version;
-	}
-}
+	version_type get_version() { return version; }
+}  // namespace lngs

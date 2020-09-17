@@ -50,4 +50,4 @@ the lazy dog)";
 		EXPECT_EQ(sizeof(uint32_t), read);
 		EXPECT_EQ(lngs::v1_0::version, version);
 	}
-}
+}  // namespace fs::testing

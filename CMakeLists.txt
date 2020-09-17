@@ -82,6 +82,10 @@ list(APPEND COVERALLS_DIRS
   app/include
   app/src)
 
+set(COVERALLS_IGNORE_FILES app/src/lngs.cpp)
+
+find_package(Python3 COMPONENTS Interpreter REQUIRED)
+  
 include(tools/coveralls/Coveralls.cmake)
 
 if (COVERALLS AND NOT LNGS_TESTING)

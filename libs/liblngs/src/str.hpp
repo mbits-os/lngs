@@ -23,19 +23,17 @@
  */
 
 #pragma once
-#include <vector>
+#include <cctype>
 #include <string>
 #include <string_view>
-#include <cctype>
+#include <vector>
 
 namespace {
-	unsigned char s2uc(char c) {
-		return static_cast<unsigned char>(c);
-	}
-}
+	unsigned char s2uc(char c) { return static_cast<unsigned char>(c); }
+}  // namespace
 
-inline std::vector<std::string_view> split_view(std::string_view str, std::string_view sep)
-{
+inline std::vector<std::string_view> split_view(std::string_view str,
+                                                std::string_view sep) {
 	std::vector<std::string_view> out;
 	auto pos = str.find(sep, 0);
 	decltype(pos) prev = 0;
@@ -49,10 +47,11 @@ inline std::vector<std::string_view> split_view(std::string_view str, std::strin
 	return out;
 }
 
-inline std::vector<std::string_view> split_view(std::string_view str, std::string_view sep, size_t count)
-{
+inline std::vector<std::string_view> split_view(std::string_view str,
+                                                std::string_view sep,
+                                                size_t count) {
 	std::vector<std::string_view> out;
-	auto pos = str.find(sep, 0); // noexcept
+	auto pos = str.find(sep, 0);  // noexcept
 	decltype(pos) prev = 0;
 	while (pos != std::string_view::npos && count) {
 		--count;
@@ -65,10 +64,9 @@ inline std::vector<std::string_view> split_view(std::string_view str, std::strin
 	return out;
 }
 
-inline std::string join(const std::vector<std::string_view>& list, std::string_view sep)
-{
-	if (list.empty())
-		return{};
+inline std::string join(const std::vector<std::string_view>& list,
+                        std::string_view sep) {
+	if (list.empty()) return {};
 
 	size_t len = sep.length() * (list.size() - 1);
 
@@ -79,8 +77,10 @@ inline std::string join(const std::vector<std::string_view>& list, std::string_v
 	out.reserve(len + 1);
 	bool first = true;
 	for (auto& item : list) {
-		if (first) first = false;
-		else out += sep;
+		if (first)
+			first = false;
+		else
+			out += sep;
 		out += item;
 	}
 	return out;
@@ -96,5 +96,5 @@ inline std::string strip(std::string_view s) {
 	while (b != e && std::isspace(s2uc(e[-1])))
 		--e;
 
-	return{ b, e };
+	return {b, e};
 }

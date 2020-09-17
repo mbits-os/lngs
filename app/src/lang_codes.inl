@@ -29,16 +29,14 @@ namespace {
 	const char* key_of(const char** key) { return *key; }
 
 	template <typename T, size_t len>
-	const T* search(T(&coll)[len], std::string_view key)
-	{
+	const T* search(T (&coll)[len], std::string_view key) {
 		auto lo = coll;
 		auto hi = coll + len - 1;
 
 		while (hi >= lo) {
 			auto mid = lo + (hi - lo) / 2;
 			auto test = key.compare(key_of(mid));
-			if (!test)
-				return mid;
+			if (!test) return mid;
 
 			if (test < 0)
 				hi = mid - 1;
@@ -49,39 +47,33 @@ namespace {
 		return nullptr;
 	}
 
-}
+}  // namespace
 
 namespace lngs::app {
-	std::string language_name(std::string_view lang)
-	{
+	std::string language_name(std::string_view lang) {
 		const auto ll_cc = lang.substr(0, lang.find('.'));
 		auto pos = ll_cc.find('-');
 		if (pos == std::string_view::npos) {
 			auto tok = search(languages, ll_cc);
-			if (!tok)
-				return { };
+			if (!tok) return {};
 			return tok->value;
 		}
 
 		auto tok = search(languages, ll_cc.substr(0, pos));
-		if (!tok)
-			return { };
+		if (!tok) return {};
 
-		std::string out { tok->value };
+		std::string out{tok->value};
 
 		auto len = ll_cc.find('-', pos + 1);
-		if (len != std::string_view::npos)
-			len -= pos + 1;
+		if (len != std::string_view::npos) len -= pos + 1;
 		auto script_region = ll_cc.substr(pos + 1, len);
 
 		if (search(scripts, script_region)) {
-			if (len == std::string_view::npos)
-				return out;
+			if (len == std::string_view::npos) return out;
 
 			pos += 1 + len;
 			len = ll_cc.find('-', pos + 1);
-			if (len != std::string_view::npos)
-				len -= pos + 1;
+			if (len != std::string_view::npos) len -= pos + 1;
 			script_region = ll_cc.substr(pos + 1, len);
 		}
 
@@ -98,4 +90,4 @@ namespace lngs::app {
 
 		return out;
 	}
-}
+}  // namespace lngs::app

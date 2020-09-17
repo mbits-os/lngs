@@ -22,18 +22,13 @@
  * SOFTWARE.
  */
 
+#include <cstdlib>
 #include <lngs/plurals.hpp>
 #include "expr_parser.hpp"
 #include "node.hpp"
 #include "str.hpp"
-#include <cstdlib>
 
 namespace lngs::plurals {
-	lexical::lexical() = default;
-	lexical::~lexical() = default;
-	lexical::lexical(lexical&&) = default;
-	lexical& lexical::operator=(lexical&&) = default;
-
 	lexical decode(std::string_view entry) {
 		lexical out;
 		auto values = split_view(entry, ";");
@@ -51,14 +46,11 @@ namespace lngs::plurals {
 		return out;
 	}
 
-	intmax_t lexical::eval(intmax_t n) const noexcept
-	{
-		if (!plural)
-			return 0;
+	intmax_t lexical::eval(intmax_t n) const noexcept {
+		if (!plural) return 0;
 		bool failed = false;
 		const auto ret = plural->eval(n, failed);
-		if (failed)
-			return 0;
+		if (failed) return 0;
 		return ret;
 	}
-}
+}  // namespace lngs::plurals

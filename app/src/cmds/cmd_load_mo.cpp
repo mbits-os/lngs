@@ -24,10 +24,10 @@
 
 #include <lngs/internals/commands.hpp>
 #include <lngs/internals/diagnostics.hpp>
+#include <lngs/internals/gettext.hpp>
+#include <lngs/internals/languages.hpp>
 #include <lngs/internals/streams.hpp>
 #include <lngs/internals/strings.hpp>
-#include <lngs/internals/languages.hpp>
-#include <lngs/internals/gettext.hpp>
 
 #include <algorithm>
 
@@ -36,20 +36,31 @@ namespace lngs::app {
 }
 
 namespace lngs::app::make {
-	file load_mo(const idl_strings& defs, bool warp_missing, bool verbose, source_file data, diagnostics& diags) {
+	file load_mo(const idl_strings& defs,
+	             bool warp_missing,
+	             bool verbose,
+	             source_file data,
+	             diagnostics& diags) {
 		file file;
 		file.serial = defs.serial;
 		auto map = gtt::open(data, diags);
-		file.strings = translations(map, defs.strings, warp_missing, verbose, data, diags);
+		file.strings =
+		    translations(map, defs.strings, warp_missing, verbose, data, diags);
 		file.attrs = attributes(map);
 		return file;
 	}
 
-	bool fix_attributes(file& file, source_file& mo_file, const std::string& ll_CCs, diagnostics& diags) {
-		auto prop = find_if(begin(file.attrs), end(file.attrs), [](auto& item) { return item.key.id == ATTR_CULTURE; });
+	bool fix_attributes(file& file,
+	                    source_file& mo_file,
+	                    const std::string& ll_CCs,
+	                    diagnostics& diags) {
+		auto prop = find_if(begin(file.attrs), end(file.attrs), [](auto& item) {
+			return item.key.id == ATTR_CULTURE;
+		});
 		if (prop == end(file.attrs) || prop->value.empty()) {
 			const auto pos = mo_file.position();
-			diags.push_back(pos[severity::warning] << lng::ERR_MSGS_ATTR_LANG_MISSING);
+			diags.push_back(pos[severity::warning]
+			                << lng::ERR_MSGS_ATTR_LANG_MISSING);
 		} else {
 			bool lang_set = false;
 
@@ -58,12 +69,12 @@ namespace lngs::app::make {
 				const auto pos = is.position();
 
 				std::map<std::string, std::string> names;
-				if (!ll_CC(std::move(is), diags, names))
-					return false;
+				if (!ll_CC(std::move(is), diags, names)) return false;
 
 				auto it = names.find(prop->value);
 				if (it == names.end()) {
-					diags.push_back(pos[severity::warning] << arg(lng::ERR_LOCALE_MISSING, prop->value));
+					diags.push_back(pos[severity::warning] << arg(
+					                    lng::ERR_LOCALE_MISSING, prop->value));
 				} else {
 					file.attrs.emplace_back(ATTR_LANGUAGE, it->second);
 					lang_set = true;
@@ -77,7 +88,8 @@ namespace lngs::app::make {
 			}
 		}
 
-		sort(begin(file.attrs), end(file.attrs), [](auto& lhs, auto& rhs) { return lhs.key.id < rhs.key.id; });
+		sort(begin(file.attrs), end(file.attrs),
+		     [](auto& lhs, auto& rhs) { return lhs.key.id < rhs.key.id; });
 		return true;
 	}
-}
+}  // namespace lngs::app::make

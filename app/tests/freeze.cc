@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
-#include "diag_helper.h"
 #include <lngs/internals/commands.hpp>
 #include <lngs/internals/strings.hpp>
+#include "diag_helper.h"
 
 namespace lngs::app::testing {
 	using namespace ::std::literals;
@@ -17,7 +17,7 @@ namespace lngs::app::testing {
 	class frozen : public TestWithParam<frozen_result> {};
 
 	TEST_P(frozen, text) {
-		auto[input, expected, found_new] = GetParam();
+		auto [input, expected, found_new] = GetParam();
 
 		diagnostics diag;
 		diag.set_contents("", input);
@@ -36,64 +36,60 @@ namespace lngs::app::testing {
 	}
 
 	const frozen_result sources[] = {
-		{
-			R"([serial(0)]
+	    {
+	        R"([serial(0)]
 strings {
 	[id(-1), help("help string"), plural("values")] ID = "value";
 	[id(1001), plural("values"), help("help string")] ID2 = "value2";
 	[id(-1), help("help string")] ID3 = "value3";
 })",
-			R"([serial(1)]
+	        R"([serial(1)]
 strings {
 	[id(1002), help("help string"), plural("values")] ID = "value";
 	[id(1001), plural("values"), help("help string")] ID2 = "value2";
 	[id(1003), help("help string")] ID3 = "value3";
-})"
-		},
-		{
-			R"([serial(0)]
+})"},
+	    {
+	        R"([serial(0)]
 strings {
 	[id(-1), help("help string"), plural("values")] ID = "value";
 	[id(10), plural("values"), help("help string")] ID2 = "value2";
 	[id(-1), help("help string")] ID3 = "value3";
 })",
-			R"([serial(1)]
+	        R"([serial(1)]
 strings {
 	[id(1001), help("help string"), plural("values")] ID = "value";
 	[id(10), plural("values"), help("help string")] ID2 = "value2";
 	[id(1002), help("help string")] ID3 = "value3";
-})"
-		},
-		{
-			R"([serial(23)]
+})"},
+	    {
+	        R"([serial(23)]
 strings {
 	[id(-1), help("help string"), plural("values")] ID = "value";
 	[id(10000), plural("values"), help("help string")] ID2 = "value2";
 	[id(-1), help("help string")] ID3 = "value3";
 })",
-			R"([serial(24)]
+	        R"([serial(24)]
 strings {
 	[id(10001), help("help string"), plural("values")] ID = "value";
 	[id(10000), plural("values"), help("help string")] ID2 = "value2";
 	[id(10002), help("help string")] ID3 = "value3";
-})"
-		},
-		{
-			R"([serial(0)]
+})"},
+	    {
+	        R"([serial(0)]
 strings {
 	[id(1001), help("help string"), plural("values")] ID = "value";
 	[id(1002), plural("values"), help("help string")] ID2 = "value2";
 	[id(1003), help("help string")] ID3 = "value3";
 })",
-			R"([serial(0)]
+	        R"([serial(0)]
 strings {
 	[id(1001), help("help string"), plural("values")] ID = "value";
 	[id(1002), plural("values"), help("help string")] ID2 = "value2";
 	[id(1003), help("help string")] ID3 = "value3";
 })",
-			false
-		},
+	        false},
 	};
 
 	INSTANTIATE_TEST_SUITE_P(sources, frozen, ValuesIn(sources));
-}
+}  // namespace lngs::app::testing

@@ -34,19 +34,19 @@ namespace lngs::plurals {
 	};
 
 	struct lexical {
-		int nplurals{ 0 };
+		int nplurals{0};
 		std::unique_ptr<expr> plural{};
 
-		lexical();
-		~lexical();
+		lexical() = default;
+		~lexical() = default;
 		lexical(const lexical&) = delete;
-		lexical(lexical&&);
+		lexical(lexical&&) = default;
 		lexical& operator=(const lexical&) = delete;
-		lexical& operator=(lexical&&);
+		lexical& operator=(lexical&&) = default;
 
 		intmax_t eval(intmax_t n) const noexcept;
 		explicit operator bool() const noexcept { return !!plural; }
 	};
 
 	lexical decode(std::string_view entry);
-}
+}  // namespace lngs::plurals

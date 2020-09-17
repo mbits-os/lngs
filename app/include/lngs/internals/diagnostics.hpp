@@ -24,14 +24,14 @@
 
 #pragma once
 
-#include <string>
-#include <string_view>
-#include <map>
-#include <vector>
-#include <variant>
 #include <lngs/file.hpp>
 #include <lngs/internals/streams.hpp>
 #include <lngs/internals/strings/lngs.hpp>
+#include <map>
+#include <string>
+#include <string_view>
+#include <variant>
+#include <vector>
 
 namespace lngs::app {
 	struct strings {
@@ -39,13 +39,7 @@ namespace lngs::app {
 		virtual std::string_view get(lng str) const = 0;
 	};
 
-	enum class severity {
-		verbose,
-		note,
-		warning,
-		error,
-		fatal
-	};
+	enum class severity { verbose, note, warning, error, fatal };
 
 	struct location_severity;
 	struct argumented_string;
@@ -53,11 +47,11 @@ namespace lngs::app {
 	class diagnostics;
 
 	struct location {
-		unsigned token{ 0 };
-		unsigned line{ 0 };
-		unsigned column{ 0 };
+		unsigned token{0};
+		unsigned line{0};
+		unsigned column{0};
 		constexpr location moved(unsigned ln, unsigned col = 0) const {
-			return  { token, ln, col };
+			return {token, ln, col};
 		}
 
 		constexpr location_severity operator[](severity sev) const;
@@ -69,7 +63,7 @@ namespace lngs::app {
 	};
 
 	constexpr location_severity location::operator[](severity sev) const {
-		return { *this, sev };
+		return {*this, sev};
 	}
 
 	struct location_range_severity {
@@ -82,16 +76,19 @@ namespace lngs::app {
 		location start;
 		location end;
 		constexpr location_range_severity operator[](severity sev) const {
-			return { start, end, sev };
+			return {start, end, sev};
 		}
 	};
 
-	constexpr inline location_range operator/(const location& start, const location& end) {
-		return { start, end };
+	constexpr inline location_range operator/(const location& start,
+	                                          const location& end) {
+		return {start, end};
 	}
 
-	constexpr inline location_range_severity operator/(const location& start, const location_severity& loc_sev) {
-		return { start, loc_sev.loc, loc_sev.sev };
+	constexpr inline location_range_severity operator/(
+	    const location& start,
+	    const location_severity& loc_sev) {
+		return {start, loc_sev.loc, loc_sev.sev};
 	}
 
 	struct argumented_string {
@@ -101,33 +98,30 @@ namespace lngs::app {
 
 		argumented_string() = default;
 
-		argumented_string(std::string value) : value{ std::move(value) } {}
+		argumented_string(std::string value) : value{std::move(value)} {}
 
-		argumented_string(lng value) : value{ value } {}
+		argumented_string(lng value) : value{value} {}
 
-		argumented_string(std::string value, std::vector<argumented_string> args)
-			: value{ std::move(value) }
-			, args{ std::move(args) }
-		{
-		}
+		argumented_string(std::string value,
+		                  std::vector<argumented_string> args)
+		    : value{std::move(value)}, args{std::move(args)} {}
 
 		argumented_string(lng value, std::vector<argumented_string> args)
-			: value{ value }
-			, args{ std::move(args) }
-		{
-		}
+		    : value{value}, args{std::move(args)} {}
 
-		template <typename ... Args>
-		argumented_string(std::string value, argumented_string first, Args ... args)
-			: argumented_string{ std::move(value), subs{ std::move(first), argumented_string(std::move(args))... } }
-		{
-		}
+		template <typename... Args>
+		argumented_string(std::string value,
+		                  argumented_string first,
+		                  Args... args)
+		    : argumented_string{std::move(value),
+		                        subs{std::move(first),
+		                             argumented_string(std::move(args))...}} {}
 
-		template <typename ... Args>
-		argumented_string(lng value, argumented_string first, Args ... args)
-			: argumented_string{ value, subs{ std::move(first), argumented_string(std::move(args))... } }
-		{
-		}
+		template <typename... Args>
+		argumented_string(lng value, argumented_string first, Args... args)
+		    : argumented_string{value,
+		                        subs{std::move(first),
+		                             argumented_string(std::move(args))...}} {}
 
 		argumented_string& operator<<(argumented_string arg) {
 			args.emplace_back(std::move(arg));
@@ -138,19 +132,19 @@ namespace lngs::app {
 		std::string str(const strings& tr) const;
 
 		bool operator==(const argumented_string& rhs) const noexcept;
-		bool operator!=(const argumented_string& rhs) const noexcept { return !(*this == rhs); }
+		bool operator!=(const argumented_string& rhs) const noexcept {
+			return !(*this == rhs);
+		}
 	};
 
-	template <typename ... Args>
-	[[nodiscard]] argumented_string arg(std::string value, Args ... args)
-	{
-		return { std::move(value), argumented_string(std::move(args))... };
+	template <typename... Args>
+	[[nodiscard]] argumented_string arg(std::string value, Args... args) {
+		return {std::move(value), argumented_string(std::move(args))...};
 	}
 
-	template <typename ... Args>
-	[[nodiscard]] argumented_string arg(lng value, Args ... args)
-	{
-		return { value, argumented_string(std::move(args))... };
+	template <typename... Args>
+	[[nodiscard]] argumented_string arg(lng value, Args... args) {
+		return {value, argumented_string(std::move(args))...};
 	}
 
 	enum class link_type {
@@ -165,15 +159,20 @@ namespace lngs::app {
 	struct diagnostic {
 		location pos;
 		location end_pos;
-		severity sev{ severity::note };
+		severity sev{severity::note};
 		argumented_string message;
 		std::vector<diagnostic> children;
 
 		static constexpr const size_t tab_size = 3;
 
-		void print(outstream& o, const class diagnostics& host, const strings& tr, link_type links = link_type::native, size_t depth = 0) const;
+		void print(outstream& o,
+		           const class diagnostics& host,
+		           const strings& tr,
+		           link_type links = link_type::native,
+		           size_t depth = 0) const;
 
-		static std::tuple<std::string, std::size_t, std::size_t> prepare(std::string_view, std::size_t start_col, std::size_t end_col);
+		static std::tuple<std::string, std::size_t, std::size_t>
+		prepare(std::string_view, std::size_t start_col, std::size_t end_col);
 
 		diagnostic& with(std::initializer_list<diagnostic> subs) {
 			children.insert(end(children), begin(subs), end(subs));
@@ -186,20 +185,24 @@ namespace lngs::app {
 		}
 	};
 
-	inline diagnostic operator<< (const location_severity& loc_sev, argumented_string msg) {
-		return { loc_sev.loc, {}, loc_sev.sev, std::move(msg), {} };
+	inline diagnostic operator<<(const location_severity& loc_sev,
+	                             argumented_string msg) {
+		return {loc_sev.loc, {}, loc_sev.sev, std::move(msg), {}};
 	}
 
-	inline diagnostic operator<< (const location_range_severity& range_sev, argumented_string msg) {
-		return { range_sev.start, range_sev.end, range_sev.sev, std::move(msg), {} };
+	inline diagnostic operator<<(const location_range_severity& range_sev,
+	                             argumented_string msg) {
+		return {
+		    range_sev.start, range_sev.end, range_sev.sev, std::move(msg), {}};
 	}
 
 	class source_file : public instream {
 		friend class diagnostics;
 		class source_view;
 		std::shared_ptr<source_view> view_;
-		size_t position_{ 0 };
-		source_file(std::shared_ptr<source_view> view) : view_{ view } {}
+		size_t position_{0};
+		source_file(std::shared_ptr<source_view> view) : view_{view} {}
+
 	public:
 		source_file() = default;
 		~source_file();
@@ -228,7 +231,8 @@ namespace lngs::app {
 		};
 
 		using hasher = std::hash<std::string>;
-		using hashed = decltype(std::declval<hasher>()(std::declval<std::string>()));
+		using hashed =
+		    decltype(std::declval<hasher>()(std::declval<std::string>()));
 		using bucket = std::vector<bucket_item>;
 
 		std::map<hashed, bucket, std::less<>> files_;
@@ -242,6 +246,7 @@ namespace lngs::app {
 
 		template <typename Key>
 		const bucket_item* lookup(const Key& path) const;
+
 	public:
 		std::string_view filename(const location&) const;
 		source_file open(const std::string& path, const char* mode = "r");
@@ -252,8 +257,10 @@ namespace lngs::app {
 
 		void push_back(diagnostic diag);
 
-		const std::vector<diagnostic>& diagnostic_set() const noexcept { return set_; }
+		const std::vector<diagnostic>& diagnostic_set() const noexcept {
+			return set_;
+		}
 
 		bool has_errors() const noexcept;
 	};
-}
+}  // namespace lngs::app
