@@ -144,5 +144,5 @@ msgstr ""
 		}
 	};
 
-	INSTANTIATE_TEST_CASE_P(sources, pot, ValuesIn(sources));
+	INSTANTIATE_TEST_SUITE_P(sources, pot, ValuesIn(sources));
 }

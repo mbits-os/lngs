@@ -407,12 +407,12 @@ namespace lngs::app::testing {
 		},
 	};
 
-	INSTANTIATE_TEST_CASE_P(severities, diag_write, ValuesIn(severities));
-	INSTANTIATE_TEST_CASE_P(path, diag_write, ValuesIn(path));
-	INSTANTIATE_TEST_CASE_P(message, diag_write, ValuesIn(message));
-	INSTANTIATE_TEST_CASE_P(path_message, diag_write, ValuesIn(path_message));
-	INSTANTIATE_TEST_CASE_P(kv, diag_write, ValuesIn(kv));
-	INSTANTIATE_TEST_CASE_P(multiline, diag_write, ValuesIn(multiline));
+	INSTANTIATE_TEST_SUITE_P(severities, diag_write, ValuesIn(severities));
+	INSTANTIATE_TEST_SUITE_P(path, diag_write, ValuesIn(path));
+	INSTANTIATE_TEST_SUITE_P(message, diag_write, ValuesIn(message));
+	INSTANTIATE_TEST_SUITE_P(path_message, diag_write, ValuesIn(path_message));
+	INSTANTIATE_TEST_SUITE_P(kv, diag_write, ValuesIn(kv));
+	INSTANTIATE_TEST_SUITE_P(multiline, diag_write, ValuesIn(multiline));
 
 	struct diag_ne : TestWithParam<std::pair<argumented_string, argumented_string>> {};
 
@@ -429,5 +429,5 @@ namespace lngs::app::testing {
 		{ arg(lng::ERR_FILE_MISSING, lng::ERR_EXPECTED_GOT_EOF), arg(lng::ERR_FILE_MISSING, "EOF"s) }
 	};
 
-	INSTANTIATE_TEST_CASE_P(neq, diag_ne, ValuesIn(neq));
+	INSTANTIATE_TEST_SUITE_P(neq, diag_ne, ValuesIn(neq));
 }

@@ -245,7 +245,7 @@ namespace lngs::app::testing {
 		}
 	};
 
-	INSTANTIATE_TEST_CASE_P(strings, res_make, ValuesIn(make_strings));
+	INSTANTIATE_TEST_SUITE_P(strings, res_make, ValuesIn(make_strings));
 
 	struct write_result {
 		file input;
@@ -516,7 +516,7 @@ namespace project {
 		},
 	};
 
-	INSTANTIATE_TEST_CASE_P(resources, res_write, ValuesIn(write_resources));
+	INSTANTIATE_TEST_SUITE_P(resources, res_write, ValuesIn(write_resources));
 
 	TEST(res_read, builtin) {
 		SingularStrings<lngs::app::lng, storage::Builtin<Resource>> res;

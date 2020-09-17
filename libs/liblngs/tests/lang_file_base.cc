@@ -190,5 +190,5 @@ namespace lngs::testing {
 		{ stringz, attrz_broken, false },
 	};
 
-	INSTANTIATE_TEST_CASE_P(files, lang_file_base, ValuesIn(files));
+	INSTANTIATE_TEST_SUITE_P(files, lang_file_base, ValuesIn(files));
 }

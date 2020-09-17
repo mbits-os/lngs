@@ -291,5 +291,5 @@ namespace name::sub {
 		},
 	};
 
-	INSTANTIATE_TEST_CASE_P(sources, enums, ValuesIn(sources));
+	INSTANTIATE_TEST_SUITE_P(sources, enums, ValuesIn(sources));
 }

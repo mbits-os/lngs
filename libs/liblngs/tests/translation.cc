@@ -249,5 +249,5 @@ namespace lngs::testing {
 		{ "testset2.sub", "pkg3", { "foo", "bar", "baz-QUUX" }, pkg3_keys },
 	};
 
-	INSTANTIATE_TEST_CASE_P(packages, translation, ValuesIn(packages));
+	INSTANTIATE_TEST_SUITE_P(packages, translation, ValuesIn(packages));
 }

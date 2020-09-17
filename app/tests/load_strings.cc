@@ -452,7 +452,7 @@ namespace lngs::app::testing {
 		},
 	};
 
-	INSTANTIATE_TEST_CASE_P(bad, read, ValuesIn(bad));
+	INSTANTIATE_TEST_SUITE_P(bad, read, ValuesIn(bad));
 
 	static const compilation_result empties[] = {
 		{
@@ -506,7 +506,7 @@ namespace lngs::app::testing {
 		},
 	};
 
-	INSTANTIATE_TEST_CASE_P(empty, read, ValuesIn(empties));
+	INSTANTIATE_TEST_SUITE_P(empty, read, ValuesIn(empties));
 
 	const auto basic = test_strings(0, 1);
 
@@ -555,7 +555,7 @@ namespace lngs::app::testing {
 		},
 	};
 
-	INSTANTIATE_TEST_CASE_P(singles, read, ValuesIn(singles));
+	INSTANTIATE_TEST_SUITE_P(singles, read, ValuesIn(singles));
 
 	static const compilation_result multiple[] = {
 		{
@@ -620,7 +620,7 @@ strings {
 		},
 	};
 
-	INSTANTIATE_TEST_CASE_P(multiple, read, ValuesIn(multiple));
+	INSTANTIATE_TEST_SUITE_P(multiple, read, ValuesIn(multiple));
 
 	static const compilation_result files[] = {
 		{
@@ -654,5 +654,5 @@ strings {
 		},
 	};
 
-	INSTANTIATE_TEST_CASE_P(files, read_file, ValuesIn(files));
+	INSTANTIATE_TEST_SUITE_P(files, read_file, ValuesIn(files));
 }

@@ -456,7 +456,7 @@ namespace lngs::app::testing {
 		} },
 	};
 
-	INSTANTIATE_TEST_CASE_P(sources, gettext, ValuesIn(sources));
+	INSTANTIATE_TEST_SUITE_P(sources, gettext, ValuesIn(sources));
 
 	static const attr_result attributes[] = {
 		{},
@@ -478,7 +478,7 @@ namespace lngs::app::testing {
 		},
 	};
 
-	INSTANTIATE_TEST_CASE_P(attributes, gtt_attr_mo, ValuesIn(attributes));
+	INSTANTIATE_TEST_SUITE_P(attributes, gtt_attr_mo, ValuesIn(attributes));
 
 	static const attrs gtt_attribs[] = {
 		{},
@@ -504,7 +504,7 @@ namespace lngs::app::testing {
 		}
 	};
 
-	INSTANTIATE_TEST_CASE_P(attributes, gtt_attr_extr, ValuesIn(gtt_attribs));
+	INSTANTIATE_TEST_SUITE_P(attributes, gtt_attr_extr, ValuesIn(gtt_attribs));
 
 	static const ll_cc gtt_llcc[] = {
 		{},
@@ -522,7 +522,7 @@ namespace lngs::app::testing {
 		},
 	};
 
-	INSTANTIATE_TEST_CASE_P(contents, gtt_attr_llCC, ValuesIn(gtt_llcc));
+	INSTANTIATE_TEST_SUITE_P(contents, gtt_attr_llCC, ValuesIn(gtt_llcc));
 
 	static const extract translations[] = {
 		{
@@ -621,7 +621,7 @@ namespace lngs::app::testing {
 		},
 	};
 
-	INSTANTIATE_TEST_CASE_P(strings, gtt_extract, ValuesIn(translations));
+	INSTANTIATE_TEST_SUITE_P(strings, gtt_extract, ValuesIn(translations));
 
 	static const mo_load_param msgs[] = {
 		{
@@ -689,7 +689,7 @@ namespace lngs::app::testing {
 		},
 	};
 
-	INSTANTIATE_TEST_CASE_P(msgs, mo_load, ValuesIn(msgs));
+	INSTANTIATE_TEST_SUITE_P(msgs, mo_load, ValuesIn(msgs));
 
 	static const mo_fix_param attrs_tests[] = {
 		{
@@ -776,5 +776,5 @@ namespace lngs::app::testing {
 		},
 	};
 
-	INSTANTIATE_TEST_CASE_P(attrs, mo_fix, ValuesIn(attrs_tests));
+	INSTANTIATE_TEST_SUITE_P(attrs, mo_fix, ValuesIn(attrs_tests));
 }

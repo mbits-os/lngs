@@ -138,7 +138,7 @@ namespace utf::testing {
 		}
 	};
 
-	INSTANTIATE_TEST_CASE_P(strings, utf_conv, ValuesIn(strings));
+	INSTANTIATE_TEST_SUITE_P(strings, utf_conv, ValuesIn(strings));
 
 	const string_convert bad[] = {
 		{ utf8('a', 'b', 0xe0, 0x9f, 0x9f), {}, {}, op::utf8to32 },
@@ -160,5 +160,5 @@ namespace utf::testing {
 		{ utf8('a', 'b', 0xfe, '-', '-', '-', '-', '-'), {}, {}, op::utf8to32 },
 	};
 
-	INSTANTIATE_TEST_CASE_P(bad, utf_errors, ValuesIn(bad));
+	INSTANTIATE_TEST_SUITE_P(bad, utf_errors, ValuesIn(bad));
 }

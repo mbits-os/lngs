@@ -351,9 +351,9 @@ namespace lngs::storage::testing {
 		{ "testset2.sub", "pkg3", { "foo", "bar", "baz-QUUX" }, pkg3_keys, builtin_keys, pkg3_builtin },
 	};
 
-	INSTANTIATE_TEST_CASE_P(packages, storage_FileBased, ValuesIn(packages));
-	INSTANTIATE_TEST_CASE_P(packages, storage_Builtin, ValuesIn(packages));
-	INSTANTIATE_TEST_CASE_P(packages, storage_FileWithBuiltin, ValuesIn(packages));
+	INSTANTIATE_TEST_SUITE_P(packages, storage_FileBased, ValuesIn(packages));
+	INSTANTIATE_TEST_SUITE_P(packages, storage_Builtin, ValuesIn(packages));
+	INSTANTIATE_TEST_SUITE_P(packages, storage_FileWithBuiltin, ValuesIn(packages));
 
 	static const open_first_of groups[] = {
 		{"pkg1", { "fred-XYZZY", "fred", "foo" }},
@@ -361,7 +361,7 @@ namespace lngs::storage::testing {
 		{"pkg3", { "no", "recognized", "names" }, false},
 	};
 
-	INSTANTIATE_TEST_CASE_P(groups, storage_FileBased_open, ValuesIn(groups));
+	INSTANTIATE_TEST_SUITE_P(groups, storage_FileBased_open, ValuesIn(groups));
 
 	static const header headers[] = {
 		{ {}, { "en" } },
@@ -370,7 +370,7 @@ namespace lngs::storage::testing {
 		{ "da, en-gb;q=0.8888, en;q=0.7a8, fr;q=0.77, pl;q=0.7.8"sv, { "da", "en-gb", "fr", "en", "pl" }}
 	};
 
-	INSTANTIATE_TEST_CASE_P(headers, storage_AcceptLanguage, ValuesIn(headers));
+	INSTANTIATE_TEST_SUITE_P(headers, storage_AcceptLanguage, ValuesIn(headers));
 
 	struct List {
 		const std::vector<std::string>& strings;

@@ -95,5 +95,5 @@ strings {
 		},
 	};
 
-	INSTANTIATE_TEST_CASE_P(sources, frozen, ValuesIn(sources));
+	INSTANTIATE_TEST_SUITE_P(sources, frozen, ValuesIn(sources));
 }

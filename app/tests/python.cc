@@ -101,5 +101,5 @@ ID2 = 1001 # value2 | values (help string)
 		},
 	};
 
-	INSTANTIATE_TEST_CASE_P(sources, python, ValuesIn(sources));
+	INSTANTIATE_TEST_SUITE_P(sources, python, ValuesIn(sources));
 }

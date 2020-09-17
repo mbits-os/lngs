@@ -118,5 +118,5 @@ namespace lngs::testing {
 		"broken_keys_2.data",
 	};
 
-	INSTANTIATE_TEST_CASE_P(files, lang_file_bad, ValuesIn(files));
+	INSTANTIATE_TEST_SUITE_P(files, lang_file_bad, ValuesIn(files));
 }

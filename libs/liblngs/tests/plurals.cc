@@ -205,9 +205,9 @@ namespace lngs::plurals::testing {
 		}
 	};
 
-	INSTANTIATE_TEST_CASE_P(ops, plural_ops, ValuesIn(ops));
-	INSTANTIATE_TEST_CASE_P(exception, plurals, ValuesIn(exception));
-	INSTANTIATE_TEST_CASE_P(bad, plurals, ValuesIn(bad));
-	INSTANTIATE_TEST_CASE_P(good, plurals, ValuesIn(good));
-	INSTANTIATE_TEST_CASE_P(msginit, plurals, ValuesIn(msginit));
+	INSTANTIATE_TEST_SUITE_P(ops, plural_ops, ValuesIn(ops));
+	INSTANTIATE_TEST_SUITE_P(exception, plurals, ValuesIn(exception));
+	INSTANTIATE_TEST_SUITE_P(bad, plurals, ValuesIn(bad));
+	INSTANTIATE_TEST_SUITE_P(good, plurals, ValuesIn(good));
+	INSTANTIATE_TEST_SUITE_P(msginit, plurals, ValuesIn(msginit));
 }
