@@ -39,7 +39,7 @@ target_include_directories(lngs_app
   PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include
   PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
-target_link_libraries(lngs_app liblngs CONAN_PKG::args CONAN_PKG::fmt)
+target_link_libraries(lngs_app liblngs args CONAN_PKG::fmt)
 
 set(SHARE_DIR share/lngs-${PROJECT_VERSION_SHORT})
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/build.in.hpp ${CMAKE_CURRENT_BINARY_DIR}/src/build.hpp @ONLY)

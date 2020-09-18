@@ -116,6 +116,7 @@ define_property(TARGET PROPERTY IDL
   BRIEF_DOCS "The language file path"
   FULL_DOCS "The language file path")
 
+add_subdirectory(external)
 add_subdirectory(libs)
 add_subdirectory(app)
 
