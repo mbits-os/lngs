@@ -1,0 +1,1 @@
+{"name": "0009: Enums (no --out)", "args": ["enums", "-i", "$DATA/empty.idl"], "expected": [2, "", "usage: lngs enums [-h] [-v] [-r] -i <file> -o <file>\nlngs enums: error: argument -o is required\n"]}

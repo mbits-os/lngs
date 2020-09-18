@@ -1,0 +1,1 @@
+{"name": "0023: Freeze (empty.idl)", "args": ["freeze", "-i", "$DATA/empty.idl", "-o", "-", "-v"], "expected": [0, "$DATA/empty.idl\n$DATA/empty.idl: note: no new strings\n", ""]}

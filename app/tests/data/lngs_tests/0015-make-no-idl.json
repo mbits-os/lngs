@@ -1,0 +1,1 @@
+{"name": "0015: make (no IDL)", "args": ["make", "-i", "nothing.idl", "-m", "nothing.mo", "-o", "-"], "expected": [1, "lngs make: error: could not open `nothing.idl'\n", ""]}

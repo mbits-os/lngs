@@ -1,0 +1,1 @@
+{"name": "0016: make (no MO)", "args": ["make", "-i", "$DATA/unfrozen.idl", "-m", "nothing.mo", "-o", "-"], "expected": [1, "nothing.mo: error: could not open the file\n", ""]}

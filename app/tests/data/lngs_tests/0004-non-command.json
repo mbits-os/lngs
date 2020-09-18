@@ -1,0 +1,1 @@
+{"name": "0004: Non-command", "args": ["non-command"], "expected": [2, "", "usage: lngs [-h] [--version] <command> [<arguments>]\nlngs: error: unknown command: non-command\n"]}

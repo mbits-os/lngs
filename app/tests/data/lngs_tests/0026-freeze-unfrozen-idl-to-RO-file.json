@@ -1,0 +1,1 @@
+{"name": "0026: Freeze (unfrozen.idl to a read-only file)", "args": ["freeze", "-i", "$DATA/unfrozen.idl", "-o", "$DATA/readonly.file"], "expected": [1, "lngs freeze: error: could not open `$DATA/readonly.file'\n", ""]}

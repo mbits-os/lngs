@@ -1,0 +1,1 @@
+{"name": "0013: PY (no IDL)", "args": ["py", "-i", "nothing.idl", "-o", "-"], "expected": [1, "lngs py: error: could not open `nothing.idl'\n", ""]}

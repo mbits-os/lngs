@@ -1,0 +1,1 @@
+{"name": "0017: make (unfrozen.idl)", "args": ["make", "-i", "$DATA/unfrozen.idl", "-m", "$DATA/unfrozen.mo", "-o", "$DATA/gitignored.lng"], "expected": [0, "", ""]}

@@ -1,0 +1,1 @@
+{"name": "0007: Enums (no IDL)", "args": ["enums", "-i", "nothing.idl", "-o", "-"], "expected": [1, "lngs enums: error: could not open `nothing.idl'\n", ""]}
