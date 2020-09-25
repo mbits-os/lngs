@@ -177,7 +177,7 @@ namespace lngs::app {
 			endlines_.clear();
 		}
 
-		std::string_view line(unsigned no) noexcept {
+		std::pair<std::string_view, std::size_t> line(unsigned no) noexcept {
 			constexpr auto endline = std::byte{'\n'};
 
 			if (!no) return {};
@@ -209,9 +209,10 @@ namespace lngs::app {
 
 			if (no < endlines_.size()) {
 				auto data = reinterpret_cast<const char*>(content_.data());
-				if (!no) return {data, endlines_[0]};
+				if (!no) return {{data, endlines_[0]}, endlines_[0]};
 				const auto prev = endlines_[no - 1];
-				return {data + prev + 1, endlines_[no] - prev - 1};
+				return {{data + prev + 1, endlines_[no] - prev - 1},
+				        endlines_[no]};
 			}
 
 			return {};
@@ -242,6 +243,12 @@ namespace lngs::app {
 			if (rest) std::memcpy(buffer, content_.data() + at, rest);
 			return rest;
 		}
+
+		size_t seek(size_t at) {
+			ensure(at);
+			if (at < content_.size()) return at;
+			return content_.size();
+		}
 	};
 
 	source_file::~source_file() = default;
@@ -258,12 +265,22 @@ namespace lngs::app {
 
 	std::byte source_file::peek() noexcept { return view_->peek(position_); }
 
+	std::size_t source_file::tell() const noexcept { return position_; }
+
+	std::size_t source_file::seek(std::size_t pos) noexcept {
+		position_ = view_->seek(pos);
+		return position_;
+	}
+
 	const std::vector<std::byte>& source_file::data() const noexcept {
 		return view_->data();
 	}
 
 	std::string_view source_file::line(unsigned no) noexcept {
-		return view_->line(no);
+		auto [line, pos] = view_->line(no);
+		if (pos)
+			position_ = pos;
+		return line;
 	}
 
 	location source_file::position(unsigned line, unsigned column) {

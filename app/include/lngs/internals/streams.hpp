@@ -42,6 +42,8 @@ namespace lngs::app {
 		virtual std::size_t read(void* buffer, std::size_t length) noexcept = 0;
 		virtual bool eof() const noexcept = 0;
 		virtual std::byte peek() noexcept = 0;
+		virtual std::size_t tell() const noexcept = 0;
+		virtual std::size_t seek(std::size_t) noexcept = 0;
 	};
 
 	struct outstream {

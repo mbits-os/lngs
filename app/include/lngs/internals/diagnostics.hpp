@@ -216,6 +216,8 @@ namespace lngs::app {
 		std::size_t read(void* buffer, std::size_t length) noexcept final;
 		bool eof() const noexcept final;
 		std::byte peek() noexcept final;
+		std::size_t tell() const noexcept final;
+		std::size_t seek(std::size_t) noexcept final;
 		const std::vector<std::byte>& data() const noexcept;
 		std::string_view line(unsigned no) noexcept;
 
