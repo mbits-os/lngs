@@ -1,7 +1,3 @@
-if (LNGS_WALL_FLAGS)
-  add_definitions(${ADDITIONAL_WALL_FLAGS})
-endif()
-
 set(lngs_app_SRCS
   src/cmds/cmd_freeze_ids.cpp
   src/cmds/cmd_load_mo.cpp
@@ -34,6 +30,7 @@ add_library(lngs_app STATIC ${lngs_app_SRCS} ${lngs_app_INCS})
 set_target_properties(lngs_app PROPERTIES
   FOLDER app
   IDL "${CMAKE_CURRENT_SOURCE_DIR}/src/lngs.idl")
+target_compile_options(lngs_app PUBLIC ${ADDITIONAL_WALL_FLAGS})
 target_compile_definitions(lngs_app PRIVATE _CRT_SECURE_NO_WARNINGS)
 target_include_directories(lngs_app
   PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include
@@ -62,8 +59,8 @@ target_include_directories(lngs
 	PRIVATE
 		"${CMAKE_CURRENT_SOURCE_DIR}/src"
 		"${CMAKE_CURRENT_BINARY_DIR}/src"
-		)
-target_link_libraries(lngs lngs_app)
+)
+target_link_libraries(lngs PRIVATE lngs_app)
 
 install(TARGETS lngs DESTINATION bin)
 

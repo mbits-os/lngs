@@ -4,6 +4,7 @@ set_target_properties(lngs_lite PROPERTIES
 	VERSION ${PROJECT_VERSION_SHORT}
 	SOVERSION ${PROJECT_VERSION_MAJOR}
   FOLDER libs)
+target_compile_options(lngs_lite PRIVATE ${ADDITIONAL_WALL_FLAGS})
 target_include_directories(lngs_lite PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>

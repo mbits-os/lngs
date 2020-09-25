@@ -48,6 +48,7 @@ set_target_properties(liblngs PROPERTIES
 	VERSION ${PROJECT_VERSION}
 	FOLDER libs
 	OUTPUT_NAME lngs)
+target_compile_options(liblngs PRIVATE ${ADDITIONAL_WALL_FLAGS})
 target_include_directories(liblngs
 	PUBLIC
 	  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
