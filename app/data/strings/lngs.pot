@@ -1,14 +1,14 @@
-# Locale File Processor translation.
-# Copyright (C) 2019 midnightBITS
+# Locale File Format And Processor.
+# Copyright (C) 2018 midnightBITS
 # This file is distributed under the same license as the lngs package.
-# Marcin Zdun <mzdun@midnightbits.com>, 2019.
+# Marcin Zdun <mzdun@midnightbits.com>, 2018.
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: lngs 0.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-03-03 12:02+0100\n"
+"POT-Creation-Date: 2020-09-26 09:50+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -44,7 +44,7 @@ msgstr ""
 
 #. Help description for the 'lngs make' command
 msgctxt "ARGS_APP_DESCR_CMD_MAKE"
-msgid "Translates MO file to LNG file."
+msgid "Translates PO/MO file to LNG file."
 msgstr ""
 
 #. Help description for the 'lngs pot' command
@@ -107,8 +107,8 @@ msgctxt "ARGS_APP_IN_LLCC"
 msgid "sets ATTR_LANGUAGE file name with ll_CC (language_COUNTRY) names list"
 msgstr ""
 
-#. Description for input argument taking GetText MO file
-msgctxt "ARGS_APP_IN_MO"
+#. Description for input argument taking GetText PO/MO file
+msgctxt "ARGS_APP_IN_PO_MO"
 msgid "sets GetText message file name to read from"
 msgstr ""
 
@@ -132,9 +132,9 @@ msgctxt "ARGS_APP_META_HOLDER"
 msgid "<holder>"
 msgstr ""
 
-#. Name of argument holding a file name for a GetText MO file
-msgctxt "ARGS_APP_META_MO_FILE"
-msgid "<mo file>"
+#. Name of argument holding a file name for a GetText PO/MO file
+msgctxt "ARGS_APP_META_PO_MO_FILE"
+msgid "<gettext file>"
 msgstr ""
 
 #. Name of argument holding a heading
@@ -287,9 +287,24 @@ msgctxt "ERR_EXPECTED"
 msgid "expected {0}, got {1}"
 msgstr ""
 
+#. Used as first argument for ERR_EXPECTED, as in "expected EOF"
+msgctxt "ERR_EXPECTED_EOF"
+msgid "end of file"
+msgstr ""
+
+#. Used as first argument for ERR_EXPECTED, as in "expected EOL"
+msgctxt "ERR_EXPECTED_EOL"
+msgid "end of line"
+msgstr ""
+
 #. Used as second argument for ERR_EXPECTED, as in "..., got EOF"
 msgctxt "ERR_EXPECTED_GOT_EOF"
-msgid "EOF"
+msgid "end of file"
+msgstr ""
+
+#. Used as second argument for ERR_EXPECTED, as in "..., got EOL"
+msgctxt "ERR_EXPECTED_GOT_EOL"
+msgid "end of line"
 msgstr ""
 
 #. Used as second argument for ERR_EXPECTED, as in "..., got identifier"
@@ -360,6 +375,16 @@ msgstr ""
 #. Detail of what was wrong with the contents
 msgctxt "ERR_GETTEXT_STRING_OUTSIDE"
 msgid "string not contained inside the block"
+msgstr ""
+
+#. The PO file has unexpected string contents
+msgctxt "ERR_GETTEXT_UNRECOGNIZED_ESCAPE"
+msgid "unrecognized escape sequence `\\{0}'"
+msgstr ""
+
+#. The PO file has unexpected field name
+msgctxt "ERR_GETTEXT_UNRECOGNIZED_FIELD"
+msgid "unrecognized field `{0}'"
 msgstr ""
 
 #. Hint for IDL authors, when an id attribute is missing.

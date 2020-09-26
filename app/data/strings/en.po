@@ -1,4 +1,4 @@
-# Locale File Processor translation.
+# Locale File Format And Processor.
 # Copyright (C) 2018 midnightBITS
 # This file is distributed under the same license as the lngs package.
 # Marcin Zdun <mzdun@midnightbits.com>, 2018.
@@ -7,15 +7,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: lngs 0.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-03-03 12:02+0100\n"
-"PO-Revision-Date: 2019-03-03 12:03+0100\n"
+"POT-Creation-Date: 2020-09-26 09:50+0200\n"
+"PO-Revision-Date: 2020-09-26 09:52+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: en\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 2.1.1\n"
+"X-Generator: Poedit 2.4.1\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #. Description for argument allowing to change the name of an include file to be more in-line with project's layout
@@ -49,7 +49,7 @@ msgstr "Reads the language description file and assigns values to new strings."
 
 #. Help description for the 'lngs make' command
 msgctxt "ARGS_APP_DESCR_CMD_MAKE"
-msgid "Translates MO file to LNG file."
+msgid "Translates PO/MO file to LNG file."
 msgstr "Translates MO file to LNG file."
 
 #. Help description for the 'lngs pot' command
@@ -112,8 +112,8 @@ msgctxt "ARGS_APP_IN_LLCC"
 msgid "sets ATTR_LANGUAGE file name with ll_CC (language_COUNTRY) names list"
 msgstr "sets ATTR_LANGUAGE file name with ll_CC (language_COUNTRY) names list"
 
-#. Description for input argument taking GetText MO file
-msgctxt "ARGS_APP_IN_MO"
+#. Description for input argument taking GetText PO/MO file
+msgctxt "ARGS_APP_IN_PO_MO"
 msgid "sets GetText message file name to read from"
 msgstr "sets GetText message file name to read from"
 
@@ -137,10 +137,10 @@ msgctxt "ARGS_APP_META_HOLDER"
 msgid "<holder>"
 msgstr "<holder>"
 
-#. Name of argument holding a file name for a GetText MO file
-msgctxt "ARGS_APP_META_MO_FILE"
-msgid "<mo file>"
-msgstr "<mo file>"
+#. Name of argument holding a file name for a GetText PO/MO file
+msgctxt "ARGS_APP_META_PO_MO_FILE"
+msgid "<gettext file>"
+msgstr "<gettext file>"
 
 #. Name of argument holding a heading
 msgctxt "ARGS_APP_META_TITLE"
@@ -314,10 +314,25 @@ msgctxt "ERR_EXPECTED"
 msgid "expected {0}, got {1}"
 msgstr "expected {0}, got {1}"
 
+#. Used as first argument for ERR_EXPECTED, as in "expected EOF"
+msgctxt "ERR_EXPECTED_EOF"
+msgid "end of file"
+msgstr "end of file"
+
+#. Used as first argument for ERR_EXPECTED, as in "expected EOL"
+msgctxt "ERR_EXPECTED_EOL"
+msgid "end of line"
+msgstr "end of line"
+
 #. Used as second argument for ERR_EXPECTED, as in "..., got EOF"
 msgctxt "ERR_EXPECTED_GOT_EOF"
-msgid "EOF"
-msgstr "EOF"
+msgid "end of file"
+msgstr "end of file"
+
+#. Used as second argument for ERR_EXPECTED, as in "..., got EOL"
+msgctxt "ERR_EXPECTED_GOT_EOL"
+msgid "end of line"
+msgstr "end of line"
 
 #. Used as second argument for ERR_EXPECTED, as in "..., got identifier"
 msgctxt "ERR_EXPECTED_GOT_ID"
@@ -388,6 +403,16 @@ msgstr "strings must end with a zero"
 msgctxt "ERR_GETTEXT_STRING_OUTSIDE"
 msgid "string not contained inside the block"
 msgstr "string not contained inside the block"
+
+#. The PO file has unexpected string contents
+msgctxt "ERR_GETTEXT_UNRECOGNIZED_ESCAPE"
+msgid "unrecognized escape sequence `\\{0}'"
+msgstr "unrecognized escape sequence `\\{0}'"
+
+#. The PO file has unexpected field name
+msgctxt "ERR_GETTEXT_UNRECOGNIZED_FIELD"
+msgid "unrecognized field `{0}'"
+msgstr "unrecognized field `{0}'"
 
 #. Hint for IDL authors, when an id attribute is missing.
 msgctxt "ERR_ID_MISSING_HINT"

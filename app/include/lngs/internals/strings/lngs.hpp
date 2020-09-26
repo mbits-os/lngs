@@ -28,7 +28,7 @@ namespace lngs::app {
         ARGS_REQUIRED = 509,
         /// {0}: error: {1} (Error message template; placeholder 0 will get the name of program, placeholder 1 an actual message)
         ARGS_ERROR_MSG = 510,
-        /// Translates MO file to LNG file. (Help description for the 'lngs make' command)
+        /// Translates PO/MO file to LNG file. (Help description for the 'lngs make' command)
         ARGS_APP_DESCR_CMD_MAKE = 511,
         /// Creates POT file from message file. (Help description for the 'lngs pot' command)
         ARGS_APP_DESCR_CMD_POT = 512,
@@ -68,8 +68,8 @@ namespace lngs::app {
         ARGS_APP_META_EMAIL = 529,
         /// <title> (Name of argument holding a heading)
         ARGS_APP_META_TITLE = 530,
-        /// <mo file> (Name of argument holding a file name for a GetText MO file)
-        ARGS_APP_META_MO_FILE = 531,
+        /// <gettext file> (Name of argument holding a file name for a GetText PO/MO file)
+        ARGS_APP_META_PO_MO_FILE = 531,
         /// shows program version and exits (Description for 'version' argument)
         ARGS_APP_VERSION = 532,
         /// shows more info (Description for 'verbose' argument)
@@ -104,8 +104,8 @@ namespace lngs::app {
         ARGS_APP_OUT_IDL = 547,
         /// sets message file name to read from (Description for input argument taking IDL file)
         ARGS_APP_IN_IDL = 548,
-        /// sets GetText message file name to read from (Description for input argument taking GetText MO file)
-        ARGS_APP_IN_MO = 549,
+        /// sets GetText message file name to read from (Description for input argument taking GetText PO/MO file)
+        ARGS_APP_IN_PO_MO = 549,
         /// sets ATTR_LANGUAGE file name with ll_CC (language_COUNTRY) names list (Description for input argument taking TXT file with language/country names)
         ARGS_APP_IN_LLCC = 550,
         /// note (Name of the severity label for notes.)
@@ -136,14 +136,20 @@ namespace lngs::app {
         ERR_EXPECTED = 1013,
         /// unrecognized text (Used as second argument for ERR_EXPECTED, as in "..., got unrecognized text")
         ERR_EXPECTED_GOT_UNRECOGNIZED = 1014,
+        /// end of file (Used as first argument for ERR_EXPECTED, as in "expected EOF")
+        ERR_EXPECTED_EOF = 1032,
+        /// end of line (Used as first argument for ERR_EXPECTED, as in "expected EOL")
+        ERR_EXPECTED_EOL = 1033,
         /// string (Used as first argument for ERR_EXPECTED, as in "expected string")
         ERR_EXPECTED_STRING = 1016,
         /// number (Used as first argument for ERR_EXPECTED, as in "expected number")
         ERR_EXPECTED_NUMBER = 1017,
         /// identifier (Used as first argument for ERR_EXPECTED, as in "expected identifier")
         ERR_EXPECTED_ID = 1018,
-        /// EOF (Used as second argument for ERR_EXPECTED, as in "..., got EOF")
+        /// end of file (Used as second argument for ERR_EXPECTED, as in "..., got EOF")
         ERR_EXPECTED_GOT_EOF = 1019,
+        /// end of line (Used as second argument for ERR_EXPECTED, as in "..., got EOL")
+        ERR_EXPECTED_GOT_EOL = 1034,
         /// string (Used as second argument for ERR_EXPECTED, as in "..., got string")
         ERR_EXPECTED_GOT_STRING = 1020,
         /// number (Used as second argument for ERR_EXPECTED, as in "..., got number")
@@ -168,6 +174,10 @@ namespace lngs::app {
         ERR_GETTEXT_FILE_TRUNCATED = 1030,
         /// strings must end with a zero (Detail of what was wrong with the contents)
         ERR_GETTEXT_NOT_ASCIIZ = 1031,
+        /// unrecognized field `{0}' (The PO file has unexpected field name)
+        ERR_GETTEXT_UNRECOGNIZED_FIELD = 1035,
+        /// unrecognized escape sequence `\{0}' (The PO file has unexpected string contents)
+        ERR_GETTEXT_UNRECOGNIZED_ESCAPE = 1036,
     }; // enum class lng
 
     struct Resource {
