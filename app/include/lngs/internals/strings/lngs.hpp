@@ -40,7 +40,7 @@ namespace lngs::app {
         ARGS_APP_DESCR_CMD_RES = 515,
         /// Reads the language description file and assigns values to new strings. (Help description for the 'lngs freeze' command)
         ARGS_APP_DESCR_CMD_FREEZE = 516,
-        /// [-h] [--version] <command> [<arguments>] (Synopsis for the app. The "[-h] [--version]" part should be left intact, only the "command" and "arguments" words should be translated.)
+        /// [-h] [--version] [--share <dir>] <command> [<arguments>] (Synopsis for the app. The "[-h] [--version] [--share" part should be left intact, only the "<dir>", "command" and "arguments" words should be translated.)
         ARGS_APP_DESCR_USAGE = 517,
         /// The flow for string management and creation (Title for the description of the flow for different roles)
         ARGS_APP_FLOW_TITLE = 518,
@@ -70,8 +70,12 @@ namespace lngs::app {
         ARGS_APP_META_TITLE = 530,
         /// <gettext file> (Name of argument holding a file name for a GetText PO/MO file)
         ARGS_APP_META_PO_MO_FILE = 531,
+        /// <dir> (Name of argument holding a directory)
+        ARGS_APP_META_DIR = 1032,
         /// shows program version and exits (Description for 'version' argument)
         ARGS_APP_VERSION = 532,
+        /// replaces {0} as new data directory (Description for 'share' argument)
+        ARGS_APP_SHARE_REDIR = 1033,
         /// shows more info (Description for 'verbose' argument)
         ARGS_APP_VERBOSE = 533,
         /// sets the name of copyright holder (Description for 'copyright' argument)
@@ -137,9 +141,9 @@ namespace lngs::app {
         /// unrecognized text (Used as second argument for ERR_EXPECTED, as in "..., got unrecognized text")
         ERR_EXPECTED_GOT_UNRECOGNIZED = 1014,
         /// end of file (Used as first argument for ERR_EXPECTED, as in "expected EOF")
-        ERR_EXPECTED_EOF = 1032,
+        ERR_EXPECTED_EOF = 1034,
         /// end of line (Used as first argument for ERR_EXPECTED, as in "expected EOL")
-        ERR_EXPECTED_EOL = 1033,
+        ERR_EXPECTED_EOL = 1035,
         /// string (Used as first argument for ERR_EXPECTED, as in "expected string")
         ERR_EXPECTED_STRING = 1016,
         /// number (Used as first argument for ERR_EXPECTED, as in "expected number")
@@ -149,7 +153,7 @@ namespace lngs::app {
         /// end of file (Used as second argument for ERR_EXPECTED, as in "..., got EOF")
         ERR_EXPECTED_GOT_EOF = 1019,
         /// end of line (Used as second argument for ERR_EXPECTED, as in "..., got EOL")
-        ERR_EXPECTED_GOT_EOL = 1034,
+        ERR_EXPECTED_GOT_EOL = 1036,
         /// string (Used as second argument for ERR_EXPECTED, as in "..., got string")
         ERR_EXPECTED_GOT_STRING = 1020,
         /// number (Used as second argument for ERR_EXPECTED, as in "..., got number")
@@ -175,9 +179,9 @@ namespace lngs::app {
         /// strings must end with a zero (Detail of what was wrong with the contents)
         ERR_GETTEXT_NOT_ASCIIZ = 1031,
         /// unrecognized field `{0}' (The PO file has unexpected field name)
-        ERR_GETTEXT_UNRECOGNIZED_FIELD = 1035,
+        ERR_GETTEXT_UNRECOGNIZED_FIELD = 1037,
         /// unrecognized escape sequence `\{0}' (The PO file has unexpected string contents)
-        ERR_GETTEXT_UNRECOGNIZED_ESCAPE = 1036,
+        ERR_GETTEXT_UNRECOGNIZED_ESCAPE = 1038,
     }; // enum class lng
 
     struct Resource {

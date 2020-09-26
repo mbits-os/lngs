@@ -40,8 +40,8 @@
 	[help("Help description for the 'lngs freeze' command"), id(516)]
 	ARGS_APP_DESCR_CMD_FREEZE = "Reads the language description file and assigns values to new strings.";
 
-	[help("Synopsis for the app. The \"[-h] [--version]\" part should be left intact, only the \"command\" and \"arguments\" words should be translated."), id(517)]
-	ARGS_APP_DESCR_USAGE = "[-h] [--version] <command> [<arguments>]";
+	[help("Synopsis for the app. The \"[-h] [--version] [--share\" part should be left intact, only the \"<dir>\", \"command\" and \"arguments\" words should be translated."), id(517)]
+	ARGS_APP_DESCR_USAGE = "[-h] [--version] [--share <dir>] <command> [<arguments>]";
 
 	[help("Title for the description of the flow for different roles"), id(518)]
 	ARGS_APP_FLOW_TITLE = "The flow for string management and creation";
@@ -73,9 +73,13 @@
 	ARGS_APP_META_TITLE = "<title>";
 	[help("Name of argument holding a file name for a GetText PO/MO file"), id(531)]
 	ARGS_APP_META_PO_MO_FILE = "<gettext file>";
+	[help("Name of argument holding a directory"), id(-1)]
+	ARGS_APP_META_DIR = "<dir>";
 
 	[help("Description for 'version' argument"), id(532)]
 	ARGS_APP_VERSION = "shows program version and exits";
+	[help("Description for 'share' argument"), id(-1)]
+	ARGS_APP_SHARE_REDIR = "replaces {0} as new data directory";
 	[help("Description for 'verbose' argument"), id(533)]
 	ARGS_APP_VERBOSE = "shows more info";
 	[help("Description for 'copyright' argument"), id(534)]
