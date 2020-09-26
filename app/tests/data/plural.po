@@ -1,0 +1,5 @@
+msgctxt "A"
+msgid "one A"
+msgid_plural "{0} As"
+msgstr[0] "one B"
+msgstr[1] "{0} Bs"

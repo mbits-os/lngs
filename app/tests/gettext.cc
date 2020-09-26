@@ -26,6 +26,12 @@ namespace lngs::app::testing {
 		const std::vector<diagnostic> diags{};
 		const std::map<std::string, std::string> strings{};
 		const bool expect_file = true;
+		const bool is_mo = true;
+
+		friend std::ostream& operator<<(std::ostream& out,
+		                                mo_result const& mo) {
+			return out << mo.test_set;
+		}
 	};
 
 	struct attr_result {
@@ -169,6 +175,17 @@ namespace lngs::app::testing {
 				    TESTING_data_path / "empty_rev_nonzero_LE.mo", "wb");
 				write_mo_head(mo_file, 0, 28, 28, 0, 28, direct, 0x11223344);
 
+				mo_file =
+				    fs::fopen(TESTING_data_path / "empty_no_magic.mo", "wb");
+				write(mo_file, static_cast<uint16_t>(0x9504u));
+				mo_file =
+				    fs::fopen(TESTING_data_path / "empty_wrong_magic.mo", "wb");
+				write(mo_file, direct(0xdeadbeefu));
+				mo_file =
+				    fs::fopen(TESTING_data_path / "empty_no_rev.mo", "wb");
+				write(mo_file, reverse(0x950412deU));
+				write(mo_file, static_cast<uint16_t>(0xfedcu));
+
 				mo_file = fs::fopen(TESTING_data_path / "ab_BE.mo", "wb");
 				write_mo_head(mo_file, 1, 28, 36, 0, 44, reverse);
 				be(mo_file, 1u);
@@ -251,7 +268,7 @@ namespace lngs::app::testing {
 	};
 
 	TEST_P(gettext, text) {
-		auto [filename, exp_diag, expected, expect_file] = GetParam();
+		auto [filename, exp_diag, expected, expect_file, is_mo] = GetParam();
 		auto mo = TESTING_data_path / filename;
 
 		if (expect_file) {
@@ -271,7 +288,12 @@ namespace lngs::app::testing {
 
 		diagnostics diags;
 		auto data = diags.open(mo.string(), "rb");
-		auto actual = gtt::open(data, diags);
+		if (is_mo) {
+			data.data();
+			data.seek(0);
+		}
+		EXPECT_EQ(is_mo, gtt::is_mo(data));
+		auto actual = gtt::open_mo(data, diags);
 		EXPECT_EQ(expected, actual);
 
 		ExpectDiagsEq(exp_diag, diags.diagnostic_set(), data.position().token);
@@ -374,9 +396,9 @@ namespace lngs::app::testing {
 		auto mo = TESTING_data_path / filename;
 
 		diagnostics diag;
-		auto actual = make::load_mo(strings, warp == Result::Warped,
-		                            verbose == Reporting::Verbose,
-		                            diag.open(mo.string()), diag);
+		auto actual = make::load_msgs(strings, warp == Result::Warped,
+		                              verbose == Reporting::Verbose,
+		                              diag.open(mo.string()), diag);
 
 		EXPECT_EQ(expected.serial, actual.serial);
 		ExpectEq(expected.attrs, actual.attrs, "attr");
@@ -431,15 +453,25 @@ namespace lngs::app::testing {
 	}
 
 	const mo_result sources[] = {
-	    {"no-such.mo", {error << lng::ERR_FILE_NOT_FOUND}, {}, false},
-	    {"truncated.mo"},
+	    {"no-such.mo", {error << lng::ERR_FILE_NOT_FOUND}, {}, false, false},
+	    {"truncated.mo", {}, {}, true, false},
 	    {"zero.mo",
 	     {(error << lng::ERR_GETTEXT_FORMAT)
 	          .with(note << lng::ERR_GETTEXT_BLOCKS_OVERLAP)}},
 	    {"empty_BE.mo"},
 	    {"empty_LE.mo"},
-	    {"empty_rev_nonzero_BE.mo"},
-	    {"empty_rev_nonzero_LE.mo"},
+	    {"empty_rev_nonzero_BE.mo", {}, {}, true, false},
+	    {"empty_rev_nonzero_LE.mo", {}, {}, true, false},
+
+	    {"empty_no_magic.mo", {}, {}, true, false},
+	    {"empty_wrong_magic.mo", {}, {}, true, false},
+	    {"empty_no_rev.mo",
+	     {(error << lng::ERR_GETTEXT_FORMAT)
+	          .with(note << lng::ERR_GETTEXT_BLOCKS_OVERLAP)},
+	     {},
+	     true,
+	     false},
+
 	    {"ab_BE.mo", {}, {{"a", "b"}}},
 	    {"ab_LE.mo", {}, {{"a", "b"}}},
 	    {"not_asciiz.mo",

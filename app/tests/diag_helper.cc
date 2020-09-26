@@ -67,8 +67,8 @@ namespace lngs::app::testing {
 				return "<email>";
 			case lng::ARGS_APP_META_TITLE:
 				return "<title>";
-			case lng::ARGS_APP_META_MO_FILE:
-				return "<mo file>";
+			case lng::ARGS_APP_META_PO_MO_FILE:
+				return "<gettext file>";
 			case lng::ARGS_APP_VERSION:
 				return "shows program version and exits";
 			case lng::ARGS_APP_VERBOSE:
@@ -113,7 +113,7 @@ namespace lngs::app::testing {
 				       "be the same as input; use \"-\" for standard output";
 			case lng::ARGS_APP_IN_IDL:
 				return "sets message file name to read from";
-			case lng::ARGS_APP_IN_MO:
+			case lng::ARGS_APP_IN_PO_MO:
 				return "sets GetText message file name to read from";
 			case lng::ARGS_APP_IN_LLCC:
 				return "sets ATTR_LANGUAGE file name with ll_CC "
@@ -153,7 +153,9 @@ namespace lngs::app::testing {
 			case lng::ERR_EXPECTED_ID:
 				return "identifier";
 			case lng::ERR_EXPECTED_GOT_EOF:
-				return "EOF";
+				return "end of file";
+			case lng::ERR_EXPECTED_GOT_EOL:
+				return "end of line";
 			case lng::ERR_EXPECTED_GOT_STRING:
 				return "string";
 			case lng::ERR_EXPECTED_GOT_NUMBER:
@@ -178,6 +180,14 @@ namespace lngs::app::testing {
 				return "file truncated; data missing";
 			case lng::ERR_GETTEXT_NOT_ASCIIZ:
 				return "strings must end with a zero";
+			case lng::ERR_EXPECTED_EOF:
+				return "end of file";
+			case lng::ERR_EXPECTED_EOL:
+				return "end of line";
+			case lng::ERR_GETTEXT_UNRECOGNIZED_FIELD:
+				return "unrecognized field `{0}'";
+			case lng::ERR_GETTEXT_UNRECOGNIZED_ESCAPE:
+				return "unrecognized escape sequence `\\{0}'";
 		}
 		return "";
 	}
@@ -246,8 +256,8 @@ namespace lngs::app::testing {
 				return "ARGS_APP_META_EMAIL";
 			case lng::ARGS_APP_META_TITLE:
 				return "ARGS_APP_META_TITLE";
-			case lng::ARGS_APP_META_MO_FILE:
-				return "ARGS_APP_META_MO_FILE";
+			case lng::ARGS_APP_META_PO_MO_FILE:
+				return "ARGS_APP_META_PO_MO_FILE";
 			case lng::ARGS_APP_VERSION:
 				return "ARGS_APP_VERSION";
 			case lng::ARGS_APP_VERBOSE:
@@ -282,8 +292,8 @@ namespace lngs::app::testing {
 				return "ARGS_APP_OUT_IDL";
 			case lng::ARGS_APP_IN_IDL:
 				return "ARGS_APP_IN_IDL";
-			case lng::ARGS_APP_IN_MO:
-				return "ARGS_APP_IN_MO";
+			case lng::ARGS_APP_IN_PO_MO:
+				return "ARGS_APP_IN_PO_MO";
 			case lng::ARGS_APP_IN_LLCC:
 				return "ARGS_APP_IN_LLCC";
 			case lng::SEVERITY_NOTE:
@@ -322,6 +332,8 @@ namespace lngs::app::testing {
 				return "ERR_EXPECTED_ID";
 			case lng::ERR_EXPECTED_GOT_EOF:
 				return "ERR_EXPECTED_GOT_EOF";
+			case lng::ERR_EXPECTED_GOT_EOL:
+				return "ERR_EXPECTED_GOT_EOL";
 			case lng::ERR_EXPECTED_GOT_STRING:
 				return "ERR_EXPECTED_GOT_STRING";
 			case lng::ERR_EXPECTED_GOT_NUMBER:
@@ -346,6 +358,14 @@ namespace lngs::app::testing {
 				return "ERR_GETTEXT_FILE_TRUNCATED";
 			case lng::ERR_GETTEXT_NOT_ASCIIZ:
 				return "ERR_GETTEXT_NOT_ASCIIZ";
+			case lng::ERR_EXPECTED_EOF:
+				return "ERR_EXPECTED_EOF";
+			case lng::ERR_EXPECTED_EOL:
+				return "ERR_EXPECTED_EOL";
+			case lng::ERR_GETTEXT_UNRECOGNIZED_FIELD:
+				return "ERR_GETTEXT_UNRECOGNIZED_FIELD({0})";
+			case lng::ERR_GETTEXT_UNRECOGNIZED_ESCAPE:
+				return "ERR_GETTEXT_UNRECOGNIZED_ESCAPE({0})";
 		}
 		return "";
 	}
@@ -354,7 +374,7 @@ namespace lngs::app::testing {
 		switch (val) {
 #define NAME(x)  \
 	case lng::x: \
-		return #x;
+		return #x
 			NAME(ARGS_USAGE);
 			NAME(ARGS_DEF_META);
 			NAME(ARGS_POSITIONALS);
@@ -386,7 +406,7 @@ namespace lngs::app::testing {
 			NAME(ARGS_APP_META_HOLDER);
 			NAME(ARGS_APP_META_EMAIL);
 			NAME(ARGS_APP_META_TITLE);
-			NAME(ARGS_APP_META_MO_FILE);
+			NAME(ARGS_APP_META_PO_MO_FILE);
 			NAME(ARGS_APP_VERSION);
 			NAME(ARGS_APP_VERBOSE);
 			NAME(ARGS_APP_COPYRIGHT);
@@ -404,7 +424,7 @@ namespace lngs::app::testing {
 			NAME(ARGS_APP_OUT_LNG);
 			NAME(ARGS_APP_OUT_IDL);
 			NAME(ARGS_APP_IN_IDL);
-			NAME(ARGS_APP_IN_MO);
+			NAME(ARGS_APP_IN_PO_MO);
 			NAME(ARGS_APP_IN_LLCC);
 			NAME(SEVERITY_NOTE);
 			NAME(SEVERITY_WARNING);
@@ -420,10 +440,13 @@ namespace lngs::app::testing {
 			NAME(ERR_ID_MISSING_HINT);
 			NAME(ERR_EXPECTED);
 			NAME(ERR_EXPECTED_GOT_UNRECOGNIZED);
+			NAME(ERR_EXPECTED_EOF);
+			NAME(ERR_EXPECTED_EOL);
 			NAME(ERR_EXPECTED_STRING);
 			NAME(ERR_EXPECTED_NUMBER);
 			NAME(ERR_EXPECTED_ID);
 			NAME(ERR_EXPECTED_GOT_EOF);
+			NAME(ERR_EXPECTED_GOT_EOL);
 			NAME(ERR_EXPECTED_GOT_STRING);
 			NAME(ERR_EXPECTED_GOT_NUMBER);
 			NAME(ERR_EXPECTED_GOT_ID);
@@ -436,6 +459,8 @@ namespace lngs::app::testing {
 			NAME(ERR_GETTEXT_STRING_OUTSIDE);
 			NAME(ERR_GETTEXT_FILE_TRUNCATED);
 			NAME(ERR_GETTEXT_NOT_ASCIIZ);
+			NAME(ERR_GETTEXT_UNRECOGNIZED_FIELD);
+			NAME(ERR_GETTEXT_UNRECOGNIZED_ESCAPE);
 #undef NAME
 		};
 		return "???";

@@ -127,8 +127,33 @@ namespace gtt {
 		return {val.data(), pos == std::string_view::npos ? val.length() : pos};
 	}
 
-	std::map<std::string, std::string> open(source_file& src,
-	                                        diagnostics& diags) {
+	bool is_mo(lngs::app::source_file& src) {
+		if (!src.valid()) return false;
+		auto pos = src.tell();
+		uint32_t magic;
+		if (src.read(&magic, sizeof magic) != sizeof magic) {
+			src.seek(pos);
+			return false;
+		}
+		if (magic != 0xde120495 && magic != 0x950412de) {
+			src.seek(pos);
+			return false;
+		}
+		if (src.read(&magic, sizeof magic) != sizeof magic) {
+			src.seek(pos);
+			return false;
+		}
+		if (magic != 0) {
+			src.seek(pos);
+			return false;
+		}
+
+		src.seek(pos);
+		return true;
+	}
+
+	std::map<std::string, std::string> open_mo(source_file& src,
+	                                           diagnostics& diags) {
 		std::map<std::string, std::string> out;
 
 		if (!src.valid()) {

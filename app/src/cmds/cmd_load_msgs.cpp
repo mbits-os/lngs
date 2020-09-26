@@ -36,14 +36,17 @@ namespace lngs::app {
 }
 
 namespace lngs::app::make {
-	file load_mo(const idl_strings& defs,
-	             bool warp_missing,
-	             bool verbose,
-	             source_file data,
-	             diagnostics& diags) {
+	file load_msgs(const idl_strings& defs,
+	               bool warp_missing,
+	               bool verbose,
+	               source_file data,
+	               diagnostics& diags) {
+		auto const binary_messages = gtt::is_mo(data);
+
 		file file;
 		file.serial = defs.serial;
-		auto map = gtt::open(data, diags);
+		auto map = binary_messages ? gtt::open_mo(data, diags)
+		                           : gtt::open_po(data, diags);
 		file.strings =
 		    translations(map, defs.strings, warp_missing, verbose, data, diags);
 		file.attrs = attributes(map);

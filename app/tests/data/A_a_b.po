@@ -1,0 +1,3 @@
+msgctxt "A"
+msgid "a"# comment at the end of the line
+msgstr		"b"

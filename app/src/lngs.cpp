@@ -183,8 +183,6 @@ namespace lngs::app {
 						return lng::ARGS_USAGE;
 					case args::lng::def_meta:
 						return lng::ARGS_DEF_META;
-					case args::lng::positionals:
-						return lng::ARGS_POSITIONALS;
 					case args::lng::optionals:
 						return lng::ARGS_OPTIONALS;
 					case args::lng::help_description:
@@ -193,14 +191,16 @@ namespace lngs::app {
 						return lng::ARGS_UNRECOGNIZED;
 					case args::lng::needs_param:
 						return lng::ARGS_NEEDS_PARAM;
-					case args::lng::needs_number:
-						return lng::ARGS_NEEDS_NUMBER;
-					case args::lng::needed_number_exceeded:
-						return lng::ARGS_NEEDED_NUMBER_EXCEEDED;
 					case args::lng::required:
 						return lng::ARGS_REQUIRED;
 					case args::lng::error_msg:
 						return lng::ARGS_ERROR_MSG;
+					// missing:
+					// - args::lng::positionals
+					// - args::lng::needs_number
+					// - args::lng::needed_number_exceeded
+					default:
+						break;
 				};
 				return static_cast<lng>(0);
 			}(id);
@@ -425,8 +425,8 @@ namespace lngs::app::make {
 		    .meta(_(lng::ARGS_APP_META_FILE))
 		    .help(_(lng::ARGS_APP_IN_IDL));
 		parser.arg(moname, "m", "msgs")
-		    .meta(_(lng::ARGS_APP_META_MO_FILE))
-		    .help(_(lng::ARGS_APP_IN_MO));
+		    .meta(_(lng::ARGS_APP_META_PO_MO_FILE))
+		    .help(_(lng::ARGS_APP_IN_PO_MO));
 		parser.arg(llname, "l", "lang")
 		    .meta(_(lng::ARGS_APP_META_FILE))
 		    .help(_(lng::ARGS_APP_IN_LLCC))
@@ -438,8 +438,8 @@ namespace lngs::app::make {
 
 		if (int res = setup.read_strings(parser, inname, verbose)) return res;
 
-		auto file = load_mo(setup.strings, warp_missing, verbose,
-		                    setup.diag.open(moname, "rb"), setup.diag);
+		auto file = load_msgs(setup.strings, warp_missing, verbose,
+		                      setup.diag.open(moname, "rb"), setup.diag);
 		if (setup.diag.has_errors()) return 1;
 
 		if (!llname.empty()) setup.diag.open(llname);

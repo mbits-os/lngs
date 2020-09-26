@@ -58,11 +58,11 @@ namespace lngs::app::py {
 }
 
 namespace lngs::app::make {
-	file load_mo(const idl_strings& defs,
-	             bool warp_missing,
-	             bool verbose,
-	             source_file data,
-	             diagnostics& diags);
+	file load_msgs(const idl_strings& defs,
+	               bool warp_missing,
+	               bool verbose,
+	               source_file data,
+	               diagnostics& diags);
 	bool fix_attributes(file& file,
 	                    source_file& mo_file,
 	                    const std::string& ll_CCs,

@@ -1,12 +1,13 @@
 set(lngs_app_SRCS
   src/cmds/cmd_freeze_ids.cpp
-  src/cmds/cmd_load_mo.cpp
+  src/cmds/cmd_load_msgs.cpp
   src/cmds/cmd_write_enums.cpp
   src/cmds/cmd_write_pot.cpp
   src/cmds/cmd_write_py.cpp
   src/cmds/cmd_write_res.cpp
   src/diagnostics.cpp
   src/gettext.cpp
+  src/gettext_plain.cpp
   src/languages.cpp
   src/lang_codes.cpp
   src/lngs_res.cpp
@@ -162,6 +163,7 @@ add_test(NAME lngs.python COMMAND lngs-test --gtest_filter=*/python.*)
 add_test(NAME lngs.pot COMMAND lngs-test --gtest_filter=*/pot.*)
 add_test(NAME lngs.utf COMMAND lngs-test --gtest_filter=*/utf_conv.*:*/utf_errors.*)
 add_test(NAME lngs.gettext COMMAND lngs-test --gtest_filter=*/gettext.*:*/gtt_attr_*.*:*/gtt_extract.*:*/mo_*.* --data_path=${DATA_DIR})
+add_test(NAME lngs.gettext.plain COMMAND lngs-test --gtest_filter=*/gettext_plain.*:*/po_*.* --data_path=${DATA_DIR})
 add_test(NAME lngs.streams COMMAND lngs-test --gtest_filter=streams.* --data_path=${DATA_DIR})
 add_test(
   NAME lngs.exec

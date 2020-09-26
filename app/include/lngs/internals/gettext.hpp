@@ -32,6 +32,9 @@ namespace lngs::app {
 	class diagnostics;
 }  // namespace lngs::app
 namespace gtt {
-	std::map<std::string, std::string> open(lngs::app::source_file& src,
-	                                        lngs::app::diagnostics& diags);
-}
+	bool is_mo(lngs::app::source_file& src);
+	std::map<std::string, std::string> open_mo(lngs::app::source_file& src,
+	                                           lngs::app::diagnostics& diags);
+	std::map<std::string, std::string> open_po(lngs::app::source_file& src,
+	                                           lngs::app::diagnostics& diags);
+}  // namespace gtt

@@ -1,0 +1,3 @@
+msgid ""
+    "\a\b\f\n\r\
+msgstr "a\gb\\f\"n\'r\?t\[\]v"
