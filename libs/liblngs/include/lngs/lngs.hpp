@@ -30,6 +30,9 @@ namespace lngs {
 	template <typename Enum, typename Storage = storage::FileBased>
 	class SingularStrings : public Storage {
 	public:
+		template <typename NextStorage = storage::FileBased>
+		using rebind = SingularStrings<Enum, NextStorage>;
+
 		std::string operator()(Enum val) const noexcept {
 			auto const id = static_cast<lang_file::identifier>(val);
 			auto ptr = Storage::get_string(id);
@@ -45,6 +48,9 @@ namespace lngs {
 	template <typename Enum, typename Storage = storage::FileBased>
 	class PluralOnlyStrings : public Storage {
 	public:
+		template <typename NextStorage = storage::FileBased>
+		using rebind = PluralOnlyStrings<Enum, NextStorage>;
+
 		std::string operator()(Enum val, intmax_t count) const noexcept {
 			auto const id = static_cast<lang_file::identifier>(val);
 			auto const quantity = static_cast<lang_file::quantity>(count);
@@ -63,6 +69,9 @@ namespace lngs {
 	          typename Storage = storage::FileBased>
 	class StringsWithPlurals : public SingularStrings<SEnum, Storage> {
 	public:
+		template <typename NextStorage = storage::FileBased>
+		using rebind = StringsWithPlurals<SEnum, PEnum, NextStorage>;
+
 		using SingularStrings<SEnum, Storage>::operator();  // un-hide
 		std::string operator()(PEnum val, intmax_t count) const noexcept {
 			auto const id = static_cast<lang_file::identifier>(val);
