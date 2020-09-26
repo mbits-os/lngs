@@ -226,32 +226,37 @@ namespace lngs::app {
 {}:
 
 1. {}:
-   > lngs freeze + git
+   > vim .idl
+   > git commit .idl
 2. {}:
    > lngs enums
    > lngs res
    > git commit .hpp .cpp
 3. {}:
-   [edit .lngs file]
-   > git commit .lngs
+   > msgfmt [optional]
+   > lngs enums
+   > lngs res
+   > lngs make
+   > git commit .hpp .cpp [optional]
 4. {}:
-   > lngs pot
    > msgmerge (or msginit)
+   > e.g. poedit .po
    > git commit .po
 5. {}:
-   > msgfmt
+   > msgfmt (opt)
    > lngs make
+   > tar -c
 )",
-	           _(lng::ARGS_APP_FLOW_TITLE), _(lng::ARGS_APP_FLOW_ROLE_STRMGR),
+	           _(lng::ARGS_APP_FLOW_TITLE), _(lng::ARGS_APP_FLOW_ROLE_DEV_ADD),
 	           _(lng::ARGS_APP_FLOW_ROLE_DEV_COMPILE),
-	           _(lng::ARGS_APP_FLOW_ROLE_DEV_ADD),
+	           _(lng::ARGS_APP_FLOW_ROLE_STRMGR),
 	           _(lng::ARGS_APP_FLOW_ROLE_TRANSLATOR),
 	           _(lng::ARGS_APP_FLOW_ROLE_DEV_RELEASE));
 
 	std::exit(0);
 }
 
-[[noreturn]] void show_version() {
+    [[noreturn]] void show_version() {
 	using ver = lngs::app::build::version;
 	fmt::print("lngs {}{}\n", ver::string, ver::stability);
 	std::exit(0);
@@ -376,12 +381,11 @@ namespace lngs::app::enums {
 
 		if (int res = setup.read_strings(parser, inname, verbose)) return res;
 
-		return setup.write(
-		    parser, outname,
-		    [&](outstream& out) {
-			    return write(out, setup.strings, with_resource);
-		    },
-		    print_if(verbose));
+		return setup.write(parser, outname,
+		                   [&](outstream& out) {
+			                   return write(out, setup.strings, with_resource);
+		                   },
+		                   print_if(verbose));
 	}
 }  // namespace lngs::app::enums
 
@@ -454,9 +458,9 @@ namespace lngs::app::make {
 		    !fix_attributes(file, mo, llname, setup.diag))
 			return 1;
 
-		return setup.write(
-		    parser, outname, [&](outstream& out) { return file.write(out); },
-		    print_if(verbose));
+		return setup.write(parser, outname,
+		                   [&](outstream& out) { return file.write(out); },
+		                   print_if(verbose));
 	}
 }  // namespace lngs::app::make
 

@@ -2,7 +2,7 @@
 	project("lngs"),
 	namespace("lngs::app"),
 	version("0.4"),
-	serial(5)
+	serial(6)
 ] strings {
 	[help("Synopsis header; please note there is one space at the end of this entry"), id(500)]
 	ARGS_USAGE = "usage: ";
@@ -73,12 +73,12 @@
 	ARGS_APP_META_TITLE = "<title>";
 	[help("Name of argument holding a file name for a GetText PO/MO file"), id(531)]
 	ARGS_APP_META_PO_MO_FILE = "<gettext file>";
-	[help("Name of argument holding a directory"), id(-1)]
+	[help("Name of argument holding a directory"), id(1032)]
 	ARGS_APP_META_DIR = "<dir>";
 
 	[help("Description for 'version' argument"), id(532)]
 	ARGS_APP_VERSION = "shows program version and exits";
-	[help("Description for 'share' argument"), id(-1)]
+	[help("Description for 'share' argument"), id(1033)]
 	ARGS_APP_SHARE_REDIR = "replaces {0} as new data directory";
 	[help("Description for 'verbose' argument"), id(533)]
 	ARGS_APP_VERBOSE = "shows more info";
@@ -150,9 +150,9 @@
 	ERR_EXPECTED = "expected {0}, got {1}";
 	[help("Used as second argument for ERR_EXPECTED, as in \"..., got unrecognized text\""), id(1014)]
 	ERR_EXPECTED_GOT_UNRECOGNIZED = "unrecognized text";
-	[help("Used as first argument for ERR_EXPECTED, as in \"expected EOF\""), id(-1)]
+	[help("Used as first argument for ERR_EXPECTED, as in \"expected EOF\""), id(1034)]
 	ERR_EXPECTED_EOF = "end of file";
-	[help("Used as first argument for ERR_EXPECTED, as in \"expected EOL\""), id(-1)]
+	[help("Used as first argument for ERR_EXPECTED, as in \"expected EOL\""), id(1035)]
 	ERR_EXPECTED_EOL = "end of line";
 	[help("Used as first argument for ERR_EXPECTED, as in \"expected string\""), id(1016)]
 	ERR_EXPECTED_STRING = "string";
@@ -162,7 +162,7 @@
 	ERR_EXPECTED_ID = "identifier";
 	[help("Used as second argument for ERR_EXPECTED, as in \"..., got EOF\""), id(1019)]
 	ERR_EXPECTED_GOT_EOF = "end of file";
-	[help("Used as second argument for ERR_EXPECTED, as in \"..., got EOL\""), id(-1)]
+	[help("Used as second argument for ERR_EXPECTED, as in \"..., got EOL\""), id(1036)]
 	ERR_EXPECTED_GOT_EOL = "end of line";
 	[help("Used as second argument for ERR_EXPECTED, as in \"..., got string\""), id(1020)]
 	ERR_EXPECTED_GOT_STRING = "string";
@@ -190,8 +190,8 @@
 	ERR_GETTEXT_FILE_TRUNCATED = "file truncated; data missing";
 	[help("Detail of what was wrong with the contents"), id(1031)]
 	ERR_GETTEXT_NOT_ASCIIZ = "strings must end with a zero";
-	[help("The PO file has unexpected field name"), id(-1)]
+	[help("The PO file has unexpected field name"), id(1037)]
 	ERR_GETTEXT_UNRECOGNIZED_FIELD = "unrecognized field `{0}'";
-	[help("The PO file has unexpected string contents"), id(-1)]
+	[help("The PO file has unexpected string contents"), id(1038)]
 	ERR_GETTEXT_UNRECOGNIZED_ESCAPE = "unrecognized escape sequence `\\{0}'";
 }
