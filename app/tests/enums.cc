@@ -65,14 +65,14 @@ namespace  {
         ID3 = 1003,
     }; // enum class lng
 
-    enum class lngs {
+    enum class counted {
         /// value | values (help string)
         ID = 1002,
         /// value2 | values (help string)
         ID2 = 1001,
-    }; // enum class lngs
+    }; // enum class counted
 
-    using Strings = lngs::StringsWithPlurals<lng, lngs>;
+    using Strings = lngs::StringsWithPlurals<lng, counted>;
 } // namespace 
 // clang-format on
 )",
@@ -88,19 +88,19 @@ namespace  {
         ID3 = 1003,
     }; // enum class lng
 
-    enum class lngs {
+    enum class counted {
         /// value | values (help string)
         ID = 1002,
         /// value2 | values (help string)
         ID2 = 1001,
-    }; // enum class lngs
+    }; // enum class counted
 
     struct Resource {
         static const char* data();
         static std::size_t size();
     };
 
-    using Strings = lngs::StringsWithPlurals<lng, lngs, lngs::storage::FileWithBuiltin<Resource>>;
+    using Strings = lngs::StringsWithPlurals<lng, counted, lngs::storage::FileWithBuiltin<Resource>>;
 } // namespace 
 // clang-format on
 )"},
@@ -123,14 +123,14 @@ namespace name {
         ID3 = 1003,
     }; // enum class lng
 
-    enum class lngs {
+    enum class counted {
         /// value | values (help string)
         ID = 1002,
         /// value2 | values (help string)
         ID2 = 1001,
-    }; // enum class lngs
+    }; // enum class counted
 
-    using Strings = lngs::StringsWithPlurals<lng, lngs>;
+    using Strings = lngs::StringsWithPlurals<lng, counted>;
 } // namespace name
 // clang-format on
 )",
@@ -146,19 +146,19 @@ namespace name {
         ID3 = 1003,
     }; // enum class lng
 
-    enum class lngs {
+    enum class counted {
         /// value | values (help string)
         ID = 1002,
         /// value2 | values (help string)
         ID2 = 1001,
-    }; // enum class lngs
+    }; // enum class counted
 
     struct Resource {
         static const char* data();
         static std::size_t size();
     };
 
-    using Strings = lngs::StringsWithPlurals<lng, lngs, lngs::storage::FileWithBuiltin<Resource>>;
+    using Strings = lngs::StringsWithPlurals<lng, counted, lngs::storage::FileWithBuiltin<Resource>>;
 } // namespace name
 // clang-format on
 )"},
@@ -227,14 +227,14 @@ strings {
 
 // clang-format off
 namespace name {
-    enum class lngs {
+    enum class counted {
         /// value | values (help string)
         ID = 1002,
         /// value2 | values (help string)
         ID2 = 1001,
-    }; // enum class lngs
+    }; // enum class counted
 
-    using Strings = lngs::PluralOnlyStrings<lngs>;
+    using Strings = lngs::PluralOnlyStrings<counted>;
 } // namespace name
 // clang-format on
 )",
@@ -245,19 +245,19 @@ namespace name {
 
 // clang-format off
 namespace name {
-    enum class lngs {
+    enum class counted {
         /// value | values (help string)
         ID = 1002,
         /// value2 | values (help string)
         ID2 = 1001,
-    }; // enum class lngs
+    }; // enum class counted
 
     struct Resource {
         static const char* data();
         static std::size_t size();
     };
 
-    using Strings = lngs::PluralOnlyStrings<lngs, lngs::storage::FileWithBuiltin<Resource>>;
+    using Strings = lngs::PluralOnlyStrings<counted, lngs::storage::FileWithBuiltin<Resource>>;
 } // namespace name
 // clang-format on
 )"},

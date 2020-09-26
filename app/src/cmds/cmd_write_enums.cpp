@@ -83,13 +83,13 @@ namespace lngs::app::enums {
 			if (str.plural.empty()) continue;
 
 			if (first) {
-				out.fmt("    enum class lngs {{\n");
+				out.fmt("    enum class counted {{\n");
 				first = false;
 			}
 
 			print_string(out, str, true);
 		}
-		if (!first) out.fmt("    }}; // enum class lngs\n\n");
+		if (!first) out.fmt("    }}; // enum class counted\n\n");
 
 		if (!has_singular && !has_plural) {
 			out.fmt(R"(    enum class faulty {{
@@ -112,9 +112,9 @@ namespace lngs::app::enums {
 		}
 
 		const char* strings_class =
-		    has_singular ? (has_plural ? "StringsWithPlurals<lng, lngs"
+		    has_singular ? (has_plural ? "StringsWithPlurals<lng, counted"
 		                               : "SingularStrings<lng")
-		                 : (has_plural ? "PluralOnlyStrings<lngs"
+		                 : (has_plural ? "PluralOnlyStrings<counted"
 		                               : "SingularStrings<faulty");
 		out.fmt(R"(    using Strings = lngs::{0}{1}>;
 }} // namespace {2}
