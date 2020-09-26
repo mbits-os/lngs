@@ -1,1 +1,1 @@
-{"name": "0001: No args", "args": [], "expected": [2, "", "usage: lngs [-h] [--version] <command> [<arguments>]\nlngs: error: command missing\n"]}
+{"name": "0001: No args", "args": [], "expected": [2, "", "usage: lngs [-h] [--version] [--share <dir>] <command> [<arguments>]\nlngs: error: command missing\n"]}

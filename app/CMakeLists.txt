@@ -161,6 +161,7 @@ add_test(
     "${CMAKE_CURRENT_SOURCE_DIR}/tests/exe_driver.py"
 	"$<TARGET_FILE_DIR:lngs>/$<TARGET_FILE_PREFIX:lngs>lngs$<TARGET_FILE_SUFFIX:lngs>"
 	"${DATA_DIR}"
+	"${CMAKE_INSTALL_PREFIX}/${SHARE_DIR}"
     )
 
 endif()

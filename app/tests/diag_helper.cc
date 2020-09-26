@@ -69,8 +69,12 @@ namespace lngs::app::testing {
 				return "<title>";
 			case lng::ARGS_APP_META_PO_MO_FILE:
 				return "<gettext file>";
+			case lng::ARGS_APP_META_DIR:
+				return "<dir>";
 			case lng::ARGS_APP_VERSION:
 				return "shows program version and exits";
+			case lng::ARGS_APP_SHARE_REDIR:
+				return "replaces {0} as new data directory";
 			case lng::ARGS_APP_VERBOSE:
 				return "shows more info";
 			case lng::ARGS_APP_COPYRIGHT:
@@ -258,8 +262,12 @@ namespace lngs::app::testing {
 				return "ARGS_APP_META_TITLE";
 			case lng::ARGS_APP_META_PO_MO_FILE:
 				return "ARGS_APP_META_PO_MO_FILE";
+			case lng::ARGS_APP_META_DIR:
+				return "ARGS_APP_META_DIR";
 			case lng::ARGS_APP_VERSION:
 				return "ARGS_APP_VERSION";
+			case lng::ARGS_APP_SHARE_REDIR:
+				return "ARGS_APP_SHARE_REDIR({0})";
 			case lng::ARGS_APP_VERBOSE:
 				return "ARGS_APP_VERBOSE";
 			case lng::ARGS_APP_COPYRIGHT:
@@ -407,7 +415,9 @@ namespace lngs::app::testing {
 			NAME(ARGS_APP_META_EMAIL);
 			NAME(ARGS_APP_META_TITLE);
 			NAME(ARGS_APP_META_PO_MO_FILE);
+			NAME(ARGS_APP_META_DIR);
 			NAME(ARGS_APP_VERSION);
+			NAME(ARGS_APP_SHARE_REDIR);
 			NAME(ARGS_APP_VERBOSE);
 			NAME(ARGS_APP_COPYRIGHT);
 			NAME(ARGS_APP_AUTHOR);

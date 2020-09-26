@@ -3,12 +3,14 @@ import os
 import re
 import subprocess
 import sys
+import shlex
 from stat import S_IREAD, S_IRGRP, S_IROTH
 
-env = { name: os.environ[name] for name in os.environ }
+env = {name: os.environ[name] for name in os.environ}
 
 driven = sys.argv[1]
 datadir = os.path.abspath(sys.argv[2])
+sharedir = sys.argv[3]
 
 stat = os.stat(os.path.join(datadir, 'readonly.file'))
 os.chmod(os.path.join(datadir, 'readonly.file'), S_IREAD | S_IRGRP | S_IROTH)
@@ -30,9 +32,14 @@ counter = 0
 
 flds = ['Return code', 'Standard out', 'Standard err']
 
+
 def fix(input, patches):
-    input = input.decode('UTF-8').replace(datadir, '$DATA')
-    if not len(patches): return input
+    input = input \
+        .decode('UTF-8') \
+        .replace(datadir, '$DATA') \
+        .replace(sharedir, '$SHARE')
+    if not len(patches):
+        return input
 
     input = input.split('\n')
     for patch in patches:
@@ -43,9 +50,11 @@ def fix(input, patches):
                 input[lineno] = patched
     return '\n'.join(input)
 
+
 for filename in sorted(testsuite):
     counter += 1
-    with open(filename) as f: data = json.load(f)
+    with open(filename) as f:
+        data = json.load(f)
     try:
         args, name, expected = data['args'], data['name'], data['expected']
     except KeyError:
@@ -66,21 +75,27 @@ for filename in sorted(testsuite):
 
     print(f"[{counter:>{digits}}/{len(testsuite)}] {repr(name)}")
     proc = subprocess.run([driven, *expanded], capture_output=True, env=env)
-    actual = [proc.returncode, fix(proc.stdout, patches), fix(proc.stderr, patches)]
+    actual = [proc.returncode,
+              fix(proc.stdout, patches),
+              fix(proc.stderr, patches)]
     if expected is None:
         data['expected'] = actual
-        with open(filename, "w") as f: json.dump(data, f, separators=(", ", ": "))
+        with open(filename, "w") as f:
+            json.dump(data, f, separators=(", ", ": "))
         print(f"[{counter:>{digits}}/{len(testsuite)}] {repr(name)} saved")
     elif actual == expected:
         print(f"[{counter:>{digits}}/{len(testsuite)}] {repr(name)} PASSED")
     else:
         for ndx in range(len(actual)):
             if actual[ndx] != expected[ndx]:
-                print(f"{flds[ndx]}\n  Expected:\n    {repr(expected[ndx])}\n  Actual:\n    {repr(actual[ndx])}")
+                print(
+                    f"{flds[ndx]}\n  Expected:\n    {repr(expected[ndx])}\n  Actual:\n    {repr(actual[ndx])}")
+        print(' '.join([shlex.quote(arg) for arg in [driven, *expanded]]))
         print(f"[{counter:>{digits}}/{len(testsuite)}] {repr(name)} **FAILED**")
         had_errors = True
 
 
 os.chmod(os.path.join(datadir, 'readonly.file'), stat.st_mode)
 
-if had_errors: sys.exit(1)
+if had_errors:
+    sys.exit(1)

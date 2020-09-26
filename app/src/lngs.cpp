@@ -119,9 +119,12 @@ namespace lngs::app {
 
 	template <typename StringsImpl>
 	struct locale_base {
-		idl_strings strings;
-		diagnostics diag;
+		idl_strings strings{};
+		diagnostics diag{};
 		StringsImpl tr;
+
+		template <typename... Args>
+		locale_base(Args&&... args) : tr{std::forward<Args>(args)...} {}
 
 		~locale_base() {
 			auto& out = get_stdout();
@@ -149,9 +152,14 @@ namespace lngs::app {
 	};
 
 	struct main_strings : public strings, public args::base_translator {
-		main_strings() {
-			m_prefix.path_manager<manager::ExtensionPath>(
-			    build::directory_info::prefix, "lngs");
+		main_strings(std::optional<fs::path> const& redirected) {
+			if (redirected) {
+				m_prefix.path_manager<manager::ExtensionPath>(*redirected,
+				                                              "lngs");
+			} else {
+				m_prefix.path_manager<manager::ExtensionPath>(
+				    build::directory_info::prefix, "lngs");
+			}
 			m_build.path_manager<manager::ExtensionPath>(
 			    build::directory_info::build, "lngs");
 
@@ -271,7 +279,21 @@ namespace lngs::app {
 }
 
 int main(int argc, XChar* argv[]) {
-	lngs::app::locale_setup setup;
+	std::optional<fs::path> redirected_share{};
+
+	{
+		auto noop = [] {};
+		args::null_translator tr{};
+		args::parser base{{}, args::from_main(argc, argv), &tr};
+		base.usage({});
+		base.provide_help(false);
+		base.custom(noop, "h", "help").opt();
+		base.custom(noop, "v", "version").opt();
+		base.arg(redirected_share, "share");
+		base.parse(args::parser::allow_subcommands);
+	}
+
+	lngs::app::locale_setup setup{redirected_share};
 
 	auto show_help_tr = [&setup](args::parser& p) { show_help(p, setup.tr); };
 	auto _ = [&setup](auto id) { return setup.tr.get(id); };
@@ -288,6 +310,11 @@ int main(int argc, XChar* argv[]) {
 	    .opt();
 	base.custom(show_version, "v", "version")
 	    .help(_(lng::ARGS_APP_VERSION))
+	    .opt();
+	base.custom([](std::string const&) {}, "share")
+	    .meta(_(lng::ARGS_APP_META_DIR))
+	    .help(fmt::format(_(lng::ARGS_APP_SHARE_REDIR),
+	                      lngs::app::build::directory_info::prefix))
 	    .opt();
 
 	auto const unparsed = base.parse(args::parser::allow_subcommands);
