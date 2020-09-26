@@ -105,6 +105,10 @@ namespace lngs {
 		std::string name;
 	};
 
+	enum class SerialNumber : unsigned {
+		UseAny = std::numeric_limits<unsigned>::max()
+	};
+
 	class translation {
 		struct manager_t {
 			virtual ~manager_t() {}
@@ -160,7 +164,7 @@ namespace lngs {
 			    std::make_unique<manager_impl<T>>(std::forward<Args>(args)...);
 		}
 
-		bool open(const std::string& lng);
+		bool open(const std::string& lng, SerialNumber serial);
 		bool fresh() const noexcept { return mtime() == m_mtime; }
 		std::string_view get_string(identifier id) const noexcept;
 		std::string_view get_string(identifier id,

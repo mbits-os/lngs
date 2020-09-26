@@ -385,16 +385,18 @@ namespace lngs::app {
 			string_header hdr;
 			hdr.id = section_id;
 			hdr.string_offset =
-			    key_size + sizeof(string_header) / sizeof(uint32_t);
-			hdr.ints = static_cast<uint32_t>(
-			    hdr.string_offset - sizeof(section_header) / sizeof(uint32_t));
+			    key_size +
+			    static_cast<uint32_t>(sizeof(string_header) / sizeof(uint32_t));
+			hdr.ints = hdr.string_offset -
+			           static_cast<uint32_t>(sizeof(section_header) /
+			                                 sizeof(uint32_t));
 			hdr.string_count = static_cast<uint32_t>(block.size());
 
 			uint32_t offset = 0;
 			update_offsets(offset, block);
 			uint32_t padding = (((offset + 3) >> 2) << 2) - offset;
 			offset += padding;
-			offset /= sizeof(uint32_t);
+			offset /= static_cast<uint32_t>(sizeof(uint32_t));
 			hdr.ints += offset;
 
 			WRITE(os, hdr);

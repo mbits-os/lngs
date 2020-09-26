@@ -189,6 +189,7 @@ namespace lngs::app {
         static std::size_t size();
     };
 
-    using Strings = lngs::SingularStrings<lng, lngs::storage::FileWithBuiltin<Resource>>;
+    using Strings = lngs::SingularStrings<lng, lngs::VersionedFile<5,
+        lngs::storage::FileWithBuiltin<Resource>>>;
 } // namespace lngs::app
 // clang-format on

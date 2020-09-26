@@ -61,7 +61,8 @@ namespace lngs::storage::testing {
 	    Storage,
 	    std::void_t<std::enable_if_t<
 	                    std::is_same_v<decltype(std::declval<Storage>().open(
-	                                       std::declval<std::string>())),
+	                                       std::declval<std::string>(),
+	                                       std::declval<SerialNumber>())),
 	                                   bool>>,
 	                std::enable_if_t<std::is_same_v<
 	                    decltype(std::declval<Storage>().known()),
@@ -140,12 +141,12 @@ namespace lngs::storage::testing {
 
 			for (auto const& ll_CC : param.expected_known) {
 				expected_culture = ll_CC.lang;
-				EXPECT_TRUE(tr.open(expected_culture));
+				EXPECT_TRUE(tr.open(expected_culture, SerialNumber::UseAny));
 			}
 			EXPECT_EQ(param.expected_known.size(), counter);
 
 			expected_culture.clear();
-			EXPECT_FALSE(tr.open("timey-WIMEY"));
+			EXPECT_FALSE(tr.open("timey-WIMEY", SerialNumber::UseAny));
 
 			tr.remove_onupdate(token);
 			tr.add_onupdate({});
@@ -156,7 +157,7 @@ namespace lngs::storage::testing {
 
 			if constexpr (has_file_based_v<Storage>) {
 				for (auto const& ll_CC : param.expected_known) {
-					EXPECT_TRUE(tr.open(ll_CC.lang));
+					EXPECT_TRUE(tr.open(ll_CC.lang, SerialNumber::UseAny));
 					test_find_key();
 				}
 			} else {
@@ -254,8 +255,8 @@ namespace lngs::storage::testing {
 		    TESTING_data_path / "testset1.ext", param.package);
 
 		auto vectored = std::vector(param.one_of);
-		EXPECT_EQ(param.expected, tr.open_first_of(vectored));
-		EXPECT_EQ(param.expected, tr.open_first_of(param.one_of));
+		EXPECT_EQ(param.expected, tr.open_first_of(vectored, SerialNumber::UseAny));
+		EXPECT_EQ(param.expected, tr.open_first_of(param.one_of, SerialNumber::UseAny));
 	}
 
 	struct header {

@@ -108,6 +108,8 @@ namespace lngs {
 				return false;
 		}
 
+		serial = fhdr->serial;
+
 		auto sec = static_cast<section_header const*>(fhdr);
 		while (sec->id != lasttext_tag) {
 			const auto sec_ints =
@@ -139,6 +141,8 @@ namespace lngs {
 		strings.close();
 		keys.close();
 	}
+
+	unsigned lang_file::get_serial() const noexcept { return serial; }
 
 	std::string_view lang_file::get_string(identifier id) const noexcept {
 		const auto ret = strings.string(id);

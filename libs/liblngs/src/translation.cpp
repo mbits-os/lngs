@@ -40,7 +40,7 @@ namespace lngs {
 		return block;
 	}
 
-	bool translation::open(const std::string& lng) {
+	bool translation::open(const std::string& lng, SerialNumber serial) {
 		assert(m_path_mgr);
 		m_path = m_path_mgr->expand(lng);
 		m_mtime = mtime();
@@ -49,7 +49,10 @@ namespace lngs {
 		m_path.make_preferred();
 		m_data = open_file(m_path);
 
-		if (!m_file.open(m_data)) {
+		auto const check_serial = serial != SerialNumber::UseAny;
+		auto const serial_to_check = static_cast<unsigned>(serial);
+		if (!m_file.open(m_data) ||
+		    (check_serial && m_file.get_serial() != serial_to_check)) {
 			m_file.close();
 			m_data = memory_block{};
 			m_mtime = decltype(m_mtime){};

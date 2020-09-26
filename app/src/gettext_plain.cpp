@@ -228,7 +228,7 @@ namespace gtt {
 						return false;
 					}
 					curr_cmd.counter *= 10;
-					curr_cmd.counter += c - '0';
+					curr_cmd.counter += static_cast<unsigned>(c) - '0';
 				}
 				next();
 			}

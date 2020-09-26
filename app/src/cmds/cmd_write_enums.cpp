@@ -108,20 +108,24 @@ namespace lngs::app::enums {
     }};
 
 )");
-			storage = ", lngs::storage::FileWithBuiltin<Resource>";
+			storage = ",\n        lngs::storage::FileWithBuiltin<Resource>";
 		}
 
-		const char* strings_class =
-		    has_singular ? (has_plural ? "StringsWithPlurals<lng, counted"
-		                               : "SingularStrings<lng")
-		                 : (has_plural ? "PluralOnlyStrings<counted"
-		                               : "SingularStrings<faulty");
-		out.fmt(R"(    using Strings = lngs::{0}{1}>;
-}} // namespace {2}
+		const char* string_classes[] = {"SingularStrings", "PluralOnlyStrings",
+		                                "SingularStrings",
+		                                "StringsWithPlurals"};
+		const char* string_args[] = {"faulty", "counted", "lng",
+		                             "lng, counted"};
+
+		auto const index = 1 * has_plural + 2 * has_singular;
+
+		out.fmt(
+		    R"(    using Strings = lngs::{0}<{1}, lngs::VersionedFile<{2}{3}>>;
+}} // namespace {4}
 // clang-format on
 )",
-		        strings_class, storage,
-		        defs.ns_name.empty() ? defs.project : defs.ns_name);
+		    string_classes[index], string_args[index], defs.serial, storage,
+		    defs.ns_name.empty() ? defs.project : defs.ns_name);
 
 		return 0;
 	}

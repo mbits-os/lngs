@@ -43,13 +43,16 @@ namespace lngs {
 			using identifier = lang_file::identifier;
 			using quantity = lang_file::quantity;
 
+			template <typename NextStorage = storage::FileBased>
+			using rebind = NextStorage;
+
 			std::string_view get_string(identifier val) const noexcept {
 				assert(m_impl);
 				return m_impl->get_string(val);
 			}
 
-			std::string_view get_string(identifier val,
-			                            quantity count) const noexcept {
+			std::string_view get_string(identifier val, quantity count) const
+			    noexcept {
 				assert(m_impl);
 				return m_impl->get_string(val, count);
 			}
@@ -70,9 +73,9 @@ namespace lngs {
 			}
 
 			template <typename C>
-			bool open_range(C&& langs) {
+			bool open_range(C&& langs, SerialNumber serial) {
 				for (auto& lang : langs) {
-					if (open(lang)) return true;
+					if (open(lang, serial)) return true;
 				}
 
 				return false;
@@ -85,9 +88,9 @@ namespace lngs {
 				m_impl->path_manager<Manager>(std::forward<Args>(args)...);
 			}
 
-			bool open(const std::string& lng) {
+			bool open(const std::string& lng, SerialNumber serial) {
 				assert(m_impl);
-				return m_impl->open(lng);
+				return m_impl->open(lng, serial);
 			}
 
 			template <typename T, typename C>
@@ -101,14 +104,14 @@ namespace lngs {
 
 			template <typename T>
 			std::enable_if_t<std::is_convertible<T, std::string>::value, bool>
-			open_first_of(std::initializer_list<T> langs) {
-				return open_range(std::move(langs));
+			open_first_of(std::initializer_list<T> langs, SerialNumber serial) {
+				return open_range(std::move(langs), serial);
 			}
 
 			template <typename C>
 			std::enable_if_t<is_range_of<std::string, C>::value, bool>
-			open_first_of(C&& langs) {
-				return open_range(std::forward<C>(langs));
+			open_first_of(C&& langs, SerialNumber serial) {
+				return open_range(std::forward<C>(langs), serial);
 			}
 
 			std::vector<culture> known() const {
@@ -135,13 +138,16 @@ namespace lngs {
 			using identifier = lang_file::identifier;
 			using quantity = lang_file::quantity;
 
+			template <typename NextStorage>
+			using rebind = NextStorage;
+
 			std::string_view get_string(identifier val) const noexcept {
 				assert(m_file);
 				return m_file->get_string(val);
 			}
 
-			std::string_view get_string(identifier val,
-			                            quantity count) const noexcept {
+			std::string_view get_string(identifier val, quantity count) const
+			    noexcept {
 				assert(m_file);
 				return m_file->get_string(val, count);
 			}
@@ -187,8 +193,8 @@ namespace lngs {
 				return B2::get_string(val);
 			}
 
-			std::string_view get_string(identifier val,
-			                            quantity count) const noexcept {
+			std::string_view get_string(identifier val, quantity count) const
+			    noexcept {
 				auto ret = B1::get_string(val, count);
 				if (!ret.empty()) return ret;
 				return B2::get_string(val, count);

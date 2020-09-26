@@ -200,12 +200,12 @@ namespace lngs::testing {
 
 		for (auto const& ll_CC : param.expected_known) {
 			expected_culture = ll_CC.lang;
-			EXPECT_TRUE(tr.open(expected_culture));
+			EXPECT_TRUE(tr.open(expected_culture, SerialNumber::UseAny));
 		}
 		EXPECT_EQ(param.expected_known.size(), counter);
 
 		expected_culture.clear();
-		EXPECT_FALSE(tr.open("timey-WIMEY"));
+		EXPECT_FALSE(tr.open("timey-WIMEY", SerialNumber::UseAny));
 
 		tr.remove_onupdate(token);
 		tr.add_onupdate({});
@@ -223,7 +223,7 @@ namespace lngs::testing {
 		}
 
 		for (auto const& ll_CC : param.expected_known) {
-			EXPECT_TRUE(tr.open(ll_CC.lang));
+			EXPECT_TRUE(tr.open(ll_CC.lang, SerialNumber::UseAny));
 
 			for (auto const& key : param.keys) {
 				auto id = tr.find_key(key);

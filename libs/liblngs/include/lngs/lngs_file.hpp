@@ -44,6 +44,7 @@ namespace lngs {
 		~lang_file() noexcept { close(); }
 		bool open(const memory_view& view) noexcept;
 		void close() noexcept;
+		unsigned get_serial() const noexcept;
 		std::string_view get_string(identifier id) const noexcept;
 		std::string_view get_string(identifier id,
 		                            quantity count) const noexcept;
@@ -72,6 +73,7 @@ namespace lngs {
 
 			bool read_strings(const string_header* sec) noexcept;
 		};
+		unsigned serial;
 		section attrs;
 		section strings;
 		section keys;

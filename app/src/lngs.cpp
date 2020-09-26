@@ -216,7 +216,7 @@ namespace lngs::app {
 		}
 
 	private:
-		struct PrefixStrings : SingularStrings<lng> {
+		struct PrefixStrings : lngs::app::Strings::rebind<> {
 			std::string_view get(lng str) const noexcept {
 				return get_string(static_cast<identifier>(str));
 			}
