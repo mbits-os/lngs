@@ -84,8 +84,6 @@ add_custom_target(lngs_pot
 	COMMENT "Regenerating POT file...")
 set_target_properties(lngs_pot PROPERTIES FOLDER tools/strings)
 
-find_program(MSGFMT NAMES msgfmt)
-
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/data/strings)
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${SHARE_DIR})
 
@@ -103,22 +101,14 @@ foreach(PO ${PO_FILES})
 
 	add_custom_command(
 		TARGET lngs POST_BUILD
-		COMMAND ${MSGFMT} -o "${MO}" "${PO}"
-
-		BYPRODUCTS ${MO}
-		DEPENDS "${PO}"
-		COMMENT "[${PO_NAME}] compiling")
-
-	add_custom_command(
-		TARGET lngs POST_BUILD
 		COMMAND
 			$<TARGET_FILE:lngs> make
 				-i "${LNGS_IDL}"
-				-m "${MO}"
+				-m "${PO}"
 				-o "${LNG}"
 
 		BYPRODUCTS ${LNG}
-		DEPENDS "${MO}"
+		DEPENDS "${PO}"
 		IMPLICIT_DEPENDS $<TARGET_FILE:lngs>
 		COMMENT "[${PO_NAME}] finalizing")
 endforeach()
