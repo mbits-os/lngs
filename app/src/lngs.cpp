@@ -350,6 +350,8 @@ namespace lngs::app::pot {
 
 		if (int res = setup.read_strings(parser, inname, verbose)) return res;
 
+		nfo.year = year_from_template(setup.diag.open(outname));
+
 		return setup.write(
 		    parser, outname,
 		    [&](outstream& out) { return write(out, setup.strings, nfo); },

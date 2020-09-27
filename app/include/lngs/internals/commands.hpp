@@ -23,8 +23,10 @@ namespace lngs::app::pot {
 		std::string copy{"THE PACKAGE'S COPYRIGHT HOLDER"};
 		std::string first_author{"FIRST AUTHOR <EMAIL@ADDRESS>"};
 		std::string title{"SOME DESCRIPTIVE TITLE"};
+		int year{-1};
 	};
 
+	int year_from_template(source_file file);
 	int write(outstream& out, const idl_strings& defs, const info& nfo);
 }  // namespace lngs::app::pot
 

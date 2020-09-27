@@ -6,6 +6,7 @@
 #include <iterator>
 
 #include <lngs/internals/commands.hpp>
+#include <lngs/internals/diagnostics.hpp>
 #include <lngs/internals/streams.hpp>
 #include <lngs/internals/strings.hpp>
 
@@ -82,6 +83,37 @@ namespace lngs::app::pot {
 		return out;
 	}
 
+	int year_from_template(source_file file) {
+		if (!file.valid()) return -1;
+
+		static constexpr std::string_view prefix{"# Copyright (C) "};
+		unsigned lineno{};
+		while (true) {
+			auto line = file.line(++lineno);
+			if (line.empty() || line.front() != '#') break;
+			if (line.size() <= prefix.size() ||
+			    line.substr(0, prefix.size()) != prefix) {
+				continue;
+			}
+			line = line.substr(prefix.size());
+			int result = 0;
+			size_t pos = 0;
+			while (pos < line.size() &&
+			       std::isdigit(static_cast<unsigned char>(line[pos]))) {
+				result *= 10;
+				result += static_cast<int>(line[pos]) - '0';
+				++pos;
+			}
+
+			if (pos > 0 &&
+			    (pos == line.size() ||
+			     std::isspace(static_cast<unsigned char>(line[pos])))) {
+				return result;
+			}
+		}
+		return -1;
+	}
+
 	int write(outstream& out, const idl_strings& defs, const info& nfo) {
 		auto has_plurals =
 		    find_if(begin(defs.strings), end(defs.strings), [](auto& str) {
@@ -108,7 +140,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 )",
 
-		        /*0*/ thisYear(),
+		        /*0*/ nfo.year == -1 ? thisYear() : nfo.year,
 		        /*1*/ defs.project, /*2*/ defs.version,
 		        /*3*/ nfo.copy, /*4*/ nfo.first_author, /*5*/ nfo.title,
 		        /*6*/ creationDate());
