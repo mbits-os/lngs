@@ -1,3 +1,6 @@
+// Copyright (c) 2015 midnightBITS
+// This code is licensed under MIT license (see LICENSE for details)
+
 #pragma once
 #include <lngs/plurals.hpp>
 #include <memory>

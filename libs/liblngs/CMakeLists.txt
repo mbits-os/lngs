@@ -8,7 +8,6 @@ set(liblngs_SRCS
 	src/lngs_storage.cpp
 	src/plurals.cpp
 	src/translation.cpp
-	src/version.cpp
 )
 
 set (liblngs_INCS
@@ -62,7 +61,10 @@ install(TARGETS liblngs
 	LIBRARY DESTINATION lib
 	RUNTIME DESTINATION bin)
 install(DIRECTORY include/lngs/ DESTINATION include/lngs)
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/include/lngs/version.hpp DESTINATION include/lngs)
+install(FILES
+	${CMAKE_CURRENT_BINARY_DIR}/include/lngs/version.hpp
+	../../LICENSE
+	DESTINATION include/lngs)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/lngs.pc DESTINATION share/pkgconfig)
 
 ##################################################################
