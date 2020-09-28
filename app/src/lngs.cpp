@@ -144,7 +144,7 @@ namespace lngs::app {
 
 			auto system = system_locales();
 			[&] {
-				m_build.init();
+				m_build.init_builtin();
 				if (m_prefix.open_first_of(system)) {
 					auto locale = m_prefix.attr(ATTR_CULTURE);
 					if (!locale.empty()) {

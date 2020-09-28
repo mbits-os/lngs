@@ -51,7 +51,7 @@ namespace lngs::storage::testing {
 	struct has_builtin<
 	    Storage,
 	    std::enable_if_t<
-	        std::is_same_v<decltype(std::declval<Storage>().init()), bool>>>
+	        std::is_same_v<decltype(std::declval<Storage>().init_builtin()), bool>>>
 	    : std::true_type {};
 
 	template <typename Storage, typename = void>
@@ -101,7 +101,7 @@ namespace lngs::storage::testing {
 
 			if constexpr (has_builtin_v<Storage>) {
 				vector_resource::bytes = &(*param.generator)();
-				tr.init();
+				tr.init_builtin();
 			}
 		};
 

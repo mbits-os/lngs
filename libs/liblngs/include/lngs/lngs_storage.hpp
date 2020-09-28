@@ -147,7 +147,7 @@ namespace lngs {
 			}
 
 		public:
-			bool init() {
+			bool init_builtin() {
 				m_file = std::make_shared<lang_file>();
 				memory_view view;
 				view.contents =
@@ -204,7 +204,7 @@ namespace lngs {
 			using FileBased::open_first_of;
 			using FileBased::path_manager;
 			using FileBased::remove_onupdate;
-			using Builtin<ResourceT>::init;
+			using Builtin<ResourceT>::init_builtin;
 		};
 	}  // namespace storage
 }  // namespace lngs

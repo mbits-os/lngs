@@ -541,7 +541,7 @@ namespace project {
 
 	TEST(res_read, builtin) {
 		SingularStrings<lngs::app::lng, storage::Builtin<Resource>> res;
-		ASSERT_TRUE(res.init());
+		ASSERT_TRUE(res.init_builtin());
 		ASSERT_FALSE(res(lng::ERR_EXPECTED).empty());
 	}
 }  // namespace lngs::app::testing
