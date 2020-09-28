@@ -5,7 +5,7 @@
 [![Cpp Standard][17-badge]][17]
 
 `lngs` and `liblngs` are open-source tool and library for index-based
-translation files. It can be used as a replacement for GetText message files
+translation files. They can be used as a replacement for GetText message files
 (especially on Windows), while still being able to use editors for GetText
 catalogues.
 

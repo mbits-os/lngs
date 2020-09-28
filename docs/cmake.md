@@ -4,7 +4,8 @@ Snippets below describe, how to use `lngs` in build system.
 
 ## Enumerations and builtin resources
 
-Automatically generating the files each time the string list definition changes.
+Automatically generating the files each time the string list definition
+changes.
 
 ```cmake
 set(SRCS

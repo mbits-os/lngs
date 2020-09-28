@@ -4,10 +4,15 @@ The system uses a format roughly inspired by MS MIDL / WebIDL languages.
 
 ## Augmented BNF syntax
 
+Two changes:
+1. `<CRLF>` below is really `(CR/LF/CRLF)`
+2. All double-quoted terminal symbols are case-sensitive (ABNF would allow
+   `"\A"` to match `<escape-sequence>`, this spec only recognizes `"\a"`)
+
 ### Non-terminal symbols
 
 The low-level non-terminal symbols are `<number>`, `<c-identifier>` and
-`<c-string>` (`CRLF` below is really `(CR/LF/CRLF)`):
+`<c-string>` ():
 
 ```abnf
 ; C-like identifier: underscore or a letter,
@@ -31,7 +36,7 @@ COMMENT = "//" *(WSP / VCHAR) CRLF
 ```
 
 For readability, all definitions below this point can have any number of
-whitespace and comments between symbols (`SPACE` above).
+whitespace and comments between symbols (`<SPACE>` above).
 
 ### Attributes
 
@@ -46,7 +51,7 @@ attribute = c-identifier "(" ( c-string / number ) ")"
 ### Top-level structures
 
 ```abnf
-top-level = attributes %s"strings" "{" *string "}"
+top-level = attributes "strings" "{" *string "}"
 string = attributes c-identifier "=" c-string ";"
 ```
 
@@ -105,7 +110,8 @@ namespace lngs::app {
 
 ### The `version` attribute
 
-If provided, will be used for `.pot` template metadata for `Project-Id-Version`.
+If provided, will be used for `.pot` template metadata for
+`Project-Id-Version`.
 
 
 ## Per-string attributes

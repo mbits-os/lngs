@@ -80,7 +80,8 @@ The example above will attempt to open, in order:
 
 There is a function, `system_locales()`, which returns a vector of
 system-defined locales. On POSIX, it checks the `$LANGUAGE`, `$LC_ALL`,
-`$LC_MESSAGES` and `$LANG` environment variables, followed by `LC_ALL` and `LC_MESSAGES` categories. On Windows, it checks `GetUserDefaultLocaleName`
+`$LC_MESSAGES` and `$LANG` environment variables, followed by `LC_ALL` and
+`LC_MESSAGES` categories. On Windows, it checks `GetUserDefaultLocaleName`
 and `GetSystemDefaultLocaleName` functions.
 
 For every locale, if it contains a hyphen, the resulting list is expanded
