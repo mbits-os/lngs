@@ -1,0 +1,38 @@
+# {{{title}}}.
+# Copyright (C) {{copy.year}} {{{copy.holder}}}
+# This file is distributed under the same license as the {{{project}}} package.
+# {{{first_author}}}, {{copy.year}}.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: {{{project}}} {{{version}}}\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: {{{creation_date}}}\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+{{#with_plural}}
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+{{/with_plural}}
+{{#strings}}
+
+{{#help}}
+#. {{{help}}}
+{{/help}}
+msgctxt "{{{key}}}"
+msgid "{{{value}}}"
+{{^plural}}
+msgstr ""
+{{/plural}}
+{{#plural}}
+msgid_plural "{{{plural}}}"
+msgstr[0] ""
+msgstr[1] ""
+{{/plural}}
+{{/strings}}
+

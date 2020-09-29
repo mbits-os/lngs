@@ -9,6 +9,7 @@ set(lngs_app_SRCS
   src/gettext.cpp
   src/gettext_plain.cpp
   src/languages.cpp
+  src/mstch_engine.cpp
   src/lang_codes.cpp
   src/lngs_res.cpp
   src/streams.cpp
@@ -21,6 +22,7 @@ set (lngs_app_INCS
   include/lngs/internals/diagnostics.hpp
   include/lngs/internals/gettext.hpp
   include/lngs/internals/languages.hpp
+  include/lngs/internals/mstch_engine.hpp
   include/lngs/internals/streams.hpp
   include/lngs/internals/strings.hpp
   include/lngs/internals/strings/lngs.hpp
@@ -35,9 +37,11 @@ target_compile_options(lngs_app PUBLIC ${ADDITIONAL_WALL_FLAGS})
 target_compile_definitions(lngs_app PRIVATE _CRT_SECURE_NO_WARNINGS)
 target_include_directories(lngs_app
   PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include
-  PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
+  PRIVATE
+  	${CMAKE_CURRENT_SOURCE_DIR}/src
+  	${CMAKE_CURRENT_BINARY_DIR}/src)
 
-target_link_libraries(lngs_app liblngs args CONAN_PKG::fmt)
+target_link_libraries(lngs_app liblngs args CONAN_PKG::fmt mstch)
 
 set(SHARE_DIR share/lngs-${PROJECT_VERSION_SHORT})
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/build.in.hpp ${CMAKE_CURRENT_BINARY_DIR}/src/build.hpp @ONLY)
@@ -92,7 +96,7 @@ foreach(PO ${PO_FILES})
 	get_filename_component(PO_NAME ${PO} NAME_WE)
 	list(APPEND PO_NAMES ${PO_NAME})
 	set(MO ${CMAKE_CURRENT_BINARY_DIR}/data/strings/${PO_NAME}.mo)
-	set(LNG ${CMAKE_CURRENT_BINARY_DIR}/${SHARE_DIR}/lngs.${PO_NAME})
+	set(LNG ${CMAKE_CURRENT_BINARY_DIR}/${SHARE_DIR}/locale/${PO_NAME}/lngs.lng)
 
 	if (MSVC)
 		string(REPLACE / \\ PO "${PO}")
@@ -101,6 +105,9 @@ foreach(PO ${PO_FILES})
 
 	add_custom_command(
 		TARGET lngs POST_BUILD
+		COMMAND
+			${CMAKE_COMMAND} -E
+				make_directory ${CMAKE_CURRENT_BINARY_DIR}/${SHARE_DIR}/locale/${PO_NAME}
 		COMMAND
 			$<TARGET_FILE:lngs> make
 				-i "${LNGS_IDL}"
@@ -116,6 +123,7 @@ if (PO_NAMES)
 	message(STATUS "Found strings for: ${PO_NAMES}")
 endif()
 install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${SHARE_DIR}/ DESTINATION ${SHARE_DIR})
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/data/templates DESTINATION ${SHARE_DIR})
 
 get_filename_component(IDL_DIR ${LNGS_IDL} DIRECTORY)
 
@@ -155,6 +163,7 @@ add_test(NAME lngs.utf COMMAND lngs-test --gtest_filter=*/utf_conv.*:*/utf_error
 add_test(NAME lngs.gettext COMMAND lngs-test --gtest_filter=*/gettext.*:*/gtt_attr_*.*:*/gtt_extract.*:*/mo_*.* --data_path=${DATA_DIR})
 add_test(NAME lngs.gettext.plain COMMAND lngs-test --gtest_filter=*/gettext_plain.*:*/po_*.* --data_path=${DATA_DIR})
 add_test(NAME lngs.streams COMMAND lngs-test --gtest_filter=streams.* --data_path=${DATA_DIR})
+add_test(NAME lngs.mstch COMMAND lngs-test --gtest_filter=mstch.* --data_path=${DATA_DIR})
 add_test(
   NAME lngs.exec
   COMMAND "${Python3_EXECUTABLE}"

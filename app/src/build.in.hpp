@@ -11,8 +11,11 @@ namespace lngs::app::build {
 	// clang-format off
 	struct directory_info {
 		constexpr static const char share[] = "@SHARE_DIR@";
-		constexpr static const char prefix[] = "@CMAKE_INSTALL_PREFIX@/@SHARE_DIR@";
-		constexpr static const char build[] = "@CMAKE_CURRENT_BINARY_DIR@/@SHARE_DIR@";
+		constexpr static const char data_dir[] = "@CMAKE_INSTALL_PREFIX@/@SHARE_DIR@";
+		constexpr static const char lngs_install[] = "@CMAKE_INSTALL_PREFIX@/@SHARE_DIR@/locale";
+		constexpr static const char lngs_build[] = "@CMAKE_CURRENT_BINARY_DIR@/@SHARE_DIR@/locale";
+		constexpr static const char mstch_install[] = "@CMAKE_INSTALL_PREFIX@/@SHARE_DIR@/templates";
+		constexpr static const char mstch_build[] = "@CMAKE_CURRENT_SOURCE_DIR@/data/templates";
 	};
 
 	struct version {

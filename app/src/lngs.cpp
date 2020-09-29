@@ -131,22 +131,23 @@ namespace lngs::app {
 	};
 
 	struct main_strings : public strings, public args::base_translator {
-		main_strings(std::optional<fs::path> const& redirected) {
-			if (redirected) {
-				m_prefix.path_manager<manager::ExtensionPath>(*redirected,
-				                                              "lngs");
+		main_strings(std::optional<fs::path> const& redirected)
+		    : m_redirected{redirected} {
+			if (m_redirected) {
+				m_install.path_manager<manager::SubdirPath>(
+				    *m_redirected / "locale", "lngs.lng");
 			} else {
-				m_prefix.path_manager<manager::ExtensionPath>(
-				    build::directory_info::prefix, "lngs");
+				m_install.path_manager<manager::SubdirPath>(
+				    build::directory_info::lngs_install, "lngs.lng");
 			}
-			m_build.path_manager<manager::ExtensionPath>(
-			    build::directory_info::build, "lngs");
+			m_build.path_manager<manager::SubdirPath>(
+			    build::directory_info::lngs_build, "lngs.lng");
 
 			auto system = system_locales();
 			[&] {
 				m_build.init_builtin();
-				if (m_prefix.open_first_of(system)) {
-					auto locale = m_prefix.attr(ATTR_CULTURE);
+				if (m_install.open_first_of(system)) {
+					auto locale = m_install.attr(ATTR_CULTURE);
 					if (!locale.empty()) {
 						m_build.open(locale);
 						return;
@@ -155,8 +156,13 @@ namespace lngs::app {
 				m_build.open_first_of(system);
 			}();
 		}
+
+		std::optional<fs::path> const& redirected() const noexcept {
+			return m_redirected;
+		}
+
 		std::string_view get(lng str) const final {
-			auto result = m_prefix.get(str);
+			auto result = m_install.get(str);
 			if (result.empty()) result = m_build.get(str);
 			return result;
 		}
@@ -195,17 +201,19 @@ namespace lngs::app {
 		}
 
 	private:
-		struct PrefixStrings : lngs::app::Strings::rebind<> {
+		struct InstalledStrings : lngs::app::Strings::rebind<> {
 			std::string_view get(lng str) const noexcept {
 				return get_string(static_cast<identifier>(str));
 			}
-		} m_prefix;
+		} m_install;
 
-		struct Strings : lngs::app::Strings {
+		struct BuiltStrings : lngs::app::Strings {
 			std::string_view get(lng str) const noexcept {
 				return get_string(static_cast<identifier>(str));
 			}
 		} m_build;
+
+		std::optional<fs::path> m_redirected;
 	};
 }  // namespace lngs::app
 
@@ -298,7 +306,7 @@ int main(int argc, XChar* argv[]) {
 	base.custom([](std::string const&) {}, "share")
 	    .meta(_(lng::ARGS_APP_META_DIR))
 	    .help(fmt::format(_(lng::ARGS_APP_SHARE_REDIR),
-	                      lngs::app::build::directory_info::prefix))
+	                      lngs::app::build::directory_info::data_dir))
 	    .opt();
 
 	auto const unparsed = base.parse(args::parser::allow_subcommands);
@@ -352,10 +360,12 @@ namespace lngs::app::pot {
 
 		nfo.year = year_from_template(setup.diag.open(outname));
 
-		return setup.write(
-		    parser, outname,
-		    [&](outstream& out) { return write(out, setup.strings, nfo); },
-		    print_if(verbose));
+		return setup.write(parser, outname,
+		                   [&](outstream& out) {
+			                   return write(out, setup.strings,
+			                                setup.tr.redirected(), nfo);
+		                   },
+		                   print_if(verbose));
 	}
 }  // namespace lngs::app::pot
 
@@ -385,7 +395,9 @@ namespace lngs::app::enums {
 
 		return setup.write(parser, outname,
 		                   [&](outstream& out) {
-			                   return write(out, setup.strings, with_resource);
+			                   return write(out, setup.strings,
+			                                setup.tr.redirected(),
+			                                with_resource);
 		                   },
 		                   print_if(verbose));
 	}
@@ -411,10 +423,12 @@ namespace lngs::app::py {
 
 		if (int res = setup.read_strings(parser, inname, verbose)) return res;
 
-		return setup.write(
-		    parser, outname,
-		    [&](outstream& out) { return write(out, setup.strings); },
-		    print_if(verbose));
+		return setup.write(parser, outname,
+		                   [&](outstream& out) {
+			                   return write(out, setup.strings,
+			                                setup.tr.redirected());
+		                   },
+		                   print_if(verbose));
 	}
 }  // namespace lngs::app::py
 
@@ -503,15 +517,13 @@ namespace lngs::app::res {
 
 		auto file = make_resource(setup.strings, warp_strings, with_keys);
 
-		return setup.write(
-		    parser, outname,
-		    [&](outstream& out) {
-			    auto const& ns_name = setup.strings.ns_name.empty()
-			                              ? setup.strings.project
-			                              : setup.strings.ns_name;
-			    return update_and_write(out, file, include, ns_name);
-		    },
-		    print_if(verbose));
+		return setup.write(parser, outname,
+		                   [&](outstream& out) {
+			                   return update_and_write(out, file, setup.strings,
+			                                           include,
+			                                           setup.tr.redirected());
+		                   },
+		                   print_if(verbose));
 	}
 }  // namespace lngs::app::res
 

@@ -32,7 +32,7 @@ namespace lngs::app::testing {
 		EXPECT_TRUE(idl_valid);
 
 		outstrstream output;
-		app::enums::write(output, strings, false);
+		app::enums::write(output, strings, {}, false);
 		EXPECT_EQ(expected, output.contents);
 	}
 
@@ -47,7 +47,7 @@ namespace lngs::app::testing {
 		EXPECT_TRUE(idl_valid);
 
 		outstrstream output;
-		app::enums::write(output, strings, true);
+		app::enums::write(output, strings, {}, true);
 		EXPECT_EQ(with_resource, output.contents);
 	}
 

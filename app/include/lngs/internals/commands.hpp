@@ -5,6 +5,7 @@
 
 #include <cstddef>
 #include <lngs/file.hpp>
+#include <optional>
 #include <tuple>
 #include <vector>
 
@@ -15,7 +16,7 @@ namespace lngs::app {
 	class source_file;
 	class diagnostics;
 
-	std::string straighten(std::string str);
+	std::string straighten(std::string const& str);
 }  // namespace lngs::app
 
 namespace lngs::app::pot {
@@ -27,15 +28,23 @@ namespace lngs::app::pot {
 	};
 
 	int year_from_template(source_file file);
-	int write(outstream& out, const idl_strings& defs, const info& nfo);
+	int write(outstream& out,
+	          const idl_strings& defs,
+	          std::optional<fs::path> const& redirected,
+	          const info& nfo);
 }  // namespace lngs::app::pot
 
 namespace lngs::app::enums {
-	int write(outstream& out, const idl_strings& defs, bool with_resource);
+	int write(outstream& out,
+	          const idl_strings& defs,
+	          std::optional<fs::path> const& redirected,
+	          bool with_resource);
 }
 
 namespace lngs::app::py {
-	int write(outstream& out, const idl_strings& defs);
+	int write(outstream& out,
+	          const idl_strings& defs,
+	          std::optional<fs::path> const& redirected);
 }
 
 namespace lngs::app::make {
@@ -56,8 +65,9 @@ namespace lngs::app::res {
 	                   bool with_keys);
 	int update_and_write(outstream& out,
 	                     file& data,
+						 const idl_strings& defs,
 	                     std::string_view include,
-	                     std::string_view ns_name);
+	                     std::optional<fs::path> const& redirected);
 }  // namespace lngs::app::res
 
 namespace lngs::app::freeze {

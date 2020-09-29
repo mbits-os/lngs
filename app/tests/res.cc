@@ -299,7 +299,9 @@ namespace lngs::app::testing {
 		auto [input, include, project, expected] = GetParam();
 
 		outstrstream actual;
-		res::update_and_write(actual, input, include, project);
+		idl_strings defs{};
+		defs.project.assign(project);
+		res::update_and_write(actual, input, defs, include, {});
 		EXPECT_EQ(expected, actual.contents);
 	}
 
@@ -310,7 +312,9 @@ namespace lngs::app::testing {
 		const auto pos2 = expected.find("}; // __resource", pos1);
 
 		partial_ostrstream actual{pos1 + (pos2 - pos1) / 2};
-		res::update_and_write(actual, input, include, project);
+		idl_strings defs{};
+		defs.project.assign(project);
+		res::update_and_write(actual, input, defs, include, {});
 		EXPECT_EQ(expected.substr(0, actual.chars), actual.contents);
 	}
 
@@ -320,7 +324,9 @@ namespace lngs::app::testing {
 		const auto pos = expected.find("const char __resource[] = {") + 30;
 
 		partial_ostrstream actual{pos};
-		res::update_and_write(actual, input, include, project);
+		idl_strings defs{};
+		defs.project.assign(project);
+		res::update_and_write(actual, input, defs, include, {});
 		EXPECT_EQ(expected.substr(0, actual.chars), actual.contents);
 	}
 
@@ -332,7 +338,9 @@ namespace lngs::app::testing {
 		const auto pos = expected.rfind("\"\n", pos2);
 
 		partial_ostrstream actual{pos};
-		res::update_and_write(actual, input, include, project);
+		idl_strings defs{};
+		defs.project.assign(project);
+		res::update_and_write(actual, input, defs, include, {});
 		EXPECT_EQ(expected.substr(0, actual.chars), actual.contents);
 	}
 
@@ -343,7 +351,9 @@ namespace lngs::app::testing {
 		const auto pos = expected.find("\"\n", pos1) + 1;
 
 		partial_ostrstream actual{pos};
-		res::update_and_write(actual, input, include, project);
+		idl_strings defs{};
+		defs.project.assign(project);
+		res::update_and_write(actual, input, defs, include, {});
 		EXPECT_EQ(expected.substr(0, actual.chars), actual.contents);
 	}
 

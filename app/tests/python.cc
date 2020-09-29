@@ -26,7 +26,7 @@ namespace lngs::app::testing {
 		EXPECT_TRUE(idl_valid);
 
 		outstrstream output;
-		app::py::write(output, strings);
+		app::py::write(output, strings, {});
 		EXPECT_EQ(expected, output.contents);
 	}
 

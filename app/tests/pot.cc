@@ -39,7 +39,7 @@ namespace lngs::app::testing {
 		EXPECT_TRUE(idl_valid);
 
 		outstrstream output;
-		app::pot::write(output, strings, info);
+		app::pot::write(output, strings, {}, info);
 
 		std::regex pot_creation_date{
 		    R"("POT-Creation-Date: ((\d{4})-\d{2}-\d{2} \d{2}:\d{2}[+-]\d{4})\\n")"};
@@ -69,7 +69,7 @@ namespace lngs::app::testing {
 		info.year = app::pot::year_from_template(diag.open("template"));
 
 		outstrstream output;
-		app::pot::write(output, strings, info);
+		app::pot::write(output, strings, {}, info);
 
 		std::regex pot_creation_date{
 		    R"("POT-Creation-Date: ((\d{4})-\d{2}-\d{2} \d{2}:\d{2}[+-]\d{4})\\n")"};
