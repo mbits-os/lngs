@@ -14,7 +14,6 @@ set(lngs_app_SRCS
   src/lngs_res.cpp
   src/streams.cpp
   src/strings.cpp
-  src/utf8.cpp
 )
 
 set (lngs_app_INCS
@@ -26,7 +25,6 @@ set (lngs_app_INCS
   include/lngs/internals/streams.hpp
   include/lngs/internals/strings.hpp
   include/lngs/internals/strings/lngs.hpp
-  include/lngs/internals/utf8.hpp
 )
 
 add_library(lngs_app STATIC ${lngs_app_SRCS} ${lngs_app_INCS})
@@ -41,7 +39,7 @@ target_include_directories(lngs_app
   	${CMAKE_CURRENT_SOURCE_DIR}/src
   	${CMAKE_CURRENT_BINARY_DIR}/src)
 
-target_link_libraries(lngs_app liblngs args CONAN_PKG::fmt mstch)
+target_link_libraries(lngs_app liblngs args CONAN_PKG::fmt mstch utfconv)
 
 set(SHARE_DIR share/lngs-${PROJECT_VERSION_SHORT})
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/build.in.hpp ${CMAKE_CURRENT_BINARY_DIR}/src/build.hpp @ONLY)

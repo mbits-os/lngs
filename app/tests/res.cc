@@ -3,7 +3,7 @@
 #include <lngs/internals/languages.hpp>
 #include <lngs/internals/strings.hpp>
 #include <lngs/internals/strings/lngs.hpp>
-#include <lngs/internals/utf8.hpp>
+#include <utf/utf.hpp>
 #include "diag_helper.h"
 #include "ostrstream.h"
 #include "strings_helper.h"

@@ -10,3 +10,6 @@
 [submodule "external/libmstch"]
 	path = external/libmstch
 	url = https://github.com/mbits-libs/libmstch.git
+[submodule "external/utfconv"]
+	path = external/utfconv
+	url = https://github.com/mbits-libs/utfconv.git

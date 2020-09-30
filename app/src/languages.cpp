@@ -8,7 +8,7 @@
 #include <lngs/internals/languages.hpp>
 #include <lngs/internals/streams.hpp>
 #include <lngs/internals/strings.hpp>
-#include <lngs/internals/utf8.hpp>
+#include <utf/utf.hpp>
 
 namespace lngs::app {
 	namespace {
@@ -119,7 +119,7 @@ namespace lngs::app {
 		auto u32 = utf::as_u32(s);
 		for (auto& c : u32)
 			c = warped(c);
-		return utf::as_u8(u32);
+		return utf::as_str8(u32);
 	}
 
 	std::vector<tr_string> translations(
