@@ -6,7 +6,7 @@
 #include <lngs/internals/mstch_engine.hpp>
 
 namespace lngs::app::res {
-	class table_outstream : public outstream {
+	class table_outstream : public diags::outstream {
 		static constexpr size_t row_width = 16;
 		std::string content;
 		size_t offset = 0;
@@ -73,7 +73,7 @@ namespace lngs::app::res {
 		return file;
 	}
 
-	int update_and_write(outstream& out,
+	int update_and_write(diags::outstream& out,
 	                     file& data,
 	                     const idl_strings& defs,
 	                     std::string_view include,

@@ -12,7 +12,6 @@ set(lngs_app_SRCS
   src/mstch_engine.cpp
   src/lang_codes.cpp
   src/lngs_res.cpp
-  src/streams.cpp
   src/strings.cpp
 )
 
@@ -22,7 +21,6 @@ set (lngs_app_INCS
   include/lngs/internals/gettext.hpp
   include/lngs/internals/languages.hpp
   include/lngs/internals/mstch_engine.hpp
-  include/lngs/internals/streams.hpp
   include/lngs/internals/strings.hpp
   include/lngs/internals/strings/lngs.hpp
 )
@@ -39,7 +37,7 @@ target_include_directories(lngs_app
   	${CMAKE_CURRENT_SOURCE_DIR}/src
   	${CMAKE_CURRENT_BINARY_DIR}/src)
 
-target_link_libraries(lngs_app liblngs args CONAN_PKG::fmt mstch utfconv)
+target_link_libraries(lngs_app PUBLIC liblngs args CONAN_PKG::fmt mstch utfconv diags)
 
 set(SHARE_DIR share/lngs-${PROJECT_VERSION_SHORT})
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/build.in.hpp ${CMAKE_CURRENT_BINARY_DIR}/src/build.hpp @ONLY)

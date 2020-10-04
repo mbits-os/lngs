@@ -1,18 +1,32 @@
 #pragma once
 
 #include <gtest/gtest.h>
+#include <diags/diagnostic.hpp>
+#include <diags/string.hpp>
+#include <diags/translator.hpp>
 #include <lngs/internals/diagnostics.hpp>
 #include <numeric>
 #include <string_view>
 #include "ostrstream.h"
 
-namespace lngs::app::testing {
-	struct strings_mock : strings {
-		std::string_view get(lng id) const final;
+namespace diags::testing {
+	using lngs::app::argument;
+	using lngs::app::formatable;
+	using lngs::app::lng;
+	using lngs::app::translator_type;
+
+	struct lng_strings : translator_type {
+		using translator_type::get;
+		std::string_view get(severity) const noexcept final;
+	};
+	struct strings_mock : lng_strings {
+		using lng_strings::get;
+		std::string_view get(lng id) const noexcept final;
 	};
 
-	struct alt_strings_mock : strings {
-		std::string_view get(lng id) const final;
+	struct alt_strings_mock : lng_strings {
+		using lng_strings::get;
+		std::string_view get(lng id) const noexcept final;
 	};
 
 	[[deprecated]] inline std::string as_string(std::string_view view) {
@@ -35,14 +49,19 @@ namespace lngs::app::testing {
 		diagnostic_str(lng id, Args&&... args)
 		    : id{id}, use_string{false}, args{std::forward<Args>(args)...} {}
 
-		argumented_string arg() const {
-			std::vector<argumented_string> offspring;
+		argument arg() const {
+			if (args.empty()) {
+				if (use_string) return str;
+				return id;
+			}
+
+			std::vector<noenum::string::argument> offspring;
 			offspring.reserve(args.size());
 			for (auto const& a : args)
 				offspring.push_back(a.arg());
 
-			if (use_string) return {str, std::move(offspring)};
-			return {id, std::move(offspring)};
+			if (use_string) return formatable{str, std::move(offspring)};
+			return formatable{id, std::move(offspring)};
 		}
 
 		friend std::ostream& operator<<(std::ostream& o,
@@ -106,17 +125,19 @@ namespace lngs::app::testing {
 
 		static const char* name(lng val);
 		static const char* name(severity sev);
-		static void argumented(std::ostream& o, const argumented_string& arg);
+		static void info(std::ostream& o, noenum::string::argument const& arg);
+		static void info(std::ostream& o,
+		                 noenum::string::formatable const& arg);
 
 		friend std::ostream& operator<<(std::ostream& o,
 		                                const UnexpectedDiags& data) {
 			o << "Missing diagnostics:\n";
 			for (size_t i = data.skip; i < data.diags.size(); ++i) {
 				const auto& diag = data.diags[i];
-				o << "  " << diag.pos.line << ':' << diag.pos.column << '/'
-				  << diag.end_pos.line << ':' << diag.end_pos.column << '['
-				  << name(diag.sev) << "] << ";
-				UnexpectedDiags::argumented(o, diag.message);
+				o << "  " << diag.start().line << ':' << diag.start().column
+				  << '/' << diag.stop().line << ':' << diag.stop().column << '['
+				  << name(diag.severity()) << "] << ";
+				UnexpectedDiags::info(o, diag.message());
 				o << "\n";
 			}
 			return o;
@@ -140,20 +161,26 @@ namespace lngs::app::testing {
 			for (decltype(size) i = 0; i < size; ++i, ++exp_it, ++act_it) {
 				const auto& exp_msg = *exp_it;
 				const auto& act_msg = *act_it;
-				if (exp_msg.pos.token)
-					EXPECT_EQ(exp_msg.pos.token, act_msg.pos.token);
+				if (exp_msg.start().token)
+					EXPECT_EQ(exp_msg.start().token, act_msg.start().token);
 				else
-					EXPECT_EQ(src, act_msg.pos.token);
-				EXPECT_EQ(exp_msg.sev, act_msg.sev);
-				EXPECT_EQ(exp_msg.message, act_msg.message);
-				ExpectDiagsEq(exp_msg.children, act_msg.children, src);
+					EXPECT_EQ(src, act_msg.start().token);
+				EXPECT_EQ(exp_msg.severity(), act_msg.severity());
+				EXPECT_EQ(exp_msg.message(), act_msg.message());
+				ExpectDiagsEq(exp_msg.children(), act_msg.children(), src);
 			}
 		}
 	};
-}  // namespace lngs::app::testing
+}  // namespace diags::testing
 
 namespace lngs::app {
 	void PrintTo(lng id, std::ostream* o);
+}
+
+namespace diags {
 	void PrintTo(severity sev, std::ostream* o);
-	void PrintTo(argumented_string arg, std::ostream* o);
-}  // namespace lngs::app
+	namespace noenum::string {
+		void PrintTo(argument const& arg, std::ostream* o);
+		void PrintTo(message const& arg, std::ostream* o);
+	}  // namespace noenum::string
+}  // namespace diags

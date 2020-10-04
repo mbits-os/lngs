@@ -275,7 +275,7 @@ namespace lngs::app::testing {
 		std::string output;
 	};
 
-	struct partial_ostrstream : outstream {
+	struct partial_ostrstream : diags::outstream {
 		const size_t chars;
 		std::string contents;
 

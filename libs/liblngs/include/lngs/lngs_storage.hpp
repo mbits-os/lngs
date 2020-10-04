@@ -30,8 +30,8 @@ namespace lngs {
 				return m_impl->get_string(val);
 			}
 
-			std::string_view get_string(identifier val, quantity count) const
-			    noexcept {
+			std::string_view get_string(identifier val,
+			                            quantity count) const noexcept {
 				assert(m_impl);
 				return m_impl->get_string(val, count);
 			}
@@ -125,8 +125,8 @@ namespace lngs {
 				return m_file->get_string(val);
 			}
 
-			std::string_view get_string(identifier val, quantity count) const
-			    noexcept {
+			std::string_view get_string(identifier val,
+			                            quantity count) const noexcept {
 				assert(m_file);
 				return m_file->get_string(val, count);
 			}
@@ -172,8 +172,8 @@ namespace lngs {
 				return B2::get_string(val);
 			}
 
-			std::string_view get_string(identifier val, quantity count) const
-			    noexcept {
+			std::string_view get_string(identifier val,
+			                            quantity count) const noexcept {
 				auto ret = B1::get_string(val, count);
 				if (!ret.empty()) return ret;
 				return B2::get_string(val, count);

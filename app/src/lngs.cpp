@@ -2,10 +2,10 @@
 // This code is licensed under MIT license (see LICENSE for details)
 
 #include <args/parser.hpp>
+#include <diags/translator.hpp>
 #include <lngs/internals/commands.hpp>
 #include <lngs/internals/diagnostics.hpp>
 #include <lngs/internals/languages.hpp>
-#include <lngs/internals/streams.hpp>
 #include <lngs/internals/strings.hpp>
 #include <lngs/translation.hpp>
 #include "build.hpp"
@@ -71,44 +71,45 @@ namespace lngs::app {
 
 	template <typename Writer>
 	int write(const std::string& progname,
-	          diagnostics& diag,
+	          diags::sources& diag,
 	          const fs::path& outname,
 	          Writer writer,
 	          print_outname verbose = without_outname) {
-		if (outname == "-") return writer(get_stdout());
+		if (outname == "-") return writer(diags::get_stdout());
 
 		auto name = outname;
 		name.make_preferred();
 
 		auto src = diag.source(progname);
 		if (verbose == with_outname)
-			diag.push_back(src.position()[severity::verbose]
+			diag.push_back(src.position()[diags::severity::verbose]
 			               << outname.string());
 
-		auto outf = fs::fopen(outname, "wb");
+		auto outf = diags::fs::fopen(outname, "wb");
 		if (!outf) {
-			diag.push_back(src.position()[severity::error]
-			               << arg(lng::ERR_FILE_MISSING, name.string()));
+			diag.push_back(src.position()[diags::severity::error]
+			               << format(lng::ERR_FILE_MISSING, name.string()));
 			return 1;
 		}
 
-		foutstream out{std::move(outf)};
+		diags::foutstream out{std::move(outf)};
 		return writer(out);
 	}
 
 	template <typename StringsImpl>
 	struct locale_base {
 		idl_strings strings{};
-		diagnostics diag{};
+		diags::sources diag{};
 		StringsImpl tr;
 
 		template <typename... Args>
-		locale_base(Args&&... args) : tr{std::forward<Args>(args)...} {}
+		locale_base(Args&&... args) : tr{std::forward<Args>(args)...} {
+			using printer = diags::basic_printer;
+			diag.set_printer<printer>(&diags::get_stdout(), tr.make());
+		}
 
 		~locale_base() {
-			auto& out = get_stdout();
-			for (const auto& diagnostic : diag.diagnostic_set())
-				diagnostic.print(out, diag, tr);
+			diag.print_diagnostics();
 		}
 
 		int read_strings(args::parser& parser,
@@ -130,7 +131,7 @@ namespace lngs::app {
 		}
 	};
 
-	struct main_strings : public strings, public args::base_translator {
+	struct main_strings : public translator_type, public args::base_translator {
 		main_strings(std::optional<fs::path> const& redirected)
 		    : m_redirected{redirected} {
 			if (m_redirected) {
@@ -161,12 +162,28 @@ namespace lngs::app {
 			return m_redirected;
 		}
 
-		std::string_view get(lng str) const final {
+		// diags::translator
+		std::string_view get(lng str) const noexcept final {
 			auto result = m_install.get(str);
 			if (result.empty()) result = m_build.get(str);
 			return result;
 		}
 
+		std::string_view get(diags::severity sev) const noexcept final {
+			static constexpr std::pair<diags::severity, lng> sev_map[] = {
+			    {diags::severity::verbose, lng{}},
+			    {diags::severity::note, lng::SEVERITY_NOTE},
+			    {diags::severity::warning, lng::SEVERITY_WARNING},
+			    {diags::severity::error, lng::SEVERITY_ERROR},
+			    {diags::severity::fatal, lng::SEVERITY_FATAL},
+			};
+			for (auto [from, to] : sev_map) {
+				if (from == sev) return get(to);
+			}
+			return {};
+		}
+
+		// args::base_translator
 		std::string operator()(args::lng id,
 		                       std::string_view arg1,
 		                       std::string_view arg2) const override {
@@ -361,7 +378,7 @@ namespace lngs::app::pot {
 		nfo.year = year_from_template(setup.diag.open(outname));
 
 		return setup.write(parser, outname,
-		                   [&](outstream& out) {
+		                   [&](diags::outstream& out) {
 			                   return write(out, setup.strings,
 			                                setup.tr.redirected(), nfo);
 		                   },
@@ -394,7 +411,7 @@ namespace lngs::app::enums {
 		if (int res = setup.read_strings(parser, inname, verbose)) return res;
 
 		return setup.write(parser, outname,
-		                   [&](outstream& out) {
+		                   [&](diags::outstream& out) {
 			                   return write(out, setup.strings,
 			                                setup.tr.redirected(),
 			                                with_resource);
@@ -424,7 +441,7 @@ namespace lngs::app::py {
 		if (int res = setup.read_strings(parser, inname, verbose)) return res;
 
 		return setup.write(parser, outname,
-		                   [&](outstream& out) {
+		                   [&](diags::outstream& out) {
 			                   return write(out, setup.strings,
 			                                setup.tr.redirected());
 		                   },
@@ -474,9 +491,10 @@ namespace lngs::app::make {
 		    !fix_attributes(file, mo, llname, setup.diag))
 			return 1;
 
-		return setup.write(parser, outname,
-		                   [&](outstream& out) { return file.write(out); },
-		                   print_if(verbose));
+		return setup.write(
+		    parser, outname,
+		    [&](diags::outstream& out) { return file.write(out); },
+		    print_if(verbose));
 	}
 }  // namespace lngs::app::make
 
@@ -518,7 +536,7 @@ namespace lngs::app::res {
 		auto file = make_resource(setup.strings, warp_strings, with_keys);
 
 		return setup.write(parser, outname,
-		                   [&](outstream& out) {
+		                   [&](diags::outstream& out) {
 			                   return update_and_write(out, file, setup.strings,
 			                                           include,
 			                                           setup.tr.redirected());
@@ -550,14 +568,14 @@ namespace lngs::app::freeze {
 		if (!freeze::freeze(setup.strings)) {
 			if (verbose) {
 				auto src = setup.diag.source(inname.string()).position();
-				setup.diag.push_back(src[severity::note]
+				setup.diag.push_back(src[diags::severity::note]
 				                     << lng::ERR_NO_NEW_STRINGS);
 			}
 			return 0;
 		}
 
 		auto contents = setup.diag.source(inname.string());
-		return setup.write(parser, outname, [&](outstream& out) {
+		return setup.write(parser, outname, [&](diags::outstream& out) {
 			return write(out, setup.strings, contents);
 		});
 	}

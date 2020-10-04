@@ -5,7 +5,7 @@
 #include <lngs/internals/mstch_engine.hpp>
 
 namespace lngs::app::py {
-	int write(outstream& out,
+	int write(diags::outstream& out,
 	          const idl_strings& defs,
 	          std::optional<fs::path> const& redirected) {
 		return write_mstch(out, defs, redirected, "py");

@@ -7,6 +7,12 @@
 #include <map>
 #include <vector>
 
+namespace diags {
+	struct outstream;
+	class source_code;
+	class sources;
+}  // namespace diags
+
 namespace lngs::app {
 	struct tr_string {
 		string_key key{};
@@ -19,8 +25,6 @@ namespace lngs::app {
 	};
 
 	struct idl_string;
-	class source_file;
-	class diagnostics;
 
 	std::string warp(const std::string& s);
 	std::map<std::string, std::string, std::less<>> attrGTT(
@@ -32,19 +36,18 @@ namespace lngs::app {
 	    const std::vector<idl_string>& strings,
 	    bool warp_missing,
 	    bool verbose,
-	    source_file& src,
-	    diagnostics& diags);
-	bool ll_CC(source_file is,
-	           diagnostics& diags,
+	    diags::source_code& src,
+	    diags::sources& diags);
+	bool ll_CC(diags::source_code is,
+	           diags::sources& diags,
 	           std::map<std::string, std::string>& langs);
 
-	struct outstream;
 	struct file {
 		uint32_t serial{0};
 		std::vector<tr_string> attrs{};
 		std::vector<tr_string> strings{};
 		std::vector<tr_string> keys{};
 
-		int write(outstream& os);
+		int write(diags::outstream& os);
 	};
 }  // namespace lngs::app

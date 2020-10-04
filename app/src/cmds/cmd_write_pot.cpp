@@ -83,7 +83,7 @@ namespace lngs::app::pot {
 		return out;
 	}
 
-	int year_from_template(source_file file) {
+	int year_from_template(diags::source_code file) {
 		if (!file.valid()) return -1;
 
 		static constexpr std::string_view prefix{"# Copyright (C) "};
@@ -114,7 +114,7 @@ namespace lngs::app::pot {
 		return -1;
 	}
 
-	int write(outstream& out,
+	int write(diags::outstream& out,
 	          const idl_strings& defs,
 	          std::optional<fs::path> const& redirected,
 	          const info& nfo) {

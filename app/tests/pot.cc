@@ -8,6 +8,7 @@ namespace lngs::app::testing {
 	using namespace ::std::literals;
 	using ::testing::TestWithParam;
 	using ::testing::ValuesIn;
+	using namespace ::diags;
 
 	struct pot_result {
 		std::string_view input;
@@ -31,7 +32,7 @@ namespace lngs::app::testing {
 	TEST_P(pot, text) {
 		auto [input, expected_template, info] = GetParam();
 
-		diagnostics diag;
+		sources diag;
 		diag.set_contents("", input);
 
 		idl_strings strings;
@@ -57,7 +58,7 @@ namespace lngs::app::testing {
 	TEST_P(pot_year, text) {
 		auto [input, prev, expected_template, file_exists, info] = GetParam();
 
-		diagnostics diag;
+		sources diag;
 		diag.set_contents("", input);
 
 		if (file_exists) diag.set_contents("template", prev);

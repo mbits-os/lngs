@@ -48,11 +48,10 @@ namespace lngs::storage::testing {
 	template <typename Storage, typename = void>
 	struct has_builtin : std::false_type {};
 	template <typename Storage>
-	struct has_builtin<
-	    Storage,
-	    std::enable_if_t<
-	        std::is_same_v<decltype(std::declval<Storage>().init_builtin()), bool>>>
-	    : std::true_type {};
+	struct has_builtin<Storage,
+	                   std::enable_if_t<std::is_same_v<
+	                       decltype(std::declval<Storage>().init_builtin()),
+	                       bool>>> : std::true_type {};
 
 	template <typename Storage, typename = void>
 	struct has_file_based : std::false_type {};
@@ -255,8 +254,10 @@ namespace lngs::storage::testing {
 		    TESTING_data_path / "testset1.ext", param.package);
 
 		auto vectored = std::vector(param.one_of);
-		EXPECT_EQ(param.expected, tr.open_first_of(vectored, SerialNumber::UseAny));
-		EXPECT_EQ(param.expected, tr.open_first_of(param.one_of, SerialNumber::UseAny));
+		EXPECT_EQ(param.expected,
+		          tr.open_first_of(vectored, SerialNumber::UseAny));
+		EXPECT_EQ(param.expected,
+		          tr.open_first_of(param.one_of, SerialNumber::UseAny));
 	}
 
 	struct header {
@@ -286,7 +287,7 @@ namespace lngs::storage::testing {
 	                                   const helper::attrs_t& attrs) {
 		std::vector<std::byte> out;
 
-		struct stream : app::outstream {
+		struct stream : diags::outstream {
 			std::vector<std::byte>& contents;
 
 			stream(std::vector<std::byte>& contents) : contents{contents} {}

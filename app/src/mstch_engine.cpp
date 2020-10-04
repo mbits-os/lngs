@@ -84,7 +84,7 @@ namespace lngs::app {
 		}
 	}
 
-	int write_mstch(outstream& out,
+	int write_mstch(diags::outstream& out,
 	                const idl_strings& defs,
 	                std::optional<fs::path> const& redirected,
 	                std::string const& tmplt_name,

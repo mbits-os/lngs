@@ -28,8 +28,8 @@ namespace gtt {
 	}
 
 	struct parser_ctx {
-		source_file& src;
-		diagnostics& diags;
+		diags::source_code& src;
+		diags::sources& diags;
 		std::map<std::string, std::string>& result;
 
 		unsigned lineno = 0;
@@ -62,7 +62,7 @@ namespace gtt {
 			return true;
 		}
 
-		location pos() const noexcept {
+		diags::location pos() const noexcept {
 			auto begin = reinterpret_cast<unsigned char const*>(line.data());
 			return src.position(lineno, static_cast<unsigned>(cur - begin));
 		}
@@ -139,14 +139,14 @@ namespace gtt {
 				next_type = cmd_type::msgstr;
 
 			if (next_type == cmd_type::unknown) {
-				push_back(pos()[severity::warning]
-				          << arg(lng::ERR_GETTEXT_UNRECOGNIZED_FIELD,
-				                 std::string{command}));
+				push_back(pos()[diags::severity::warning]
+				          << format(lng::ERR_GETTEXT_UNRECOGNIZED_FIELD,
+				                    std::string{command}));
 			}
 			line_changed(next_type);
 		}
 
-		void push_back(diagnostic const& diag) { diags.push_back(diag); }
+		void push_back(diags::diagnostic const& diag) { diags.push_back(diag); }
 
 		bool eol() const noexcept { return cur == end; }
 
@@ -193,17 +193,17 @@ namespace gtt {
 			if (peek() == '[') {
 				next();
 				if (peek() == ']') {
-					push_back(pos()[severity::error]
-					          << arg(lng::ERR_EXPECTED,
-					                 lng::ERR_EXPECTED_NUMBER, "`]'"));
+					push_back(pos()[diags::severity::error]
+					          << format(lng::ERR_EXPECTED,
+					                    lng::ERR_EXPECTED_NUMBER, "`]'"));
 				}
 				while (!eol() && peek() != ']') {
 					auto const c = next();
 					if (!std::isdigit(c)) {
-						push_back(pos()[severity::error]
-						          << arg(lng::ERR_EXPECTED,
-						                 lng::ERR_EXPECTED_NUMBER,
-						                 lng::ERR_EXPECTED_GOT_UNRECOGNIZED));
+						push_back(pos()[diags::severity::error] << format(
+						              lng::ERR_EXPECTED,
+						              lng::ERR_EXPECTED_NUMBER,
+						              lng::ERR_EXPECTED_GOT_UNRECOGNIZED));
 						return false;
 					}
 					curr_cmd.counter *= 10;
@@ -225,10 +225,10 @@ namespace gtt {
 
 					case '\\': {
 						if (eol()) {
-							push_back(pos()[severity::error]
-							          << arg(lng::ERR_EXPECTED,
-							                 lng::ERR_EXPECTED_STRING,
-							                 lng::ERR_EXPECTED_GOT_EOL));
+							push_back(pos()[diags::severity::error]
+							          << format(lng::ERR_EXPECTED,
+							                    lng::ERR_EXPECTED_STRING,
+							                    lng::ERR_EXPECTED_GOT_EOL));
 							return false;
 						}
 						auto const cont = next();
@@ -256,7 +256,7 @@ namespace gtt {
 								break;
 							default:
 								push_back(
-								    pos()[severity::warning] << arg(
+								    pos()[diags::severity::warning] << format(
 								        lng::ERR_GETTEXT_UNRECOGNIZED_ESCAPE,
 								        std::string{static_cast<char>(cont)}));
 								[[fallthrough]];
@@ -275,8 +275,9 @@ namespace gtt {
 						break;
 				}
 			}
-			push_back(pos()[severity::error] << arg(lng::ERR_EXPECTED, "`\"'",
-			                                        lng::ERR_EXPECTED_GOT_EOL));
+			push_back(pos()[diags::severity::error]
+			          << format(lng::ERR_EXPECTED, "`\"'",
+			                    lng::ERR_EXPECTED_GOT_EOL));
 			return false;
 		}
 
@@ -293,7 +294,7 @@ namespace gtt {
 				skip_ws();
 
 				if (peek() != '"') {
-					push_back(pos()[severity::error] << arg(
+					push_back(pos()[diags::severity::error] << format(
 					              lng::ERR_EXPECTED, lng::ERR_EXPECTED_STRING,
 					              lng::ERR_EXPECTED_GOT_UNRECOGNIZED));
 					return false;
@@ -305,9 +306,9 @@ namespace gtt {
 
 			skip_ws();
 			if (!eol()) {
-				push_back(pos()[severity::error]
-				          << arg(lng::ERR_EXPECTED, lng::ERR_EXPECTED_EOL,
-				                 lng::ERR_EXPECTED_GOT_UNRECOGNIZED));
+				push_back(pos()[diags::severity::error]
+				          << format(lng::ERR_EXPECTED, lng::ERR_EXPECTED_EOL,
+				                    lng::ERR_EXPECTED_GOT_UNRECOGNIZED));
 				return false;
 			}
 
@@ -323,14 +324,14 @@ namespace gtt {
 		}
 	};
 
-	std::map<std::string, std::string> open_po(source_file& src,
-	                                           diagnostics& diags) {
+	std::map<std::string, std::string> open_po(diags::source_code& src,
+	                                           diags::sources& diags) {
 		using namespace lngs::app;
 
 		std::map<std::string, std::string> out;
 
 		if (!src.valid()) {
-			diags.push_back(src.position()[severity::error]
+			diags.push_back(src.position()[diags::severity::error]
 			                << lng::ERR_FILE_NOT_FOUND);
 			return {};
 		}

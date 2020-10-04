@@ -6,14 +6,14 @@
 #include <map>
 #include <string>
 
-namespace lngs::app {
-	class source_file;
-	class diagnostics;
-}  // namespace lngs::app
+namespace diags {
+	class source_code;
+	class sources;
+}  // namespace diags
 namespace gtt {
-	bool is_mo(lngs::app::source_file& src);
-	std::map<std::string, std::string> open_mo(lngs::app::source_file& src,
-	                                           lngs::app::diagnostics& diags);
-	std::map<std::string, std::string> open_po(lngs::app::source_file& src,
-	                                           lngs::app::diagnostics& diags);
+	bool is_mo(diags::source_code& src);
+	std::map<std::string, std::string> open_mo(diags::source_code& src,
+	                                           diags::sources& diags);
+	std::map<std::string, std::string> open_po(diags::source_code& src,
+	                                           diags::sources& diags);
 }  // namespace gtt

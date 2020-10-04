@@ -13,3 +13,9 @@
 [submodule "external/utfconv"]
 	path = external/utfconv
 	url = https://github.com/mbits-libs/utfconv.git
+[submodule "external/semver"]
+	path = external/semver
+	url = https://github.com/mbits-libs/semver.git
+[submodule "external/diags"]
+	path = external/diags
+	url = https://github.com/mbits-libs/diags.git

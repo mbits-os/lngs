@@ -2,7 +2,6 @@
 // This code is licensed under MIT license (see LICENSE for details)
 
 #include <lngs/internals/commands.hpp>
-#include <lngs/internals/streams.hpp>
 #include <lngs/internals/strings.hpp>
 
 #include <lngs/internals/diagnostics.hpp>
@@ -43,7 +42,9 @@ namespace lngs::app::freeze {
 		return {first, second};
 	}
 
-	int write(outstream& out, const idl_strings& defs, source_file& source) {
+	int write(diags::outstream& out,
+	          const idl_strings& defs,
+	          diags::source_code& source) {
 		const auto& data = source.data();
 		const std::byte* bytes = data.data();
 		size_t offset = 0;

@@ -1,7 +1,23 @@
 #include "diag_helper.h"
 
-namespace lngs::app::testing {
-	std::string_view strings_mock::get(lng id) const {
+namespace diags::testing {
+	std::string_view lng_strings::get(severity sev) const noexcept {
+		switch (sev) {
+			case diags::severity::verbose:
+				return {};
+			case diags::severity::note:
+				return get(lng::SEVERITY_NOTE);
+			case diags::severity::warning:
+				return get(lng::SEVERITY_WARNING);
+			case diags::severity::error:
+				return get(lng::SEVERITY_ERROR);
+			case diags::severity::fatal:
+				return get(lng::SEVERITY_FATAL);
+		}
+		return {};
+	}
+
+	std::string_view strings_mock::get(lng id) const noexcept {
 		switch (id) {
 			case lng::ARGS_USAGE:
 				return "usage: ";
@@ -196,7 +212,7 @@ namespace lngs::app::testing {
 		return "";
 	}
 
-	std::string_view alt_strings_mock::get(lng id) const {
+	std::string_view alt_strings_mock::get(lng id) const noexcept {
 		switch (id) {
 			case lng::ARGS_USAGE:
 				return "ARGS_USAGE";
@@ -476,10 +492,10 @@ namespace lngs::app::testing {
 		return "???";
 	}
 
-	const char* UnexpectedDiags::name(severity sev) {
+	const char* UnexpectedDiags::name(diags::severity sev) {
 		switch (sev) {
-#define NAME(x)       \
-	case severity::x: \
+#define NAME(x)              \
+	case diags::severity::x: \
 		return "severity::" #x;
 			NAME(verbose);
 			NAME(note);
@@ -491,38 +507,79 @@ namespace lngs::app::testing {
 		return "!!!";
 	}
 
-	void UnexpectedDiags::argumented(std::ostream& o,
-	                                 const argumented_string& arg) {
-		if (std::holds_alternative<std::string>(arg.value))
-			o << "\"" << std::get<std::string>(arg.value) << "\"";
-		else
-			o << "lng::" << name(std::get<lng>(arg.value));
+	void UnexpectedDiags::info(std::ostream& o,
+	                           noenum::string::argument const& arg) {
+		std::visit(
+		    [&](auto const& arg) {
+			    if constexpr (std::is_same_v<decltype(arg),
+			                                 std::string const&>) {
+				    o << "\"" << arg << "\"";
+			    } else if constexpr (std::is_same_v<
+			                             decltype(arg),
+			                             noenum::string::formatable const&>) {
+				    info(o, arg);
+			    } else if constexpr (std::is_same_v<
+			                             decltype(arg),
+			                             noenum::string::singular const&>) {
+				    o << "lng::" << name(static_cast<lng>(arg.id));
+			    } else {
+				    o << "[" << arg.id << "/" << arg.count << "]";
+			    }
+		    },
+		    static_cast<noenum::string::argument::base_class const&>(arg));
+	}
 
-		if (arg.args.empty()) return;
+	void UnexpectedDiags::info(std::ostream& o,
+	                           noenum::string::formatable const& arg) {
+		std::visit(
+		    [&](auto const& arg) {
+			    if constexpr (std::is_same_v<decltype(arg),
+			                                 std::string const&>) {
+				    o << "\"" << arg << "\"";
+			    } else if constexpr (std::is_same_v<
+			                             decltype(arg),
+			                             noenum::string::singular const&>) {
+				    o << "lng::" << name(static_cast<lng>(arg.id));
+			    } else {
+				    o << "[" << arg.id << "/" << arg.count << "]";
+			    }
+		    },
+		    arg.subject());
+
+		if (arg.arguments().empty()) return;
 
 		o << "(";
 		auto first = true;
-		for (auto const& sub : arg.args) {
+		for (auto const& sub : arg.arguments()) {
 			if (first)
 				first = false;
 			else
 				o << ",";
-			argumented(o, sub);
+			info(o, sub);
 		}
 		o << ")";
 	}
-}  // namespace lngs::app::testing
+}  // namespace diags::testing
 
 namespace lngs::app {
 	void PrintTo(lng id, std::ostream* o) {
-		*o << testing::UnexpectedDiags::name(id);
+		*o << diags::testing::UnexpectedDiags::name(id);
 	}
+}  // namespace lngs::app
 
+namespace diags {
 	void PrintTo(severity sev, std::ostream* o) {
 		*o << testing::UnexpectedDiags::name(sev);
 	}
 
-	void PrintTo(argumented_string arg, std::ostream* o) {
-		testing::UnexpectedDiags::argumented(*o, arg);
-	}
-}  // namespace lngs::app
+	namespace noenum::string {
+		void PrintTo(argument const& arg, std::ostream* o) {
+			testing::UnexpectedDiags::info(*o, arg);
+		}
+
+		void PrintTo(message const& arg, std::ostream* o) {
+			testing::UnexpectedDiags::info(*o, arg);
+			*o << " :: [" << arg.dbg() << ']';
+		}
+	}  // namespace noenum::string
+}  // namespace diags

@@ -47,10 +47,12 @@ namespace gtt {
 			return out;
 		}
 
-		static bool gtt_error(lng code, source_file& src, diagnostics& diags) {
-			auto diag = src.position()[severity::error]
+		static bool gtt_error(lng code,
+		                      diags::source_code& src,
+		                      diags::sources& diags) {
+			auto diag = src.position()[diags::severity::error]
 			            << lng::ERR_GETTEXT_FORMAT;
-			diag.children.push_back(src.position()[severity::note] << code);
+			diag.with(src.position()[diags::severity::note] << code);
 			diags.push_back(std::move(diag));
 			return false;
 		}
@@ -58,8 +60,8 @@ namespace gtt {
 		bool offsetsValid(size_t off,
 		                  size_t count,
 		                  uint32_t hashtop,
-		                  source_file& src,
-		                  diagnostics& diags) const noexcept {
+		                  diags::source_code& src,
+		                  diags::sources& diags) const noexcept {
 			const auto size = m_ref.size();
 
 			for (size_t i = 0; i < count; ++i) {
@@ -106,7 +108,7 @@ namespace gtt {
 		return {val.data(), pos == std::string_view::npos ? val.length() : pos};
 	}
 
-	bool is_mo(lngs::app::source_file& src) {
+	bool is_mo(diags::source_code& src) {
 		if (!src.valid()) return false;
 		auto pos = src.tell();
 		uint32_t magic;
@@ -131,12 +133,12 @@ namespace gtt {
 		return true;
 	}
 
-	std::map<std::string, std::string> open_mo(source_file& src,
-	                                           diagnostics& diags) {
+	std::map<std::string, std::string> open_mo(diags::source_code& src,
+	                                           diags::sources& diags) {
 		std::map<std::string, std::string> out;
 
 		if (!src.valid()) {
-			diags.push_back(src.position()[severity::error]
+			diags.push_back(src.position()[diags::severity::error]
 			                << lng::ERR_FILE_NOT_FOUND);
 			return {};
 		}

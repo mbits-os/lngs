@@ -5,6 +5,11 @@
 #include <lngs/file.hpp>
 #include <vector>
 
+namespace diags {
+	class sources;
+	class source_code;
+}  // namespace diags
+
 namespace lngs::app {
 	struct idl_string {
 		std::string key;
@@ -26,12 +31,12 @@ namespace lngs::app {
 		std::vector<idl_string> strings;
 	};
 
-	class diagnostics;
-	class source_file;
-	bool read_strings(source_file in, idl_strings& str, diagnostics& diag);
+	bool read_strings(diags::source_code in,
+	                  idl_strings& str,
+	                  diags::sources& diag);
 	bool read_strings(const std::string& progname,
 	                  const fs::path& inname,
 	                  idl_strings& str,
 	                  bool verbose,
-	                  diagnostics& diag);
+	                  diags::sources& diag);
 }  // namespace lngs::app

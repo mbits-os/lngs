@@ -12,7 +12,7 @@ namespace lngs::testing {
 	                                   bool with_keys) {
 		std::vector<std::byte> out;
 
-		struct stream : app::outstream {
+		struct stream : diags::outstream {
 			std::vector<std::byte>& contents;
 
 			stream(std::vector<std::byte>& contents) : contents{contents} {}

@@ -7,6 +7,7 @@ namespace lngs::app::testing {
 	using namespace ::std::literals;
 	using ::testing::TestWithParam;
 	using ::testing::ValuesIn;
+	using namespace ::diags;
 
 	struct frozen_result {
 		std::string_view input;
@@ -19,7 +20,7 @@ namespace lngs::app::testing {
 	TEST_P(frozen, text) {
 		auto [input, expected, found_new] = GetParam();
 
-		diagnostics diag;
+		sources diag;
 		diag.set_contents("", input);
 
 		idl_strings strings;

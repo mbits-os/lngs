@@ -56,7 +56,8 @@ namespace lngs {
 	public:
 		template <typename NextStorage = storage::FileBased>
 		using rebind =
-		    SingularStrings<Enum, typename Storage::template rebind<NextStorage>>;
+		    SingularStrings<Enum,
+		                    typename Storage::template rebind<NextStorage>>;
 
 		std::string operator()(Enum val) const noexcept {
 			auto const id = static_cast<lang_file::identifier>(val);
@@ -75,7 +76,8 @@ namespace lngs {
 	public:
 		template <typename NextStorage = storage::FileBased>
 		using rebind =
-		    PluralOnlyStrings<Enum, typename Storage::template rebind<NextStorage>>;
+		    PluralOnlyStrings<Enum,
+		                      typename Storage::template rebind<NextStorage>>;
 
 		std::string operator()(Enum val, intmax_t count) const noexcept {
 			auto const id = static_cast<lang_file::identifier>(val);

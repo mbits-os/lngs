@@ -42,7 +42,7 @@ namespace lngs::testing {
 		                          const app::idl_strings& defs,
 		                          const helper::attrs_t& attrs,
 		                          bool with_keys = true) {
-			auto file = app::foutstream{fs::fopen(dst, "wb")};
+			auto file = diags::foutstream{diags::fs::fopen(dst, "wb")};
 			helper::build_strings(file, defs, attrs, with_keys);
 		}
 

@@ -16,6 +16,8 @@ namespace lngs::app::testing {
 	using namespace ::std::literals;
 	using ::testing::TestWithParam;
 	using ::testing::ValuesIn;
+	using namespace ::diags;
+	using namespace ::diags::testing;
 
 	enum class Result { Unmodifed = false, Warped = true };
 
@@ -119,7 +121,7 @@ namespace lngs::app::testing {
 	class gettext : public TestWithDiagnostics<TestWithParam<mo_result>> {
 	public:
 		template <typename T>
-		static void write(fs::file& mo_file, const T& data) {
+		static void write(diags::fs::file& mo_file, const T& data) {
 			mo_file.store(&data, sizeof(data));
 		}
 
@@ -130,16 +132,16 @@ namespace lngs::app::testing {
 
 		static uint32_t direct(uint32_t val) { return val; }
 
-		static void be(fs::file& mo_file, uint32_t val) {
+		static void be(diags::fs::file& mo_file, uint32_t val) {
 			write(mo_file, reverse(val));
 		}
 
-		static void le(fs::file& mo_file, uint32_t val) {
+		static void le(diags::fs::file& mo_file, uint32_t val) {
 			write(mo_file, direct(val));
 		}
 
 		template <typename Pred>
-		static void write_mo_head(fs::file& mo_file,
+		static void write_mo_head(diags::fs::file& mo_file,
 		                          uint32_t count,
 		                          uint32_t originals,
 		                          uint32_t translations,
@@ -159,34 +161,34 @@ namespace lngs::app::testing {
 		static void SetUpTestCase() {
 			if constexpr (false) {
 				auto mo_file =
-				    fs::fopen(TESTING_data_path / "truncated.mo", "wb");
-				mo_file = fs::fopen(TESTING_data_path / "zero.mo", "wb");
+				    diags::fs::fopen(TESTING_data_path / "truncated.mo", "wb");
+				mo_file = diags::fs::fopen(TESTING_data_path / "zero.mo", "wb");
 				write_mo_head(mo_file, 0, 0, 0, 0, 0, reverse);
 
-				mo_file = fs::fopen(TESTING_data_path / "empty_BE.mo", "wb");
+				mo_file = diags::fs::fopen(TESTING_data_path / "empty_BE.mo", "wb");
 				write_mo_head(mo_file, 0, 28, 28, 0, 28, reverse);
-				mo_file = fs::fopen(TESTING_data_path / "empty_LE.mo", "wb");
+				mo_file = diags::fs::fopen(TESTING_data_path / "empty_LE.mo", "wb");
 				write_mo_head(mo_file, 0, 28, 28, 0, 28, direct);
 
-				mo_file = fs::fopen(
+				mo_file = diags::fs::fopen(
 				    TESTING_data_path / "empty_rev_nonzero_BE.mo", "wb");
 				write_mo_head(mo_file, 0, 28, 28, 0, 28, reverse, 0x11223344);
-				mo_file = fs::fopen(
+				mo_file = diags::fs::fopen(
 				    TESTING_data_path / "empty_rev_nonzero_LE.mo", "wb");
 				write_mo_head(mo_file, 0, 28, 28, 0, 28, direct, 0x11223344);
 
 				mo_file =
-				    fs::fopen(TESTING_data_path / "empty_no_magic.mo", "wb");
+				    diags::fs::fopen(TESTING_data_path / "empty_no_magic.mo", "wb");
 				write(mo_file, static_cast<uint16_t>(0x9504u));
 				mo_file =
-				    fs::fopen(TESTING_data_path / "empty_wrong_magic.mo", "wb");
+				    diags::fs::fopen(TESTING_data_path / "empty_wrong_magic.mo", "wb");
 				write(mo_file, direct(0xdeadbeefu));
 				mo_file =
-				    fs::fopen(TESTING_data_path / "empty_no_rev.mo", "wb");
+				    diags::fs::fopen(TESTING_data_path / "empty_no_rev.mo", "wb");
 				write(mo_file, reverse(0x950412deU));
 				write(mo_file, static_cast<uint16_t>(0xfedcu));
 
-				mo_file = fs::fopen(TESTING_data_path / "ab_BE.mo", "wb");
+				mo_file = diags::fs::fopen(TESTING_data_path / "ab_BE.mo", "wb");
 				write_mo_head(mo_file, 1, 28, 36, 0, 44, reverse);
 				be(mo_file, 1u);
 				be(mo_file, 44u);
@@ -197,7 +199,7 @@ namespace lngs::app::testing {
 				mo_file.store(a, sizeof(a));
 				mo_file.store(b, sizeof(b));
 
-				mo_file = fs::fopen(TESTING_data_path / "ab_LE.mo", "wb");
+				mo_file = diags::fs::fopen(TESTING_data_path / "ab_LE.mo", "wb");
 				write_mo_head(mo_file, 1, 28, 36, 0, 44, direct);
 				le(mo_file, 1u);
 				le(mo_file, 44u);
@@ -206,7 +208,7 @@ namespace lngs::app::testing {
 				mo_file.store(a, sizeof(a));
 				mo_file.store(b, sizeof(b));
 
-				mo_file = fs::fopen(TESTING_data_path / "not_asciiz.mo", "wb");
+				mo_file = diags::fs::fopen(TESTING_data_path / "not_asciiz.mo", "wb");
 				write_mo_head(mo_file, 1, 28, 36, 0, 44, reverse);
 				be(mo_file, 1u);
 				be(mo_file, 44u);
@@ -216,7 +218,7 @@ namespace lngs::app::testing {
 				mo_file.store(noasciiz, sizeof(noasciiz));
 
 				mo_file =
-				    fs::fopen(TESTING_data_path / "string_missing.mo", "wb");
+				    diags::fs::fopen(TESTING_data_path / "string_missing.mo", "wb");
 				write_mo_head(mo_file, 1, 28, 36, 0, 44, reverse);
 				be(mo_file, 1u);
 				be(mo_file, 44u);
@@ -224,19 +226,19 @@ namespace lngs::app::testing {
 				be(mo_file, 44u + 2u);
 				mo_file.store(a, sizeof(a));
 
-				mo_file = fs::fopen(TESTING_data_path / "within_hash.mo", "wb");
+				mo_file = diags::fs::fopen(TESTING_data_path / "within_hash.mo", "wb");
 				write_mo_head(mo_file, 1, 28, 36, 2, 44, reverse);
 				be(mo_file, 1u);
 				be(mo_file, 44u);
 
 				mo_file =
-				    fs::fopen(TESTING_data_path / "over_the_top.mo", "wb");
+				    diags::fs::fopen(TESTING_data_path / "over_the_top.mo", "wb");
 				write_mo_head(mo_file, 1, 28, 36, 0, 44, reverse);
 				be(mo_file, 1u);
 				be(mo_file, 44u);
 
 				mo_file =
-				    fs::fopen(TESTING_data_path / "no_space_for_0.mo", "wb");
+				    diags::fs::fopen(TESTING_data_path / "no_space_for_0.mo", "wb");
 				write_mo_head(mo_file, 1, 28, 36, 0, 44, reverse);
 				be(mo_file, 1u);
 				be(mo_file, 44u);
@@ -244,7 +246,7 @@ namespace lngs::app::testing {
 				be(mo_file, 44u);
 				mo_file.store(a, 1);
 
-				mo_file = fs::fopen(
+				mo_file = diags::fs::fopen(
 				    TESTING_data_path / "no_space_for_strings_1.mo", "wb");
 				write_mo_head(mo_file, 2, 28, 36, 0, 44, reverse);
 				be(mo_file, 1u);
@@ -254,7 +256,7 @@ namespace lngs::app::testing {
 				mo_file.store(a, sizeof(a));
 				mo_file.store(b, sizeof(b));
 
-				mo_file = fs::fopen(
+				mo_file = diags::fs::fopen(
 				    TESTING_data_path / "no_space_for_strings_2.mo", "wb");
 				write_mo_head(mo_file, 2, 28, 44, 0, 44, reverse);
 				be(mo_file, 1u);
@@ -272,21 +274,21 @@ namespace lngs::app::testing {
 		auto mo = TESTING_data_path / filename;
 
 		if (expect_file) {
-			auto mo_file = fs::fopen(mo, "rb");
+			auto mo_file = diags::fs::fopen(mo, "rb");
 			if (!mo_file)
 				GTEST_FAIL() << "  failed to open:\n    " << mo.string()
 				             << "\n  canonical:\n    "
-				             << fs::weakly_canonical(mo).string();
+				             << ::fs::weakly_canonical(mo).string();
 		} else {
-			auto mo_file = fs::fopen(mo, "rb");
+			auto mo_file = diags::fs::fopen(mo, "rb");
 			if (mo_file)
 				GTEST_FAIL() << "  file exists:\n    " << mo.string()
 				             << "\n  canonical:\n    "
-				             << fs::weakly_canonical(mo).string()
+				             << ::fs::weakly_canonical(mo).string()
 				             << "\n  expected:\n    no file available";
 		}
 
-		diagnostics diags;
+		sources diags;
 		auto data = diags.open(mo.string(), "rb");
 		if (is_mo) {
 			data.data();
@@ -344,7 +346,7 @@ namespace lngs::app::testing {
 	TEST_P(gtt_attr_llCC, parse) {
 		auto [input, expected, msgs, success, create_file] = GetParam();
 		std::map<std::string, std::string> actual;
-		diagnostics diag;
+		sources diag;
 		if (create_file) diag.set_contents("<source>", input);
 		auto result = ll_CC(diag.source("<source>"), diag, actual);
 		ExpectEq(expected, actual);
@@ -358,7 +360,7 @@ namespace lngs::app::testing {
 
 	TEST_P(gtt_extract, translations) {
 		auto [gtt, strings, warp, verbose, expected, msgs] = GetParam();
-		diagnostics diag;
+		sources diag;
 		auto src = diag.source("");
 		auto actual =
 		    app::translations(gtt, strings, warp == Result::Warped,
@@ -395,7 +397,7 @@ namespace lngs::app::testing {
 
 		auto mo = TESTING_data_path / filename;
 
-		diagnostics diag;
+		sources diag;
 		auto actual = make::load_msgs(strings, warp == Result::Warped,
 		                              verbose == Reporting::Verbose,
 		                              diag.open(mo.string()), diag);
@@ -418,10 +420,10 @@ namespace lngs::app::testing {
 		if (attr_culture)
 			actual.attrs.emplace_back(ATTR_CULTURE, *attr_culture);
 
-		diagnostics diag;
+		sources diag;
 		auto mo = diag.source("");
 
-		fs::path llcc;
+		::fs::path llcc;
 		if (!ll_cc.empty()) {
 			llcc = TESTING_data_path;
 			llcc /= ll_cc;
@@ -548,7 +550,7 @@ namespace lngs::app::testing {
 	     {{"label", "value"}, {"label-2", "second value"}}},
 	    {"label\nvalue",
 	     {},
-	     {error << arg(lng::ERR_UNANMED_LOCALE, "label")},
+	     {error << format(lng::ERR_UNANMED_LOCALE, "label")},
 	     false},
 	};
 
@@ -573,7 +575,7 @@ namespace lngs::app::testing {
 	     Result::Unmodifed,
 	     Reporting::Verbose,
 	     {str(1001, "a"), str(1002, "b")},
-	     {warning << arg(lng::ERR_MSGS_TRANSLATION_MISSING, "C")}},
+	     {warning << format(lng::ERR_MSGS_TRANSLATION_MISSING, "C")}},
 	    {{{"A", "a"}, {"B", "b"}},
 	     test_strings{}
 	         .make(test_string(1001, "A", "x"),
@@ -583,7 +585,7 @@ namespace lngs::app::testing {
 	     Result::Warped,
 	     Reporting::Verbose,
 	     {str(1001, "a"), str(1002, "b"), str(1003, u8"\u0225")},
-	     {warning << arg(lng::ERR_MSGS_TRANSLATION_MISSING, "C")}},
+	     {warning << format(lng::ERR_MSGS_TRANSLATION_MISSING, "C")}},
 	    {{{"A", "a"}, {"B", "b"}},
 	     test_strings{}
 	         .make(test_string(1001, "A", "x"),
@@ -678,8 +680,8 @@ namespace lngs::app::testing {
 	     "empty_BE.mo"sv,
 	     {123},
 	     {
-	         warning << arg(lng::ERR_MSGS_TRANSLATION_MISSING, "a"),
-	         warning << arg(lng::ERR_MSGS_TRANSLATION_MISSING, "key"),
+	         warning << format(lng::ERR_MSGS_TRANSLATION_MISSING, "a"),
+	         warning << format(lng::ERR_MSGS_TRANSLATION_MISSING, "key"),
 	     }},
 	    {test_strings{123}.make(test_string(1000, "a", "x"),
 	                            test_string(1001, "key", "value")),
@@ -695,7 +697,7 @@ namespace lngs::app::testing {
 	     "ab_LE.mo"sv,
 	     {123, {}, {{1000, "b"}}, {}},
 	     {
-	         warning << arg(lng::ERR_MSGS_TRANSLATION_MISSING, "key"),
+	         warning << format(lng::ERR_MSGS_TRANSLATION_MISSING, "key"),
 	     }},
 	};
 
@@ -726,7 +728,7 @@ namespace lngs::app::testing {
 	       "(P\xC3\xB4\xC4\xBA\xC8\xA7\xC3\xB1\xC4\x91)"}},
 	     true,
 	     {location{2}[severity::warning]
-	      << arg(lng::ERR_LOCALE_MISSING, "pl-PL")}},
+	      << format(lng::ERR_LOCALE_MISSING, "pl-PL")}},
 	    {"de-AT",
 	     "languages.txt",
 	     {{ATTR_CULTURE, "de-AT"},
@@ -737,7 +739,7 @@ namespace lngs::app::testing {
 	      {ATTR_LANGUAGE, "\xC4\xA0\xC3\xAA\xC8\x93m\xC8\xA7\xC3\xB1"}},
 	     true,
 	     {location{2}[severity::warning]
-	      << arg(lng::ERR_LOCALE_MISSING, "de")}},
+	      << format(lng::ERR_LOCALE_MISSING, "de")}},
 	    {"da",
 	     "languages.txt",
 	     {{ATTR_CULTURE, "da"}, {ATTR_LANGUAGE, "dansk"}}},
@@ -748,7 +750,7 @@ namespace lngs::app::testing {
 	       "\xC8\x84\xC3\xB1\xC4\x9F\xC4\xBA\xC3\xAF\xC5\x9F\xC4\xA5"}},
 	     true,
 	     {location{2}[severity::warning]
-	      << arg(lng::ERR_LOCALE_MISSING, "en")}},
+	      << format(lng::ERR_LOCALE_MISSING, "en")}},
 	    {"noniso",
 	     "languages.txt",
 	     {
@@ -756,7 +758,7 @@ namespace lngs::app::testing {
 	     },
 	     true,
 	     {location{2}[severity::warning]
-	      << arg(lng::ERR_LOCALE_MISSING, "noniso")}},
+	      << format(lng::ERR_LOCALE_MISSING, "noniso")}},
 	    {"noniso-NONISO",
 	     "languages.txt",
 	     {
@@ -764,7 +766,7 @@ namespace lngs::app::testing {
 	     },
 	     true,
 	     {location{2}[severity::warning]
-	      << arg(lng::ERR_LOCALE_MISSING, "noniso-NONISO")}},
+	      << format(lng::ERR_LOCALE_MISSING, "noniso-NONISO")}},
 	    {"en-NONISO",
 	     "languages.txt",
 	     {{ATTR_CULTURE, "en-NONISO"},
@@ -774,7 +776,7 @@ namespace lngs::app::testing {
 	       "\xC3\x91\xC3\x96\xC3\x91\xC3\x8D\xC5\x9E\xC3\x96)"}},
 	     true,
 	     {location{2}[severity::warning]
-	      << arg(lng::ERR_LOCALE_MISSING, "en-NONISO")}},
+	      << format(lng::ERR_LOCALE_MISSING, "en-NONISO")}},
 	    {"en-Zzzz-US",
 	     "languages.txt",
 	     {{ATTR_CULTURE, "en-Zzzz-US"},
@@ -784,7 +786,7 @@ namespace lngs::app::testing {
 	       "\xC5\x9E\xC5\xA7\xC8\xA7\xC5\xA7\xC3\xAA\xC5\x9F)"}},
 	     true,
 	     {location{2}[severity::warning]
-	      << arg(lng::ERR_LOCALE_MISSING, "en-Zzzz-US")}},
+	      << format(lng::ERR_LOCALE_MISSING, "en-Zzzz-US")}},
 	    {"en-Zzzz-US-NONISO",
 	     "languages.txt",
 	     {{ATTR_CULTURE, "en-Zzzz-US-NONISO"},
@@ -794,7 +796,7 @@ namespace lngs::app::testing {
 	       "\xC5\x9E\xC5\xA7\xC8\xA7\xC5\xA7\xC3\xAA\xC5\x9F)"}},
 	     true,
 	     {location{2}[severity::warning]
-	      << arg(lng::ERR_LOCALE_MISSING, "en-Zzzz-US-NONISO")}},
+	      << format(lng::ERR_LOCALE_MISSING, "en-Zzzz-US-NONISO")}},
 	    {"en-Zzzz",
 	     "languages.txt",
 	     {{ATTR_CULTURE, "en-Zzzz"},
@@ -802,7 +804,7 @@ namespace lngs::app::testing {
 	       "\xC8\x84\xC3\xB1\xC4\x9F\xC4\xBA\xC3\xAF\xC5\x9F\xC4\xA5"}},
 	     true,
 	     {location{2}[severity::warning]
-	      << arg(lng::ERR_LOCALE_MISSING, "en-Zzzz")}},
+	      << format(lng::ERR_LOCALE_MISSING, "en-Zzzz")}},
 	};
 
 	INSTANTIATE_TEST_SUITE_P(attrs, mo_fix, ValuesIn(attrs_tests));

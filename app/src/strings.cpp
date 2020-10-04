@@ -5,7 +5,6 @@
 #include <cctype>
 
 #include <lngs/internals/diagnostics.hpp>
-#include <lngs/internals/streams.hpp>
 #include <lngs/internals/strings.hpp>
 
 namespace lngs::app {
@@ -41,65 +40,72 @@ namespace lngs::app {
 	struct token {
 		tok_t type;
 		std::string value;
-		location start_pos;
-		location end_pos;
+		diags::location start_pos;
+		diags::location end_pos;
 		int file_offset;
 
 		template <typename... Args>
-		[[nodiscard]] diagnostic error(std::string msg,
-		                               Args&&... args) const noexcept {
-			return message(severity::error, std::move(msg),
+		[[nodiscard]] diags::diagnostic error(std::string msg,
+		                                      Args&&... args) const noexcept {
+			return message(diags::severity::error, std::move(msg),
 			               std::forward<Args>(args)...);
 		}
 		template <typename... Args>
-		[[nodiscard]] diagnostic warn(std::string msg,
-		                              Args&&... args) const noexcept {
-			return message(severity::warning, std::move(msg),
+		[[nodiscard]] diags::diagnostic warn(std::string msg,
+		                                     Args&&... args) const noexcept {
+			return message(diags::severity::warning, std::move(msg),
 			               std::forward<Args>(args)...);
 		}
 		template <typename... Args>
-		[[nodiscard]] diagnostic message(severity sev,
-		                                 std::string msg,
-		                                 Args&&... args) const noexcept {
-			return (start_pos / end_pos)[sev]
-			       << arg(std::move(msg), std::forward<Args>(args)...);
+		[[nodiscard]] diags::diagnostic message(diags::severity sev,
+		                                        std::string msg,
+		                                        Args&&... args) const noexcept {
+			return (start_pos - end_pos)[sev]
+			       << format(std::move(msg), std::forward<Args>(args)...);
 		}
 
 		template <typename... Args>
-		[[nodiscard]] diagnostic error(lng msg, Args&&... args) const noexcept {
-			return message(severity::error, msg, std::forward<Args>(args)...);
+		[[nodiscard]] diags::diagnostic error(lng msg,
+		                                      Args&&... args) const noexcept {
+			return message(diags::severity::error, msg,
+			               std::forward<Args>(args)...);
 		}
 		template <typename... Args>
-		[[nodiscard]] diagnostic warn(lng msg, Args&&... args) const noexcept {
-			return message(severity::warning, msg, std::forward<Args>(args)...);
+		[[nodiscard]] diags::diagnostic warn(lng msg,
+		                                     Args&&... args) const noexcept {
+			return message(diags::severity::warning, msg,
+			               std::forward<Args>(args)...);
 		}
 		template <typename... Args>
-		[[nodiscard]] diagnostic message(severity sev,
-		                                 lng msg,
-		                                 Args&&... args) const noexcept {
-			return (start_pos / end_pos)[sev]
-			       << arg(msg, std::forward<Args>(args)...);
+		[[nodiscard]] diags::diagnostic message(diags::severity sev,
+		                                        lng msg,
+		                                        Args&&... args) const noexcept {
+			if constexpr (sizeof...(args) == 0)
+				return (start_pos - end_pos)[sev] << msg;
+			else
+				return (start_pos - end_pos)[sev]
+				       << app::format(msg, std::forward<Args>(args)...);
 		}
 
-		argumented_string info_expected() const {
+		argument info_expected() const {
 			switch (type) {
 				case STRING:
 					return lng::ERR_EXPECTED_STRING;
 				case NUMBER:
 					return lng::ERR_EXPECTED_NUMBER;
 				case ID:
-					return value.empty() ? arg(lng::ERR_EXPECTED_ID)
-					                     : "`" + value + "'";
+					return value.empty() ? lng::ERR_EXPECTED_ID
+					                     : argument{"`" + value + "'"};
 				default:
 					break;
 			}
 			assert(type != NONE && type != END_OF_FILE);
 			char buffer[] = "` '";
 			buffer[1] = static_cast<char>(type);
-			return arg(buffer);
+			return buffer;
 		}
 
-		argumented_string info_got() const {
+		argument info_got() const {
 			switch (type) {
 				case NONE:
 					return lng::ERR_EXPECTED_GOT_UNRECOGNIZED;
@@ -110,26 +116,26 @@ namespace lngs::app {
 				case NUMBER:
 					return lng::ERR_EXPECTED_GOT_NUMBER;
 				case ID:
-					return value.empty() ? arg(lng::ERR_EXPECTED_GOT_ID)
-					                     : "`" + value + "'";
+					return value.empty() ? lng::ERR_EXPECTED_GOT_ID
+					                     : argument{"`" + value + "'"};
 				default:
 					break;
 			}
 			char buffer[] = "` '";
 			buffer[1] = static_cast<char>(type);
-			return arg(buffer);
+			return buffer;
 		}
 	};
 
 	class tokenizer {
-		source_file& in_;
+		diags::source_code& in_;
 		unsigned line_ = 1;
 		unsigned column_ = 1;
 		int file_offset_ = 0;
 
 		bool peeked_ = false;
 		bool eof_ = false;
-		location start_pos_;
+		diags::location start_pos_;
 		token next_;
 
 		char nextc() {
@@ -149,20 +155,25 @@ namespace lngs::app {
 		void read();
 
 	public:
-		tokenizer(source_file& in) : in_(in) {}
+		tokenizer(diags::source_code& in) : in_(in) {}
 
 		tokenizer(const tokenizer&) = delete;
 		tokenizer& operator=(const tokenizer&) = delete;
 
-		location position() const { return in_.position(line_, column_); }
+		diags::location position() const {
+			return in_.position(line_, column_);
+		}
 
 		const token& peek();
 		token get();
 
-		bool expect(tok_t type, bool fatal, diagnostics& diag);
-		bool expect(tok_t first, tok_t second, diagnostics& diag);
-		bool expect(tok_t first, tok_t second, tok_t third, diagnostics& diag);
-		bool expect(const std::string& tok, bool fatal, diagnostics& diag);
+		bool expect(tok_t type, bool fatal, diags::sources& diag);
+		bool expect(tok_t first, tok_t second, diags::sources& diag);
+		bool expect(tok_t first,
+		            tok_t second,
+		            tok_t third,
+		            diags::sources& diag);
+		bool expect(const std::string& tok, bool fatal, diags::sources& diag);
 	};
 
 	void tokenizer::set_next(int offset, tok_t tok) {
@@ -329,7 +340,7 @@ namespace lngs::app {
 		return std::move(next_);
 	}
 
-	bool tokenizer::expect(tok_t type, bool fatal, diagnostics& diag) {
+	bool tokenizer::expect(tok_t type, bool fatal, diags::sources& diag) {
 		auto& t = peek();
 		if (type == t.type) return true;
 
@@ -343,7 +354,7 @@ namespace lngs::app {
 		return false;
 	}
 
-	bool tokenizer::expect(tok_t one, tok_t another, diagnostics& diag) {
+	bool tokenizer::expect(tok_t one, tok_t another, diags::sources& diag) {
 		auto& t = peek();
 		if (t.type == one || t.type == another) return true;
 
@@ -358,7 +369,7 @@ namespace lngs::app {
 	bool tokenizer::expect(tok_t first,
 	                       tok_t second,
 	                       tok_t third,
-	                       diagnostics& diag) {
+	                       diags::sources& diag) {
 		if (peek().type == third) return true;
 
 		return expect(first, second, diag);
@@ -366,7 +377,7 @@ namespace lngs::app {
 
 	bool tokenizer::expect(const std::string& tok,
 	                       bool fatal,
-	                       diagnostics& diag) {
+	                       diags::sources& diag) {
 		auto& t = peek();
 		if (ID == t.type && tok == t.value) return true;
 
@@ -521,7 +532,7 @@ namespace lngs::app {
 
 	bool read_attribute(tokenizer& tok,
 	                    const attr_def& attrs,
-	                    diagnostics& diag) {
+	                    diags::sources& diag) {
 		if (!tok.expect(ID, true, diag)) return false;
 		auto name = tok.get();
 
@@ -591,7 +602,7 @@ namespace lngs::app {
 
 	bool read_attributes(tokenizer& tok,
 	                     const attr_def& attrs,
-	                     diagnostics& diag) {
+	                     diags::sources& diag) {
 		if (!tok.expect(SQBRAKET_O, false, diag)) {
 			for (auto& att : attrs.attrs()) {
 				if (att->required()) {
@@ -621,7 +632,7 @@ namespace lngs::app {
 		return true;
 	}
 
-	bool read_string(tokenizer& tok, idl_string& str, diagnostics& diag) {
+	bool read_string(tokenizer& tok, idl_string& str, diags::sources& diag) {
 		if (!tok.expect(CBRAKET_C, SQBRAKET_O, ID, diag))  // `}', '[' or LNG_ID
 			return false;
 
@@ -651,8 +662,8 @@ namespace lngs::app {
 
 			if (!id->visited()) {
 				auto err = here.error(lng::ERR_REQ_ATTR_MISSING, "id");
-				err.children.push_back(
-				    here.message(severity::note, lng::ERR_ID_MISSING_HINT));
+				err.with(here.message(diags::severity::note,
+				                      lng::ERR_ID_MISSING_HINT));
 				diag.push_back(std::move(err));
 				return false;
 			}
@@ -678,7 +689,9 @@ namespace lngs::app {
 		return true;
 	}
 
-	bool read_strings(source_file in, idl_strings& def, diagnostics& diag) {
+	bool read_strings(diags::source_code in,
+	                  idl_strings& def,
+	                  diags::sources& diag) {
 		tokenizer tok{in};
 
 		if (!tok.expect(SQBRAKET_O, ID, diag)) {  // '[' or `strings'
@@ -736,24 +749,25 @@ namespace lngs::app {
 	                  const fs::path& inname,
 	                  idl_strings& str,
 	                  bool verbose,
-	                  diagnostics& diag) {
+	                  diags::sources& diag) {
 		auto in = inname;
 		in.make_preferred();
 
 		auto src = diag.source(progname).position();
-		if (verbose) diag.push_back(src[severity::verbose] << inname.string());
+		if (verbose)
+			diag.push_back(src[diags::severity::verbose] << inname.string());
 
 		auto inf = diag.open(inname.string());
 
 		if (!inf.valid()) {
-			diag.push_back(src[severity::error]
-			               << arg(lng::ERR_FILE_MISSING, inname.string()));
+			diag.push_back(src[diags::severity::error]
+			               << format(lng::ERR_FILE_MISSING, inname.string()));
 			return false;
 		}
 
 		if (!read_strings(std::move(inf), str, diag)) {
 			if (verbose)
-				diag.push_back(src[severity::error] << arg(
+				diag.push_back(src[diags::severity::error] << format(
 				                   lng::ERR_NOT_STRINGS_FILE, inname.string()));
 			return false;
 		}

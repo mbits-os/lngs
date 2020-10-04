@@ -6,7 +6,6 @@
 
 #include <lngs/internals/diagnostics.hpp>
 #include <lngs/internals/languages.hpp>
-#include <lngs/internals/streams.hpp>
 #include <lngs/internals/strings.hpp>
 #include <utf/utf.hpp>
 
@@ -127,8 +126,8 @@ namespace lngs::app {
 	    const std::vector<idl_string>& strings,
 	    bool warp_missing,
 	    bool verbose,
-	    source_file& src,
-	    diagnostics& diags) {
+	    diags::source_code& src,
+	    diags::sources& diags) {
 		std::vector<tr_string> out;
 		out.reserve(gtt.empty() ? 0 : gtt.size() - 1);
 
@@ -137,8 +136,8 @@ namespace lngs::app {
 			if (it == gtt.end()) {
 				if (verbose) {
 					diags.push_back(
-					    src.position()[severity::warning]
-					    << arg(lng::ERR_MSGS_TRANSLATION_MISSING, str.key));
+					    src.position()[diags::severity::warning]
+					    << format(lng::ERR_MSGS_TRANSLATION_MISSING, str.key));
 				}
 				if (warp_missing) out.emplace_back(str.id, warp(str.value));
 				continue;
@@ -229,7 +228,7 @@ namespace lngs::app {
 		return props;
 	}
 
-	char nextc(instream& is) {
+	char nextc(diags::instream& is) {
 		char c;
 		is.read(&c, 1);
 		return c;
@@ -237,8 +236,8 @@ namespace lngs::app {
 
 	struct ll_parse {
 		std::map<std::string, std::string>& names;
-		source_file is;
-		diagnostics& diags;
+		diags::source_code is;
+		diags::sources& diags;
 
 		unsigned line = 1;
 		unsigned column = 1;
@@ -275,8 +274,8 @@ namespace lngs::app {
 			while (!is.eof() && std::isspace(b2uc(is.peek()))) {
 				auto c = nextc(is);
 				if (c == '\n') {
-					diags.push_back((pos / end_pos)[severity::error]
-					                << arg(lng::ERR_UNANMED_LOCALE, code));
+					diags.push_back((pos - end_pos)[diags::severity::error]
+					                << format(lng::ERR_UNANMED_LOCALE, code));
 					return error;
 				}
 			}
@@ -299,11 +298,11 @@ namespace lngs::app {
 		}
 	};
 
-	bool ll_CC(source_file is,
-	           diagnostics& diags,
+	bool ll_CC(diags::source_code is,
+	           diags::sources& diags,
 	           std::map<std::string, std::string>& langs) {
 		if (!is.valid()) {
-			diags.push_back(is.position()[severity::error]
+			diags.push_back(is.position()[diags::severity::error]
 			                << lng::ERR_FILE_NOT_FOUND);
 			return false;
 		}
@@ -337,14 +336,14 @@ namespace lngs::app {
 			}
 		}
 
-		int list(outstream& os, std::vector<tr_string>& block) {
+		int list(diags::outstream& os, std::vector<tr_string>& block) {
 			for (auto& str : block)
 				WRITE(os, str.key);
 
 			return 0;
 		}
 
-		int data(outstream& os, std::vector<tr_string>& block) {
+		int data(diags::outstream& os, std::vector<tr_string>& block) {
 			for (auto& str : block) {
 				WRITESTR(os, str.value);
 				WRITE(os, '\0');
@@ -353,7 +352,7 @@ namespace lngs::app {
 			return 0;
 		}
 
-		int section(outstream& os,
+		int section(diags::outstream& os,
 		            uint32_t section_id,
 		            std::vector<tr_string>& block) {
 			if (block.empty()) return 0;
@@ -400,7 +399,7 @@ namespace lngs::app {
 		}
 	}  // namespace
 
-	int file::write(outstream& os) {
+	int file::write(diags::outstream& os) {
 		file_header hdr;
 		hdr.id = hdrtext_tag;
 		hdr.ints =

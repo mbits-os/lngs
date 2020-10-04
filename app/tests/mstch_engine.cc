@@ -2,7 +2,7 @@
 #include <lngs/internals/mstch_engine.hpp>
 
 namespace lngs::app::testing {
-	class strstream : public outstream {
+	class strstream : public diags::outstream {
 	public:
 		std::string str;
 		std::size_t write(const void* mem, std::size_t length) noexcept final {

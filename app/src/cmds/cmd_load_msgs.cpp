@@ -5,7 +5,6 @@
 #include <lngs/internals/diagnostics.hpp>
 #include <lngs/internals/gettext.hpp>
 #include <lngs/internals/languages.hpp>
-#include <lngs/internals/streams.hpp>
 #include <lngs/internals/strings.hpp>
 
 #include <algorithm>
@@ -18,8 +17,8 @@ namespace lngs::app::make {
 	file load_msgs(const idl_strings& defs,
 	               bool warp_missing,
 	               bool verbose,
-	               source_file data,
-	               diagnostics& diags) {
+	               diags::source_code data,
+	               diags::sources& diags) {
 		auto const binary_messages = gtt::is_mo(data);
 
 		file file;
@@ -33,15 +32,15 @@ namespace lngs::app::make {
 	}
 
 	bool fix_attributes(file& file,
-	                    source_file& mo_file,
+	                    diags::source_code& mo_file,
 	                    const std::string& ll_CCs,
-	                    diagnostics& diags) {
+	                    diags::sources& diags) {
 		auto prop = find_if(begin(file.attrs), end(file.attrs), [](auto& item) {
 			return item.key.id == ATTR_CULTURE;
 		});
 		if (prop == end(file.attrs) || prop->value.empty()) {
 			const auto pos = mo_file.position();
-			diags.push_back(pos[severity::warning]
+			diags.push_back(pos[diags::severity::warning]
 			                << lng::ERR_MSGS_ATTR_LANG_MISSING);
 		} else {
 			bool lang_set = false;
@@ -55,7 +54,7 @@ namespace lngs::app::make {
 
 				auto it = names.find(prop->value);
 				if (it == names.end()) {
-					diags.push_back(pos[severity::warning] << arg(
+					diags.push_back(pos[diags::severity::warning] << format(
 					                    lng::ERR_LOCALE_MISSING, prop->value));
 				} else {
 					file.attrs.emplace_back(ATTR_LANGUAGE, it->second);

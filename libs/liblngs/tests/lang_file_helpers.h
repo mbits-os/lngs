@@ -3,8 +3,8 @@
 #include <lngs/file.hpp>
 #include <lngs/lngs_file.hpp>
 
+#include <diags/streams.hpp>
 #include <lngs/internals/languages.hpp>
-#include <lngs/internals/streams.hpp>
 #include <lngs/internals/strings.hpp>
 
 namespace lngs::testing::helper {
@@ -54,7 +54,7 @@ namespace lngs::testing::helper {
 		return {std::move(key), std::move(value), {}, {}, id, id};
 	}
 
-	inline void build_strings(lngs::app::outstream& dst,
+	inline void build_strings(diags::outstream& dst,
 	                          const lngs::app::idl_strings& defs,
 	                          const attrs_t& attrs,
 	                          bool with_keys) {

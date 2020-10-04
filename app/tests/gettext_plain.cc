@@ -16,6 +16,8 @@ namespace lngs::app::testing {
 	using namespace ::std::literals;
 	using ::testing::TestWithParam;
 	using ::testing::ValuesIn;
+	using namespace ::diags;
+	using namespace ::diags::testing;
 
 	enum class Result { Unmodifed = false, Warped = true };
 
@@ -82,7 +84,7 @@ namespace lngs::app::testing {
 	public:
 		static void write_text_file(std::string_view filename,
 		                            std::string_view contents) {
-			auto po_file = fs::fopen(TESTING_data_path / filename, "w");
+			auto po_file = diags::fs::fopen(TESTING_data_path / filename, "w");
 			po_file.store(contents.data(), contents.size());
 		}
 		static void SetUpTestCase() {
@@ -124,14 +126,14 @@ msgstr "a\gb\\f\"n\'r\?t\[\]v")");
 		auto po = TESTING_data_path / filename;
 
 		{
-			auto po_file = fs::fopen(po);
+			auto po_file = diags::fs::fopen(po);
 			if (!po_file)
 				GTEST_FAIL() << "  failed to open:\n    " << po.string()
 				             << "\n  canonical:\n    "
-				             << fs::weakly_canonical(po).string();
+				             << ::fs::weakly_canonical(po).string();
 		}
 
-		diagnostics diags;
+		sources diags;
 		auto data = diags.open(po.string());
 		EXPECT_FALSE(gtt::is_mo(data));
 		auto actual = gtt::open_po(data, diags);
@@ -155,40 +157,44 @@ msgstr "a\gb\\f\"n\'r\?t\[\]v")");
 	    {"plural.po", {}, {{"A", "one B\000{0} Bs"s}}},
 	    {"escaped.po",
 	     {
-	         warning << arg(lng::ERR_GETTEXT_UNRECOGNIZED_ESCAPE, "g"),
-	         warning << arg(lng::ERR_GETTEXT_UNRECOGNIZED_ESCAPE, "["),
-	         warning << arg(lng::ERR_GETTEXT_UNRECOGNIZED_ESCAPE, "]"),
+	         warning << format(lng::ERR_GETTEXT_UNRECOGNIZED_ESCAPE, "g"),
+	         warning << format(lng::ERR_GETTEXT_UNRECOGNIZED_ESCAPE, "["),
+	         warning << format(lng::ERR_GETTEXT_UNRECOGNIZED_ESCAPE, "]"),
 	     },
 	     {{"\a\b\f\n\r\t\v", "agb\\f\"n\'r\?t[]v"}}},
 	    {"unescaped.po",
-	     {error << arg(lng::ERR_EXPECTED,
-	                   lng::ERR_EXPECTED_STRING,
-	                   lng::ERR_EXPECTED_GOT_EOL)}},
+	     {error << format(lng::ERR_EXPECTED,
+	                      lng::ERR_EXPECTED_STRING,
+	                      lng::ERR_EXPECTED_GOT_EOL)}},
 	    {"unfinished.po",
-	     {error << arg(lng::ERR_EXPECTED, "`\"'", lng::ERR_EXPECTED_GOT_EOL)}},
+	     {error << format(lng::ERR_EXPECTED,
+	                      "`\"'",
+	                      lng::ERR_EXPECTED_GOT_EOL)}},
 	    {"not-number.po",
 	     {
-	         error << arg(lng::ERR_EXPECTED,
-	                      lng::ERR_EXPECTED_NUMBER,
-	                      lng::ERR_EXPECTED_GOT_UNRECOGNIZED),
-	         error << arg(lng::ERR_EXPECTED,
-	                      lng::ERR_EXPECTED_STRING,
-	                      lng::ERR_EXPECTED_GOT_UNRECOGNIZED),
+	         error << format(lng::ERR_EXPECTED,
+	                         lng::ERR_EXPECTED_NUMBER,
+	                         lng::ERR_EXPECTED_GOT_UNRECOGNIZED),
+	         error << format(lng::ERR_EXPECTED,
+	                         lng::ERR_EXPECTED_STRING,
+	                         lng::ERR_EXPECTED_GOT_UNRECOGNIZED),
 	     }},
 	    {"empty-index.po",
-	     {error << arg(lng::ERR_EXPECTED, lng::ERR_EXPECTED_NUMBER, "`]'")}},
-	    {"unknown-field.po", {warning << arg(lng::ERR_GETTEXT_UNRECOGNIZED_FIELD, "something")}},
+	     {error << format(lng::ERR_EXPECTED, lng::ERR_EXPECTED_NUMBER, "`]'")}},
+	    {"unknown-field.po",
+	     {warning << format(lng::ERR_GETTEXT_UNRECOGNIZED_FIELD, "something")}},
 	    {"word-word.po",
 	     {
-	         warning << arg(lng::ERR_GETTEXT_UNRECOGNIZED_FIELD, "something"),
-	         error << arg(lng::ERR_EXPECTED,
-	                      lng::ERR_EXPECTED_STRING,
-	                      lng::ERR_EXPECTED_GOT_UNRECOGNIZED),
+	         warning << format(lng::ERR_GETTEXT_UNRECOGNIZED_FIELD,
+	                           "something"),
+	         error << format(lng::ERR_EXPECTED,
+	                         lng::ERR_EXPECTED_STRING,
+	                         lng::ERR_EXPECTED_GOT_UNRECOGNIZED),
 	     }},
 	    {"word-string-word.po",
-	     {error << arg(lng::ERR_EXPECTED,
-	                   lng::ERR_EXPECTED_EOL,
-	                   lng::ERR_EXPECTED_GOT_UNRECOGNIZED)}},
+	     {error << format(lng::ERR_EXPECTED,
+	                      lng::ERR_EXPECTED_EOL,
+	                      lng::ERR_EXPECTED_GOT_UNRECOGNIZED)}},
 	};
 
 	INSTANTIATE_TEST_SUITE_P(sources, gettext_plain, ValuesIn(sources));
