@@ -1,5 +1,4 @@
 #include <gtest/gtest.h>
-#include <lngs/file.hpp>
 #include <lngs/internals/commands.hpp>
 #include <lngs/internals/diagnostics.hpp>
 #include <lngs/internals/gettext.hpp>
@@ -10,7 +9,7 @@
 
 #include <optional>
 
-extern fs::path TESTING_data_path;
+extern std::filesystem::path TESTING_data_path;
 
 namespace lngs::app::testing {
 	using namespace ::std::literals;
@@ -165,9 +164,11 @@ namespace lngs::app::testing {
 				mo_file = diags::fs::fopen(TESTING_data_path / "zero.mo", "wb");
 				write_mo_head(mo_file, 0, 0, 0, 0, 0, reverse);
 
-				mo_file = diags::fs::fopen(TESTING_data_path / "empty_BE.mo", "wb");
+				mo_file =
+				    diags::fs::fopen(TESTING_data_path / "empty_BE.mo", "wb");
 				write_mo_head(mo_file, 0, 28, 28, 0, 28, reverse);
-				mo_file = diags::fs::fopen(TESTING_data_path / "empty_LE.mo", "wb");
+				mo_file =
+				    diags::fs::fopen(TESTING_data_path / "empty_LE.mo", "wb");
 				write_mo_head(mo_file, 0, 28, 28, 0, 28, direct);
 
 				mo_file = diags::fs::fopen(
@@ -177,18 +178,19 @@ namespace lngs::app::testing {
 				    TESTING_data_path / "empty_rev_nonzero_LE.mo", "wb");
 				write_mo_head(mo_file, 0, 28, 28, 0, 28, direct, 0x11223344);
 
-				mo_file =
-				    diags::fs::fopen(TESTING_data_path / "empty_no_magic.mo", "wb");
+				mo_file = diags::fs::fopen(
+				    TESTING_data_path / "empty_no_magic.mo", "wb");
 				write(mo_file, static_cast<uint16_t>(0x9504u));
-				mo_file =
-				    diags::fs::fopen(TESTING_data_path / "empty_wrong_magic.mo", "wb");
+				mo_file = diags::fs::fopen(
+				    TESTING_data_path / "empty_wrong_magic.mo", "wb");
 				write(mo_file, direct(0xdeadbeefu));
-				mo_file =
-				    diags::fs::fopen(TESTING_data_path / "empty_no_rev.mo", "wb");
+				mo_file = diags::fs::fopen(
+				    TESTING_data_path / "empty_no_rev.mo", "wb");
 				write(mo_file, reverse(0x950412deU));
 				write(mo_file, static_cast<uint16_t>(0xfedcu));
 
-				mo_file = diags::fs::fopen(TESTING_data_path / "ab_BE.mo", "wb");
+				mo_file =
+				    diags::fs::fopen(TESTING_data_path / "ab_BE.mo", "wb");
 				write_mo_head(mo_file, 1, 28, 36, 0, 44, reverse);
 				be(mo_file, 1u);
 				be(mo_file, 44u);
@@ -199,7 +201,8 @@ namespace lngs::app::testing {
 				mo_file.store(a, sizeof(a));
 				mo_file.store(b, sizeof(b));
 
-				mo_file = diags::fs::fopen(TESTING_data_path / "ab_LE.mo", "wb");
+				mo_file =
+				    diags::fs::fopen(TESTING_data_path / "ab_LE.mo", "wb");
 				write_mo_head(mo_file, 1, 28, 36, 0, 44, direct);
 				le(mo_file, 1u);
 				le(mo_file, 44u);
@@ -208,7 +211,8 @@ namespace lngs::app::testing {
 				mo_file.store(a, sizeof(a));
 				mo_file.store(b, sizeof(b));
 
-				mo_file = diags::fs::fopen(TESTING_data_path / "not_asciiz.mo", "wb");
+				mo_file =
+				    diags::fs::fopen(TESTING_data_path / "not_asciiz.mo", "wb");
 				write_mo_head(mo_file, 1, 28, 36, 0, 44, reverse);
 				be(mo_file, 1u);
 				be(mo_file, 44u);
@@ -217,8 +221,8 @@ namespace lngs::app::testing {
 				constexpr const char noasciiz[] = {'a', 'b'};
 				mo_file.store(noasciiz, sizeof(noasciiz));
 
-				mo_file =
-				    diags::fs::fopen(TESTING_data_path / "string_missing.mo", "wb");
+				mo_file = diags::fs::fopen(
+				    TESTING_data_path / "string_missing.mo", "wb");
 				write_mo_head(mo_file, 1, 28, 36, 0, 44, reverse);
 				be(mo_file, 1u);
 				be(mo_file, 44u);
@@ -226,19 +230,20 @@ namespace lngs::app::testing {
 				be(mo_file, 44u + 2u);
 				mo_file.store(a, sizeof(a));
 
-				mo_file = diags::fs::fopen(TESTING_data_path / "within_hash.mo", "wb");
+				mo_file = diags::fs::fopen(TESTING_data_path / "within_hash.mo",
+				                           "wb");
 				write_mo_head(mo_file, 1, 28, 36, 2, 44, reverse);
 				be(mo_file, 1u);
 				be(mo_file, 44u);
 
-				mo_file =
-				    diags::fs::fopen(TESTING_data_path / "over_the_top.mo", "wb");
+				mo_file = diags::fs::fopen(
+				    TESTING_data_path / "over_the_top.mo", "wb");
 				write_mo_head(mo_file, 1, 28, 36, 0, 44, reverse);
 				be(mo_file, 1u);
 				be(mo_file, 44u);
 
-				mo_file =
-				    diags::fs::fopen(TESTING_data_path / "no_space_for_0.mo", "wb");
+				mo_file = diags::fs::fopen(
+				    TESTING_data_path / "no_space_for_0.mo", "wb");
 				write_mo_head(mo_file, 1, 28, 36, 0, 44, reverse);
 				be(mo_file, 1u);
 				be(mo_file, 44u);
@@ -278,13 +283,13 @@ namespace lngs::app::testing {
 			if (!mo_file)
 				GTEST_FAIL() << "  failed to open:\n    " << mo.string()
 				             << "\n  canonical:\n    "
-				             << ::fs::weakly_canonical(mo).string();
+				             << std::filesystem::weakly_canonical(mo).string();
 		} else {
 			auto mo_file = diags::fs::fopen(mo, "rb");
 			if (mo_file)
 				GTEST_FAIL() << "  file exists:\n    " << mo.string()
 				             << "\n  canonical:\n    "
-				             << ::fs::weakly_canonical(mo).string()
+				             << std::filesystem::weakly_canonical(mo).string()
 				             << "\n  expected:\n    no file available";
 		}
 
@@ -423,7 +428,7 @@ namespace lngs::app::testing {
 		sources diag;
 		auto mo = diag.source("");
 
-		::fs::path llcc;
+		std::filesystem::path llcc;
 		if (!ll_cc.empty()) {
 			llcc = TESTING_data_path;
 			llcc /= ll_cc;

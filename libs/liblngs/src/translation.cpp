@@ -2,17 +2,74 @@
 // This code is licensed under MIT license (see LICENSE for details)
 
 #include <assert.h>
+#include <cstdio>
 #include <lngs/translation.hpp>
+#include <memory>
 
 namespace lngs {
+	namespace {
+		struct fcloser {
+			void operator()(FILE* f) { std::fclose(f); }
+		};
+		using file = std::unique_ptr<FILE, fcloser>;
+
+		file fopen(std::filesystem::path path, char const* mode) noexcept {
+			path.make_preferred();
+#if defined WIN32 || defined _WIN32
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable : 4996)
+#endif
+			std::unique_ptr<wchar_t[]> heap;
+			wchar_t buff[20];
+			wchar_t* ptr = buff;
+			auto len = mode ? strlen(mode) : 0;
+			if (len >= sizeof(buff)) {
+				heap.reset(new (std::nothrow) wchar_t[len + 1]);
+				if (!heap) return nullptr;
+				ptr = heap.get();
+			}
+
+			auto dst = ptr;
+			while (*dst++ = *mode++)
+				;
+
+			return file{::_wfopen(path.native().c_str(), ptr)};
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
+
+#else  // WIN32 || _WIN32
+			return file{std::fopen(path.string().c_str(), mode)};
+#endif
+		}
+
+		std::vector<std::byte> read(file const& ptr) noexcept {
+			std::vector<std::byte> out;
+			std::byte buffer[1024];
+
+			while (true) {
+				auto ret = std::fread(buffer, 1, sizeof(buffer), ptr.get());
+				if (!ret) {
+					if (!std::feof(ptr.get())) out.clear();
+					break;
+				}
+				out.insert(end(out), buffer, buffer + ret);
+			}
+
+			return out;
+		}
+	}  // namespace
+
 	/* static */
-	memory_block translation::open_file(const fs::path& path) noexcept {
+	memory_block translation::open_file(
+	    const std::filesystem::path& path) noexcept {
 		memory_block block;
 
-		auto file = fs::fopen(path, "rb");
+		auto file = fopen(path, "rb");
 		if (!file) return block;
 
-		block.block = file.read();
+		block.block = read(file);
 		block.contents = block.block.data();
 		block.size = block.block.size();
 

@@ -3,29 +3,34 @@
 
 #pragma once
 
-#include <diags/streams.hpp>
-#include <lngs/file.hpp>
+#include <filesystem>
 #include <lngs/internals/strings.hpp>
 #include <mstch/mstch.hpp>
 #include <tuple>
 
+namespace diags {
+	struct outstream;
+}
+
 namespace lngs::app {
 	class mstch_engine : public mstch::cache {
 	public:
-		explicit mstch_engine(std::optional<fs::path> const& redirected);
+		explicit mstch_engine(
+		    std::optional<std::filesystem::path> const& redirected);
 		std::string load(std::string const& partial) final;
 		bool is_valid(std::string const& partial) final;
 
 	private:
-		static std::tuple<bool, time_t, fs::path> stat(
-		    fs::path const& root,
+		static std::tuple<bool, time_t, std::filesystem::path> stat(
+		    std::filesystem::path const& root,
 		    std::string const& tmplt_name);
-		std::pair<bool, fs::path> stat(std::string const& tmplt_name);
-		std::string read(fs::path const&);
+		std::pair<bool, std::filesystem::path> stat(
+		    std::string const& tmplt_name);
+		std::string read(std::filesystem::path const&);
 
-		fs::path m_installed_templates;
+		std::filesystem::path m_installed_templates;
 #ifndef NDEBUG
-		fs::path m_srcdir_templates;
+		std::filesystem::path m_srcdir_templates;
 #endif
 	};
 
@@ -40,7 +45,7 @@ namespace lngs::app {
 
 	int write_mstch(diags::outstream& out,
 	                const idl_strings& defs,
-	                std::optional<fs::path> const& redirected,
+	                std::optional<std::filesystem::path> const& redirected,
 	                std::string const& tmplt_name,
 	                mstch::map initial = {},
 	                str_transform const& stringify = {});

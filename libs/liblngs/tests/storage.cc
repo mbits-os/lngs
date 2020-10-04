@@ -4,7 +4,7 @@
 #include <lngs/lngs_storage.hpp>
 #include "lang_file_helpers.h"
 
-extern fs::path TESTING_data_path;
+extern std::filesystem::path TESTING_data_path;
 
 namespace lngs::storage::testing {
 	using namespace ::std::literals;

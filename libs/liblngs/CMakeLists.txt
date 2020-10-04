@@ -3,7 +3,6 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/lngs.pc.in ${CMAKE_CURRENT_BINARY_DIR
 
 set(liblngs_SRCS
 	src/expr_parser.cpp
-	src/file.cpp
 	src/lang_file.cpp
 	src/lngs_storage.cpp
 	src/plurals.cpp
@@ -11,7 +10,6 @@ set(liblngs_SRCS
 )
 
 set (liblngs_INCS
-	include/lngs/file.hpp
 	include/lngs/lngs.hpp
 	include/lngs/lngs_base.hpp
 	include/lngs/lngs_file.hpp

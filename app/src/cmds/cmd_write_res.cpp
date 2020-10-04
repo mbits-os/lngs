@@ -1,6 +1,7 @@
 // Copyright (c) 2015 midnightBITS
 // This code is licensed under MIT license (see LICENSE for details)
 
+#include <diags/streams.hpp>
 #include <lngs/internals/commands.hpp>
 #include <lngs/internals/languages.hpp>
 #include <lngs/internals/mstch_engine.hpp>
@@ -73,11 +74,12 @@ namespace lngs::app::res {
 		return file;
 	}
 
-	int update_and_write(diags::outstream& out,
-	                     file& data,
-	                     const idl_strings& defs,
-	                     std::string_view include,
-	                     std::optional<fs::path> const& redirected) {
+	int update_and_write(
+	    diags::outstream& out,
+	    file& data,
+	    const idl_strings& defs,
+	    std::string_view include,
+	    std::optional<std::filesystem::path> const& redirected) {
 		auto resource = mstch::lambda{[&]() -> mstch::node {
 			table_outstream os{};
 			data.write(os);

@@ -746,7 +746,7 @@ namespace lngs::app {
 	}
 
 	bool read_strings(const std::string& progname,
-	                  const fs::path& inname,
+	                  const std::filesystem::path& inname,
 	                  idl_strings& str,
 	                  bool verbose,
 	                  diags::sources& diag) {

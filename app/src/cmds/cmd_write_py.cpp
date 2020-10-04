@@ -7,7 +7,7 @@
 namespace lngs::app::py {
 	int write(diags::outstream& out,
 	          const idl_strings& defs,
-	          std::optional<fs::path> const& redirected) {
+	          std::optional<std::filesystem::path> const& redirected) {
 		return write_mstch(out, defs, redirected, "py");
 	}
 }  // namespace lngs::app::py

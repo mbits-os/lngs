@@ -3,39 +3,42 @@
 
 #pragma once
 
+#include <filesystem>
 #include <functional>
-#include <lngs/file.hpp>
 #include <lngs/lngs_file.hpp>
 #include <map>
 #include <vector>
 
 namespace lngs {
+	using path = std::filesystem::path;
 	namespace manager {
 		// uses base and filename to generate paths "<base>/<lng>/<filename>"
 		class SubdirPath {
-			fs::path m_base;
-			fs::path m_fname;
+			std::filesystem::path m_base;
+			std::filesystem::path m_fname;
 
 		public:
-			explicit SubdirPath(fs::path base, std::string fname)
+			explicit SubdirPath(std::filesystem::path base, std::string fname)
 			    : m_base(std::move(base)), m_fname(std::move(fname)) {}
 
-			fs::path expand(const std::string& lng) const {
+			std::filesystem::path expand(const std::string& lng) const {
 				return m_base / lng / m_fname;
 			}
 
-			std::vector<fs::path> known() const {
-				std::vector<fs::path> out;
+			std::vector<std::filesystem::path> known() const {
+				std::vector<std::filesystem::path> out;
 
-				for (auto& entry : fs::directory_iterator{m_base}) {
-					fs::error_code ec;
+				for (auto& entry :
+				     std::filesystem::directory_iterator{m_base}) {
+					std::error_code ec;
 					auto stat = entry.status(ec);
 					if (ec) continue;
 
-					if (!fs::is_directory(stat)) continue;
+					if (!std::filesystem::is_directory(stat)) continue;
 
 					auto full = entry.path() / m_fname;
-					if (fs::is_regular_file(full)) out.push_back(full);
+					if (std::filesystem::is_regular_file(full))
+						out.push_back(full);
 				};
 
 				return out;
@@ -44,27 +47,29 @@ namespace lngs {
 
 		// uses base and filename to generate paths "<base>/<filename>.<lng>"
 		class ExtensionPath {
-			fs::path m_base;
+			std::filesystem::path m_base;
 			std::string m_fname;
 
 		public:
-			explicit ExtensionPath(fs::path base, std::string fname)
+			explicit ExtensionPath(std::filesystem::path base,
+			                       std::string fname)
 			    : m_base(std::move(base)), m_fname(std::move(fname)) {}
 
-			fs::path expand(const std::string& lng) const {
+			std::filesystem::path expand(const std::string& lng) const {
 				static std::string dot{"."};
 				return m_base / (m_fname + dot + lng);
 			}
 
-			std::vector<fs::path> known() const {
-				std::vector<fs::path> out;
+			std::vector<std::filesystem::path> known() const {
+				std::vector<std::filesystem::path> out;
 
-				for (auto& entry : fs::directory_iterator{m_base}) {
-					fs::error_code ec;
+				for (auto& entry :
+				     std::filesystem::directory_iterator{m_base}) {
+					std::error_code ec;
 					auto stat = entry.status(ec);
 					if (ec) continue;
 
-					if (!fs::is_regular_file(stat)) continue;
+					if (!std::filesystem::is_regular_file(stat)) continue;
 
 					auto fname = entry.path().filename().replace_extension();
 					if (fname == m_fname) out.push_back(entry.path());
@@ -91,8 +96,9 @@ namespace lngs {
 	class translation {
 		struct manager_t {
 			virtual ~manager_t() {}
-			virtual fs::path expand(const std::string& lng) const = 0;
-			virtual std::vector<fs::path> known() const = 0;
+			virtual std::filesystem::path expand(
+			    const std::string& lng) const = 0;
+			virtual std::vector<std::filesystem::path> known() const = 0;
 		};
 
 		template <typename T>
@@ -103,24 +109,25 @@ namespace lngs {
 			template <typename... Args>
 			explicit manager_impl(Args&&... args)
 			    : info(std::forward<Args>(args)...) {}
-			fs::path expand(const std::string& lng) const override {
+			std::filesystem::path expand(
+			    const std::string& lng) const override {
 				return info.expand(lng);
 			}
 
-			std::vector<fs::path> known() const override {
+			std::vector<std::filesystem::path> known() const override {
 				return info.known();
 			}
 		};
 
 		std::unique_ptr<manager_t> m_path_mgr;
-		fs::path m_path;
+		std::filesystem::path m_path;
 		memory_block m_data;
 		lang_file m_file;
-		fs::file_time_type m_mtime;
+		std::filesystem::file_time_type m_mtime;
 
-		fs::file_time_type mtime() const noexcept {
-			fs::error_code ec;
-			auto time = fs::last_write_time(m_path, ec);
+		std::filesystem::file_time_type mtime() const noexcept {
+			std::error_code ec;
+			auto time = std::filesystem::last_write_time(m_path, ec);
 			if (ec) return decltype(time){};
 			return time;
 		}
@@ -136,7 +143,8 @@ namespace lngs {
 		using identifier = lang_file::identifier;
 		using quantity = lang_file::quantity;
 
-		static memory_block open_file(const fs::path& path) noexcept;
+		static memory_block open_file(
+		    const std::filesystem::path& path) noexcept;
 		template <typename T, typename... Args>
 		void path_manager(Args&&... args) {
 			m_path_mgr =

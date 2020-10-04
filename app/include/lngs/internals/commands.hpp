@@ -4,7 +4,7 @@
 #pragma once
 
 #include <cstddef>
-#include <lngs/file.hpp>
+#include <filesystem>
 #include <optional>
 #include <tuple>
 #include <vector>
@@ -33,21 +33,21 @@ namespace lngs::app::pot {
 	int year_from_template(diags::source_code file);
 	int write(diags::outstream& out,
 	          const idl_strings& defs,
-	          std::optional<fs::path> const& redirected,
+	          std::optional<std::filesystem::path> const& redirected,
 	          const info& nfo);
 }  // namespace lngs::app::pot
 
 namespace lngs::app::enums {
 	int write(diags::outstream& out,
 	          const idl_strings& defs,
-	          std::optional<fs::path> const& redirected,
+	          std::optional<std::filesystem::path> const& redirected,
 	          bool with_resource);
 }
 
 namespace lngs::app::py {
 	int write(diags::outstream& out,
 	          const idl_strings& defs,
-	          std::optional<fs::path> const& redirected);
+	          std::optional<std::filesystem::path> const& redirected);
 }
 
 namespace lngs::app::make {
@@ -66,11 +66,12 @@ namespace lngs::app::res {
 	file make_resource(const idl_strings& defs,
 	                   bool warp_strings,
 	                   bool with_keys);
-	int update_and_write(diags::outstream& out,
-	                     file& data,
-	                     const idl_strings& defs,
-	                     std::string_view include,
-	                     std::optional<fs::path> const& redirected);
+	int update_and_write(
+	    diags::outstream& out,
+	    file& data,
+	    const idl_strings& defs,
+	    std::string_view include,
+	    std::optional<std::filesystem::path> const& redirected);
 }  // namespace lngs::app::res
 
 namespace lngs::app::freeze {

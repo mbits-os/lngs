@@ -2,7 +2,6 @@
 // This code is licensed under MIT license (see LICENSE for details)
 
 #pragma once
-#include <lngs/file.hpp>
 #include <vector>
 
 namespace diags {
@@ -35,7 +34,7 @@ namespace lngs::app {
 	                  idl_strings& str,
 	                  diags::sources& diag);
 	bool read_strings(const std::string& progname,
-	                  const fs::path& inname,
+	                  const std::filesystem::path& inname,
 	                  idl_strings& str,
 	                  bool verbose,
 	                  diags::sources& diag);

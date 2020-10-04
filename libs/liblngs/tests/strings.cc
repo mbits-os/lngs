@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <lngs/lngs.hpp>
 
-extern fs::path TESTING_data_path;
+extern std::filesystem::path TESTING_data_path;
 
 namespace lngs::testing {
 	using namespace ::std::literals;

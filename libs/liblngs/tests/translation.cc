@@ -2,7 +2,7 @@
 #include <lngs/translation.hpp>
 #include "lang_file_helpers.h"
 
-extern fs::path TESTING_data_path;
+extern std::filesystem::path TESTING_data_path;
 
 namespace lngs {
 	class translation_tests {
@@ -38,7 +38,7 @@ namespace lngs::testing {
 	};
 
 	struct translation : TestWithParam<tr_info> {
-		static void write_strings(const fs::path& dst,
+		static void write_strings(const std::filesystem::path& dst,
 		                          const app::idl_strings& defs,
 		                          const helper::attrs_t& attrs,
 		                          bool with_keys = true) {
@@ -52,13 +52,15 @@ namespace lngs::testing {
 				auto testset_2 = TESTING_data_path / "testset2.sub";
 
 				try {
-					fs::create_directories(testset_1 / "wibbly-WOBBLY");
-					fs::create_directories(testset_2 / "foo");
-					fs::create_directories(testset_2 / "bar");
-					fs::create_directories(testset_2 / "fred-XYZZY");
-					fs::create_directories(testset_2 / "baz-QUUX" /
-					                       "wibbly-WOBBLY");
-				} catch (fs::filesystem_error& err) {
+					std::filesystem::create_directories(testset_1 /
+					                                    "wibbly-WOBBLY");
+					std::filesystem::create_directories(testset_2 / "foo");
+					std::filesystem::create_directories(testset_2 / "bar");
+					std::filesystem::create_directories(testset_2 /
+					                                    "fred-XYZZY");
+					std::filesystem::create_directories(testset_2 / "baz-QUUX" /
+					                                    "wibbly-WOBBLY");
+				} catch (std::filesystem::filesystem_error& err) {
 					std::cerr << "error: " << err.what() << '\n';
 					std::exit(1);
 				}
@@ -136,14 +138,6 @@ namespace lngs::testing {
 
 				write_strings(testset_1 / "pkg1.baz-QUUX", pkg1_foo, foo);
 				write_strings(testset_2 / "baz-QUUX" / "pkg1", pkg1_foo, foo);
-				fs::fopen(testset_2 / "baz-QUUX" / "pkg2", "w");
-
-				fs::fopen(testset_1 / "package1.timey-WIMEY", "w");
-				fs::fopen(testset_2 / "baz-QUUX" / "package1.timey-WIMEY", "w");
-				fs::fopen(testset_1 / "wibbly-WOBBLY" / "stuff", "w");
-				fs::fopen(testset_2 / "baz-QUUX" / "wibbly-WOBBLY" / "stuff",
-				          "w");
-				fs::fopen(testset_2 / "baz-QUUX.stuff", "w");
 			}
 		}
 	};

@@ -2,18 +2,21 @@
 // This code is licensed under MIT license (see LICENSE for details)
 
 #include <sys/stat.h>
+#include <diags/streams.hpp>
 #include <lngs/internals/mstch_engine.hpp>
 #include "build.hpp"
 
 namespace lngs::app {
 	namespace {
-		fs::path get_install_dir(std::optional<fs::path> const& redirected) {
+		std::filesystem::path get_install_dir(
+		    std::optional<std::filesystem::path> const& redirected) {
 			return redirected ? *redirected / "templates"
 			                  : app::build::directory_info::mstch_install;
 		}
 	}  // namespace
 
-	mstch_engine::mstch_engine(std::optional<fs::path> const& redirected)
+	mstch_engine::mstch_engine(
+	    std::optional<std::filesystem::path> const& redirected)
 	    : m_installed_templates(get_install_dir(redirected))
 #ifndef NDEBUG
 	    , m_srcdir_templates(app::build ::directory_info::mstch_build)
@@ -21,8 +24,8 @@ namespace lngs::app {
 	{
 	}
 
-	std::tuple<bool, time_t, fs::path> mstch_engine::stat(
-	    fs::path const& root,
+	std::tuple<bool, time_t, std::filesystem::path> mstch_engine::stat(
+	    std::filesystem::path const& root,
 	    std::string const& tmplt_name) {
 		std::error_code ec;
 		auto path = root / (tmplt_name + ".mustache");
@@ -34,7 +37,7 @@ namespace lngs::app {
 		return {true, st.st_mtime, std::move(path)};
 	}
 
-	std::pair<bool, fs::path> mstch_engine::stat(
+	std::pair<bool, std::filesystem::path> mstch_engine::stat(
 	    std::string const& tmplt_name) {
 		auto [installed_exists, installed, installed_path] =
 		    stat(m_installed_templates, tmplt_name);
@@ -48,8 +51,8 @@ namespace lngs::app {
 		return {installed_exists, installed_path};
 	}
 
-	std::string mstch_engine::read(fs::path const& path) {
-		auto file = fs::fopen(path);
+	std::string mstch_engine::read(std::filesystem::path const& path) {
+		auto file = diags::fs::fopen(path);
 		if (!file) return {};
 		auto const data = file.read();
 		return {reinterpret_cast<char const*>(data.data()), data.size()};
@@ -86,7 +89,7 @@ namespace lngs::app {
 
 	int write_mstch(diags::outstream& out,
 	                const idl_strings& defs,
-	                std::optional<fs::path> const& redirected,
+	                std::optional<std::filesystem::path> const& redirected,
 	                std::string const& tmplt_name,
 	                mstch::map ctx,
 	                str_transform const& stringify) {

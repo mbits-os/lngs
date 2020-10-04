@@ -1,6 +1,5 @@
 #pragma once
 
-#include <lngs/file.hpp>
 #include <lngs/lngs_file.hpp>
 
 #include <diags/streams.hpp>

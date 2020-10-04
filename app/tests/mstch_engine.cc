@@ -1,4 +1,5 @@
 #include <gtest/gtest.h>
+#include <diags/streams.hpp>
 #include <lngs/internals/mstch_engine.hpp>
 
 namespace lngs::app::testing {

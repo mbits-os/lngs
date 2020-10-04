@@ -2,7 +2,7 @@
 #include "diag_helper.h"
 #include "strings_helper.h"
 
-extern fs::path TESTING_data_path;
+extern std::filesystem::path TESTING_data_path;
 
 namespace lngs::app::testing {
 	using namespace ::std::literals;

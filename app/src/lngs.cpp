@@ -72,7 +72,7 @@ namespace lngs::app {
 	template <typename Writer>
 	int write(const std::string& progname,
 	          diags::sources& diag,
-	          const fs::path& outname,
+	          const std::filesystem::path& outname,
 	          Writer writer,
 	          print_outname verbose = without_outname) {
 		if (outname == "-") return writer(diags::get_stdout());
@@ -113,7 +113,7 @@ namespace lngs::app {
 		}
 
 		int read_strings(args::parser& parser,
-		                 const fs::path& in,
+		                 const std::filesystem::path& in,
 		                 bool verbose) {
 			return app::read_strings(parser.program(), in, strings, verbose,
 			                         diag)
@@ -123,7 +123,7 @@ namespace lngs::app {
 
 		template <typename Writer>
 		int write(args::parser& parser,
-		          const fs::path& outname,
+		          const std::filesystem::path& outname,
 		          Writer writer,
 		          print_outname verbose = without_outname) {
 			return app::write(parser.program(), diag, outname,
@@ -132,7 +132,7 @@ namespace lngs::app {
 	};
 
 	struct main_strings : public translator_type, public args::base_translator {
-		main_strings(std::optional<fs::path> const& redirected)
+		main_strings(std::optional<std::filesystem::path> const& redirected)
 		    : m_redirected{redirected} {
 			if (m_redirected) {
 				m_install.path_manager<manager::SubdirPath>(
@@ -158,7 +158,8 @@ namespace lngs::app {
 			}();
 		}
 
-		std::optional<fs::path> const& redirected() const noexcept {
+		std::optional<std::filesystem::path> const& redirected()
+		    const noexcept {
 			return m_redirected;
 		}
 
@@ -230,7 +231,7 @@ namespace lngs::app {
 			}
 		} m_build;
 
-		std::optional<fs::path> m_redirected;
+		std::optional<std::filesystem::path> m_redirected;
 	};
 }  // namespace lngs::app
 
@@ -288,7 +289,7 @@ namespace lngs::app {
 }
 
 int main(int argc, XChar* argv[]) {
-	std::optional<fs::path> redirected_share{};
+	std::optional<std::filesystem::path> redirected_share{};
 
 	{
 		auto noop = [] {};
@@ -345,7 +346,7 @@ int main(int argc, XChar* argv[]) {
 
 namespace lngs::app::pot {
 	int call(args::parser& parser, locale_setup& setup) {
-		fs::path inname, outname;
+		std::filesystem::path inname, outname;
 		bool verbose = false;
 		info nfo;
 
@@ -388,7 +389,7 @@ namespace lngs::app::pot {
 
 namespace lngs::app::enums {
 	int call(args::parser& parser, locale_setup& setup) {
-		fs::path inname, outname;
+		std::filesystem::path inname, outname;
 		bool verbose = false;
 		bool with_resource = false;
 
@@ -422,7 +423,7 @@ namespace lngs::app::enums {
 
 namespace lngs::app::py {
 	int call(args::parser& parser, locale_setup& setup) {
-		fs::path inname, outname;
+		std::filesystem::path inname, outname;
 		bool verbose = false;
 
 		auto _ = [&setup](auto id) { return setup.tr.get(id); };
@@ -451,7 +452,7 @@ namespace lngs::app::py {
 
 namespace lngs::app::make {
 	int call(args::parser& parser, locale_setup& setup) {
-		fs::path inname, outname;
+		std::filesystem::path inname, outname;
 		std::string moname, llname;
 		bool verbose = false;
 		bool warp_missing = false;
@@ -500,7 +501,7 @@ namespace lngs::app::make {
 
 namespace lngs::app::res {
 	int call(args::parser& parser, locale_setup& setup) {
-		fs::path inname, outname;
+		std::filesystem::path inname, outname;
 		bool verbose = false;
 		bool warp_strings = false;
 		bool with_keys = false;
@@ -547,7 +548,7 @@ namespace lngs::app::res {
 
 namespace lngs::app::freeze {
 	int call(args::parser& parser, locale_setup& setup) {
-		fs::path inname, outname;
+		std::filesystem::path inname, outname;
 		bool verbose = false;
 
 		auto _ = [&setup](auto id) { return setup.tr.get(id); };

@@ -3,10 +3,8 @@
 
 #pragma once
 
-#include <lngs/file.hpp>
-
 namespace lngs::app::build {
-	fs::path get_exec_dir();
+	std::filesystem::path get_exec_dir();
 
 	// clang-format off
 	struct directory_info {

@@ -2,7 +2,6 @@
 // This code is licensed under MIT license (see LICENSE for details)
 
 #pragma once
-#include <lngs/file.hpp>
 #include <lngs/lngs_base.hpp>
 #include <map>
 #include <vector>

@@ -1,5 +1,4 @@
 #include <gtest/gtest.h>
-#include <lngs/file.hpp>
 #include <lngs/internals/commands.hpp>
 #include <lngs/internals/diagnostics.hpp>
 #include <lngs/internals/gettext.hpp>
@@ -10,7 +9,7 @@
 
 #include <optional>
 
-extern fs::path TESTING_data_path;
+extern std::filesystem::path TESTING_data_path;
 
 namespace lngs::app::testing {
 	using namespace ::std::literals;
@@ -130,7 +129,7 @@ msgstr "a\gb\\f\"n\'r\?t\[\]v")");
 			if (!po_file)
 				GTEST_FAIL() << "  failed to open:\n    " << po.string()
 				             << "\n  canonical:\n    "
-				             << ::fs::weakly_canonical(po).string();
+				             << std::filesystem::weakly_canonical(po).string();
 		}
 
 		sources diags;
