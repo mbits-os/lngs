@@ -1,1 +1,1 @@
-{"name": "0003: Version", "args": ["-v"], "expected": [0, "lngs 0.4.3\n", ""]}
+{"name": "0003: Version", "args": ["-v"], "expected": [0, "lngs 0.5.0\n", ""]}
