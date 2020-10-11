@@ -19,49 +19,7 @@ using XChar = wchar_t;
 using XChar = char;
 #endif
 
-namespace lngs::app {
-	template <typename StringsImpl>
-	struct setup_base;
-	struct main_strings;
-
-	using application_setup = setup_base<main_strings>;
-
-	namespace pot {
-		int call(application_setup&);
-	}
-	namespace enums {
-		int call(application_setup&);
-	}
-	namespace py {
-		int call(application_setup&);
-	}
-	namespace make {
-		int call(application_setup&);
-	}
-	namespace res {
-		int call(application_setup&);
-	}
-	namespace freeze {
-		int call(application_setup&);
-	}
-}  // namespace lngs::app
-
 using lngs::app::lng;
-
-struct command {
-	const char* name;
-	const lng description;
-	int (*call)(lngs::app::application_setup&);
-};
-
-command commands[] = {
-    {"make", lng::ARGS_APP_DESCR_CMD_MAKE, lngs::app::make::call},
-    {"pot", lng::ARGS_APP_DESCR_CMD_POT, lngs::app::pot::call},
-    {"enums", lng::ARGS_APP_DESCR_CMD_ENUMS, lngs::app::enums::call},
-    {"py", lng::ARGS_APP_DESCR_CMD_PY, lngs::app::py::call},
-    {"res", lng::ARGS_APP_DESCR_CMD_RES, lngs::app::res::call},
-    {"freeze", lng::ARGS_APP_DESCR_CMD_FREEZE, lngs::app::freeze::call},
-};
 
 ENUM_TRAITS_BEGIN(diags::color)
 ENUM_TRAITS_NAME(never)
@@ -264,117 +222,9 @@ namespace lngs::app {
 
 		std::optional<std::filesystem::path> m_redirected;
 	};
+
+	using application_setup = setup_base<main_strings>;
 }  // namespace lngs::app
-
-[[noreturn]] void show_help(args::parser& p, lngs::app::main_strings& tr) {
-	auto _ = [&tr](auto id) { return tr.get(id); };
-	auto args = p.printer_arguments();
-	args.resize(args.size() + 1);
-	args.back().title = _(lng::ARGS_APP_KNOWN_CMDS);
-	args.back().items.reserve(sizeof(commands) / sizeof(commands[0]));
-	for (auto const& cmd : commands) {
-		auto view = _(cmd.description);
-		args.back().items.push_back({cmd.name, {view.data(), view.size()}});
-	}
-
-	p.short_help();
-	args::printer{stdout}.format_list(args);
-	fmt::print(R"(
-{}:
-
-1. {}:
-   > vim .idl
-   > git commit .idl
-2. {}:
-   > lngs enums
-   > lngs res
-   > git commit .hpp .cpp
-3. {}:
-   > msgfmt [optional]
-   > lngs enums
-   > lngs res
-   > lngs make
-   > git commit .hpp .cpp [optional]
-4. {}:
-   > msgmerge (or msginit)
-   > e.g. poedit .po
-   > git commit .po
-5. {}:
-   > msgfmt (opt)
-   > lngs make
-   > tar -c
-)",
-	           _(lng::ARGS_APP_FLOW_TITLE), _(lng::ARGS_APP_FLOW_ROLE_DEV_ADD),
-	           _(lng::ARGS_APP_FLOW_ROLE_DEV_COMPILE),
-	           _(lng::ARGS_APP_FLOW_ROLE_STRMGR),
-	           _(lng::ARGS_APP_FLOW_ROLE_TRANSLATOR),
-	           _(lng::ARGS_APP_FLOW_ROLE_DEV_RELEASE));
-
-	std::exit(0);
-}
-
-[[noreturn]] void show_version() {
-	using ver = lngs::app::build::version;
-	fmt::print("lngs {}{}\n", ver::string, ver::stability);
-	std::exit(0);
-}
-
-int main(int argc, XChar* argv[]) {
-	std::optional<std::filesystem::path> redirected_share{};
-
-	{
-		auto noop = [] {};
-		args::null_translator tr{};
-		args::parser base{{}, args::from_main(argc, argv), &tr};
-		base.usage({});
-		base.provide_help(false);
-		base.custom(noop, "h", "help").opt();
-		base.custom(noop, "v", "version").opt();
-		base.arg(redirected_share, "share");
-		base.parse(args::parser::allow_subcommands);
-	}
-
-	lngs::app::application_setup setup{redirected_share};
-
-	auto show_help_tr = [&setup](args::parser& p) { show_help(p, setup.tr); };
-	auto _ = [&setup](auto id) { return setup.tr.get(id); };
-	auto _s = [&_](auto id) {
-		auto view = _(id);
-		return std::string{view.data(), view.size()};
-	};
-
-	args::parser base{{}, args::from_main(argc, argv), &setup.tr};
-	base.usage(_(lng::ARGS_APP_DESCR_USAGE));
-	base.provide_help(false);
-	base.custom(show_help_tr, "h", "help")
-	    .help(_(lng::ARGS_HELP_DESCRIPTION))
-	    .opt();
-	base.custom(show_version, "v", "version")
-	    .help(_(lng::ARGS_APP_VERSION))
-	    .opt();
-	base.custom([](std::string const&) {}, "share")
-	    .meta(_(lng::ARGS_APP_META_DIR))
-	    .help(fmt::format(_(lng::ARGS_APP_SHARE_REDIR),
-	                      lngs::app::build::directory_info::data_dir))
-	    .opt();
-
-	auto const unparsed = base.parse(args::parser::allow_subcommands);
-	if (unparsed.empty()) base.error(_s(lng::ARGS_APP_NO_COMMAND));
-
-	auto const name = unparsed[0];
-	for (auto& cmd : commands) {
-		if (cmd.name != name) continue;
-
-		auto view = setup.tr.get(cmd.description);
-		setup.parser =
-		    args::parser{{view.data(), view.size()}, unparsed, &setup.tr};
-		setup.parser.program(base.program() + " " + setup.parser.program());
-
-		return cmd.call(setup);
-	}
-
-	base.error(fmt::format(_(lng::ARGS_APP_UNK_COMMAND), name));
-}
 
 namespace lngs::app::pot {
 	int call(application_setup& setup) {
@@ -533,3 +383,128 @@ namespace lngs::app::freeze {
 		});
 	}
 }  // namespace lngs::app::freeze
+
+struct command {
+	const char* name;
+	const lng description;
+	int (*call)(lngs::app::application_setup&);
+};
+
+command commands[] = {
+    {"make", lng::ARGS_APP_DESCR_CMD_MAKE, lngs::app::make::call},
+    {"pot", lng::ARGS_APP_DESCR_CMD_POT, lngs::app::pot::call},
+    {"enums", lng::ARGS_APP_DESCR_CMD_ENUMS, lngs::app::enums::call},
+    {"py", lng::ARGS_APP_DESCR_CMD_PY, lngs::app::py::call},
+    {"res", lng::ARGS_APP_DESCR_CMD_RES, lngs::app::res::call},
+    {"freeze", lng::ARGS_APP_DESCR_CMD_FREEZE, lngs::app::freeze::call},
+};
+
+[[noreturn]] void show_help(args::parser& p, lngs::app::main_strings& tr) {
+	auto _ = [&tr](auto id) { return tr.get(id); };
+	auto args = p.printer_arguments();
+	args.resize(args.size() + 1);
+	args.back().title = _(lng::ARGS_APP_KNOWN_CMDS);
+	args.back().items.reserve(sizeof(commands) / sizeof(commands[0]));
+	for (auto const& cmd : commands) {
+		auto view = _(cmd.description);
+		args.back().items.push_back({cmd.name, {view.data(), view.size()}});
+	}
+
+	p.short_help();
+	args::printer{stdout}.format_list(args);
+	fmt::print(R"(
+{}:
+
+1. {}:
+   > vim .idl
+   > git commit .idl
+2. {}:
+   > lngs enums
+   > lngs res
+   > git commit .hpp .cpp
+3. {}:
+   > msgfmt [optional]
+   > lngs enums
+   > lngs res
+   > lngs make
+   > git commit .hpp .cpp [optional]
+4. {}:
+   > msgmerge (or msginit)
+   > e.g. poedit .po
+   > git commit .po
+5. {}:
+   > msgfmt (opt)
+   > lngs make
+   > tar -c
+)",
+	           _(lng::ARGS_APP_FLOW_TITLE), _(lng::ARGS_APP_FLOW_ROLE_DEV_ADD),
+	           _(lng::ARGS_APP_FLOW_ROLE_DEV_COMPILE),
+	           _(lng::ARGS_APP_FLOW_ROLE_STRMGR),
+	           _(lng::ARGS_APP_FLOW_ROLE_TRANSLATOR),
+	           _(lng::ARGS_APP_FLOW_ROLE_DEV_RELEASE));
+
+	std::exit(0);
+}
+
+[[noreturn]] void show_version() {
+	using ver = lngs::app::build::version;
+	fmt::print("lngs {}{}\n", ver::string, ver::stability);
+	std::exit(0);
+}
+
+int main(int argc, XChar* argv[]) {
+	std::optional<std::filesystem::path> redirected_share{};
+
+	{
+		auto noop = [] {};
+		args::null_translator tr{};
+		args::parser base{{}, args::from_main(argc, argv), &tr};
+		base.usage({});
+		base.provide_help(false);
+		base.custom(noop, "h", "help").opt();
+		base.custom(noop, "v", "version").opt();
+		base.arg(redirected_share, "share");
+		base.parse(args::parser::allow_subcommands);
+	}
+
+	lngs::app::application_setup setup{redirected_share};
+
+	auto show_help_tr = [&setup](args::parser& p) { show_help(p, setup.tr); };
+	auto _ = [&setup](auto id) { return setup.tr.get(id); };
+	auto _s = [&_](auto id) {
+		auto view = _(id);
+		return std::string{view.data(), view.size()};
+	};
+
+	args::parser base{{}, args::from_main(argc, argv), &setup.tr};
+	base.usage(_(lng::ARGS_APP_DESCR_USAGE));
+	base.provide_help(false);
+	base.custom(show_help_tr, "h", "help")
+	    .help(_(lng::ARGS_HELP_DESCRIPTION))
+	    .opt();
+	base.custom(show_version, "v", "version")
+	    .help(_(lng::ARGS_APP_VERSION))
+	    .opt();
+	base.custom([](std::string const&) {}, "share")
+	    .meta(_(lng::ARGS_APP_META_DIR))
+	    .help(fmt::format(_(lng::ARGS_APP_SHARE_REDIR),
+	                      lngs::app::build::directory_info::data_dir))
+	    .opt();
+
+	auto const unparsed = base.parse(args::parser::allow_subcommands);
+	if (unparsed.empty()) base.error(_s(lng::ARGS_APP_NO_COMMAND));
+
+	auto const name = unparsed[0];
+	for (auto& cmd : commands) {
+		if (cmd.name != name) continue;
+
+		auto view = setup.tr.get(cmd.description);
+		setup.parser =
+		    args::parser{{view.data(), view.size()}, unparsed, &setup.tr};
+		setup.parser.program(base.program() + " " + setup.parser.program());
+
+		return cmd.call(setup);
+	}
+
+	base.error(fmt::format(_(lng::ARGS_APP_UNK_COMMAND), name));
+}
