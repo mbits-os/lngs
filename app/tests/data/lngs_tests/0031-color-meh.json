@@ -1,0 +1,1 @@
+{"name": "0031: Color=meh", "args": ["enums", "-i", "$DATA/unhelpful.idl", "-o-", "--color", "meh"], "expected": [2, "", "usage: lngs enums [-h] [-v] [--color <when>] -i <file> -o <file> [-r]\nlngs enums: error: argument --color: value meh is not recognized\nknown values for --color: never, always, auto\n"]}

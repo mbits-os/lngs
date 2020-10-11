@@ -133,7 +133,7 @@ msgstr "a\gb\\f\"n\'r\?t\[\]v")");
 		}
 
 		sources diags;
-		auto data = diags.open(po.string());
+		auto data = diags.open(po);
 		EXPECT_FALSE(gtt::is_mo(data));
 		auto actual = gtt::open_po(data, diags);
 		EXPECT_EQ(expected, actual);

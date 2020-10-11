@@ -757,7 +757,7 @@ namespace lngs::app {
 		if (verbose)
 			diag.push_back(src[diags::severity::verbose] << inname.string());
 
-		auto inf = diag.open(inname.string());
+		auto inf = diag.open(inname);
 
 		if (!inf.valid()) {
 			diag.push_back(src[diags::severity::error]

@@ -40,7 +40,7 @@ namespace lngs {
 #endif
 
 #else  // WIN32 || _WIN32
-			return file{std::fopen(path.string().c_str(), mode)};
+			return file{std::fopen(path.native().c_str(), mode)};
 #endif
 		}
 

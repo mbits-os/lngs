@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: lngs 0.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-09-26 10:24+0200\n"
-"PO-Revision-Date: 2020-09-26 10:26+0200\n"
+"POT-Creation-Date: 2020-10-11 18:49+0200\n"
+"PO-Revision-Date: 2020-10-11 18:49+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: pl\n"
@@ -32,6 +32,13 @@ msgstr ""
 msgctxt "ARGS_APP_AUTHOR"
 msgid "sets the name and email address of first author"
 msgstr "ustawia imię, nazwisko i adres email pierwszego autora"
+
+#. Description for 'color' argument; <when> should translated the same, as ARGS_APP_META_WHEN, words 'never', 'always', and 'auto' should be left unchanged
+msgctxt "ARGS_APP_COLOR"
+msgid "uses color in diagnostics; <when> is 'never', 'always', or 'auto'"
+msgstr ""
+"wykorzystuje kolor w diagnostyce; <kiedy> może mieć wartość 'never' (nigdy), "
+"'always' (zawsze), lub 'auto'"
 
 #. Description for 'copyright' argument
 msgctxt "ARGS_APP_COPYRIGHT"
@@ -152,6 +159,11 @@ msgstr "<plik gettext>"
 msgctxt "ARGS_APP_META_TITLE"
 msgid "<title>"
 msgstr "<tytuł>"
+
+#. Name of argument holding always/never/auto value
+msgctxt "ARGS_APP_META_WHEN"
+msgid "<when>"
+msgstr "<kiedy>"
 
 #. Error message displayed, when a command is missing in the command line
 msgctxt "ARGS_APP_NO_COMMAND"
@@ -279,6 +291,21 @@ msgstr "pokazuje ten komunikat pomocy i wychodzi"
 msgctxt "ARGS_NEEDED_NUMBER_EXCEEDED"
 msgid "argument {0}: number outside of expected bounds"
 msgstr "argument {0}: liczba poza oczekiwanym zakresem"
+
+#. Help message presenting a list of possible values for a list-type argument
+msgctxt "ARGS_NEEDS_ENUM_KNOWN_VALUES"
+msgid "known values for {0}: {1}"
+msgstr "znane wartości dla {0}: {1}"
+
+#. Error message for a list of arguments, when parsing failed
+msgctxt "ARGS_NEEDS_ENUM_UNKNOWN"
+msgid "argument {0}: value {1} is not recognized"
+msgstr "argument {0}: wartość {1} jest nierozpoznana"
+
+#. Error message for unneeded value
+msgctxt "ARGS_NEEDS_NO_PARAM"
+msgid "argument {0}: value was not expected"
+msgstr "argument {0}: wartość nie była oczekiwana"
 
 #. Error message for a numeric argument, when parsing failed
 msgctxt "ARGS_NEEDS_NUMBER"

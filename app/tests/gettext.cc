@@ -294,7 +294,7 @@ namespace lngs::app::testing {
 		}
 
 		sources diags;
-		auto data = diags.open(mo.string(), "rb");
+		auto data = diags.open(mo, "rb");
 		if (is_mo) {
 			data.data();
 			data.seek(0);
@@ -403,16 +403,16 @@ namespace lngs::app::testing {
 		auto mo = TESTING_data_path / filename;
 
 		sources diag;
-		auto actual = make::load_msgs(strings, warp == Result::Warped,
-		                              verbose == Reporting::Verbose,
-		                              diag.open(mo.string()), diag);
+		auto actual =
+		    make::load_msgs(strings, warp == Result::Warped,
+		                    verbose == Reporting::Verbose, diag.open(mo), diag);
 
 		EXPECT_EQ(expected.serial, actual.serial);
 		ExpectEq(expected.attrs, actual.attrs, "attr");
 		ExpectEq(expected.strings, actual.strings, "strings");
 		ExpectEq(expected.keys, actual.keys, "keys");
 		ExpectDiagsEq(msgs, diag.diagnostic_set(),
-		              diag.source(mo.string()).position().token);
+		              diag.source(mo).position().token);
 	}
 
 	struct mo_fix : public TestWithDiagnostics<TestWithParam<mo_fix_param>> {};
@@ -432,7 +432,7 @@ namespace lngs::app::testing {
 		if (!ll_cc.empty()) {
 			llcc = TESTING_data_path;
 			llcc /= ll_cc;
-			diag.open(llcc.string());
+			diag.open(llcc);
 		}
 		auto actual_result =
 		    make::fix_attributes(actual, mo, llcc.string(), diag);

@@ -20,10 +20,16 @@ namespace lngs::app {
         ARGS_UNRECOGNIZED = 505,
         /// argument {0}: expected one argument (Error message for a missing argument)
         ARGS_NEEDS_PARAM = 506,
+        /// argument {0}: value was not expected (Error message for unneeded value)
+        ARGS_NEEDS_NO_PARAM = 1039,
         /// argument {0}: expected a number (Error message for a numeric argument, when parsing failed)
         ARGS_NEEDS_NUMBER = 507,
         /// argument {0}: number outside of expected bounds (Error message for a numeric argument, when parsing would get outside of representable bounds)
         ARGS_NEEDED_NUMBER_EXCEEDED = 508,
+        /// argument {0}: value {1} is not recognized (Error message for a list of arguments, when parsing failed)
+        ARGS_NEEDS_ENUM_UNKNOWN = 1040,
+        /// known values for {0}: {1} (Help message presenting a list of possible values for a list-type argument)
+        ARGS_NEEDS_ENUM_KNOWN_VALUES = 1041,
         /// argument {0} is required (Error message for a missing required argument)
         ARGS_REQUIRED = 509,
         /// {0}: error: {1} (Error message template; placeholder 0 will get the name of program, placeholder 1 an actual message)
@@ -60,6 +66,8 @@ namespace lngs::app {
         ARGS_APP_NO_COMMAND = 525,
         /// unknown command: {0} (Error message displayed, when a command from command line is not recognized)
         ARGS_APP_UNK_COMMAND = 526,
+        /// <when> (Name of argument holding always/never/auto value)
+        ARGS_APP_META_WHEN = 1042,
         /// <file> (Name of argument holding a file name)
         ARGS_APP_META_FILE = 527,
         /// <holder> (Name of argument for rights holder)
@@ -74,6 +82,8 @@ namespace lngs::app {
         ARGS_APP_META_DIR = 1032,
         /// shows program version and exits (Description for 'version' argument)
         ARGS_APP_VERSION = 532,
+        /// uses color in diagnostics; <when> is 'never', 'always', or 'auto' (Description for 'color' argument; <when> should translated the same, as ARGS_APP_META_WHEN, words 'never', 'always', and 'auto' should be left unchanged)
+        ARGS_APP_COLOR = 1043,
         /// replaces {0} as new data directory (Description for 'share' argument)
         ARGS_APP_SHARE_REDIR = 1033,
         /// shows more info (Description for 'verbose' argument)
@@ -189,7 +199,7 @@ namespace lngs::app {
         static std::size_t size();
     };
 
-    using Strings = lngs::SingularStrings<lng, lngs::VersionedFile<6,
+    using Strings = lngs::SingularStrings<lng, lngs::VersionedFile<7,
         lngs::storage::FileWithBuiltin<Resource>>>;
 } // namespace lngs::app
 // clang-format on

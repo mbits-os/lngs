@@ -33,6 +33,8 @@ namespace diags::testing {
 				return "unrecognized argument: {0}";
 			case lng::ARGS_NEEDS_PARAM:
 				return "argument {0}: expected one argument";
+			case lng::ARGS_NEEDS_NO_PARAM:
+				return "argument {0}: value was not expected";
 			case lng::ARGS_NEEDS_NUMBER:
 				return "argument {0}: expected a number";
 			case lng::ARGS_NEEDED_NUMBER_EXCEEDED:
@@ -208,6 +210,15 @@ namespace diags::testing {
 				return "unrecognized field `{0}'";
 			case lng::ERR_GETTEXT_UNRECOGNIZED_ESCAPE:
 				return "unrecognized escape sequence `\\{0}'";
+			case lng::ARGS_NEEDS_ENUM_UNKNOWN:
+				return "argument {0}: value {1} is not recognized";
+			case lng::ARGS_NEEDS_ENUM_KNOWN_VALUES:
+				return "known values for {0}: {1}";
+			case lng::ARGS_APP_META_WHEN:
+				return "<when>";
+			case lng::ARGS_APP_COLOR:
+				return "uses color in diagnostics; <when> is 'never', "
+				       "'always', or 'auto'";
 		}
 		return "";
 	}
@@ -228,6 +239,8 @@ namespace diags::testing {
 				return "ARGS_UNRECOGNIZED({0})";
 			case lng::ARGS_NEEDS_PARAM:
 				return "ARGS_NEEDS_PARAM({0})";
+			case lng::ARGS_NEEDS_NO_PARAM:
+				return "ARGS_NEEDS_NO_PARAM({0})";
 			case lng::ARGS_NEEDS_NUMBER:
 				return "ARGS_NEEDS_NUMBER({0})";
 			case lng::ARGS_NEEDED_NUMBER_EXCEEDED:
@@ -390,6 +403,14 @@ namespace diags::testing {
 				return "ERR_GETTEXT_UNRECOGNIZED_FIELD({0})";
 			case lng::ERR_GETTEXT_UNRECOGNIZED_ESCAPE:
 				return "ERR_GETTEXT_UNRECOGNIZED_ESCAPE({0})";
+			case lng::ARGS_NEEDS_ENUM_UNKNOWN:
+				return "ARGS_NEEDS_ENUM_UNKNOWN({0}, {1})";
+			case lng::ARGS_NEEDS_ENUM_KNOWN_VALUES:
+				return "ARGS_NEEDS_ENUM_KNOWN_VALUES({0}, {1})";
+			case lng::ARGS_APP_META_WHEN:
+				return "ARGS_APP_META_WHEN";
+			case lng::ARGS_APP_COLOR:
+				return "ARGS_APP_COLOR";
 		}
 		return "";
 	}
@@ -406,6 +427,7 @@ namespace diags::testing {
 			NAME(ARGS_HELP_DESCRIPTION);
 			NAME(ARGS_UNRECOGNIZED);
 			NAME(ARGS_NEEDS_PARAM);
+			NAME(ARGS_NEEDS_NO_PARAM);
 			NAME(ARGS_NEEDS_NUMBER);
 			NAME(ARGS_NEEDED_NUMBER_EXCEEDED);
 			NAME(ARGS_REQUIRED);
@@ -487,6 +509,10 @@ namespace diags::testing {
 			NAME(ERR_GETTEXT_NOT_ASCIIZ);
 			NAME(ERR_GETTEXT_UNRECOGNIZED_FIELD);
 			NAME(ERR_GETTEXT_UNRECOGNIZED_ESCAPE);
+			NAME(ARGS_NEEDS_ENUM_UNKNOWN);
+			NAME(ARGS_NEEDS_ENUM_KNOWN_VALUES);
+			NAME(ARGS_APP_META_WHEN);
+			NAME(ARGS_APP_COLOR);
 #undef NAME
 		};
 		return "???";

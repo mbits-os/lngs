@@ -21,28 +21,28 @@ using XChar = char;
 
 namespace lngs::app {
 	template <typename StringsImpl>
-	struct locale_base;
+	struct setup_base;
 	struct main_strings;
 
-	using locale_setup = locale_base<main_strings>;
+	using application_setup = setup_base<main_strings>;
 
 	namespace pot {
-		int call(args::parser&, locale_setup&);
+		int call(application_setup&);
 	}
 	namespace enums {
-		int call(args::parser&, locale_setup&);
+		int call(application_setup&);
 	}
 	namespace py {
-		int call(args::parser&, locale_setup&);
+		int call(application_setup&);
 	}
 	namespace make {
-		int call(args::parser&, locale_setup&);
+		int call(application_setup&);
 	}
 	namespace res {
-		int call(args::parser&, locale_setup&);
+		int call(application_setup&);
 	}
 	namespace freeze {
-		int call(args::parser&, locale_setup&);
+		int call(application_setup&);
 	}
 }  // namespace lngs::app
 
@@ -51,7 +51,7 @@ using lngs::app::lng;
 struct command {
 	const char* name;
 	const lng description;
-	int (*call)(args::parser&, lngs::app::locale_setup&);
+	int (*call)(lngs::app::application_setup&);
 };
 
 command commands[] = {
@@ -62,6 +62,12 @@ command commands[] = {
     {"res", lng::ARGS_APP_DESCR_CMD_RES, lngs::app::res::call},
     {"freeze", lng::ARGS_APP_DESCR_CMD_FREEZE, lngs::app::freeze::call},
 };
+
+ENUM_TRAITS_BEGIN(diags::color)
+ENUM_TRAITS_NAME(never)
+ENUM_TRAITS_NAME(always)
+ENUM_TRAITS_NAME_EX(enum_stg::automatic, "auto")
+ENUM_TRAITS_END(diags::color)
 
 namespace lngs::app {
 	enum print_outname { with_outname = true, without_outname = false };
@@ -96,38 +102,65 @@ namespace lngs::app {
 		return writer(out);
 	}
 
+	struct arguments {
+		std::filesystem::path inname;
+		std::filesystem::path outname;
+		bool verbose = false;
+		diags::color color_type{diags::color::never};
+
+		template <typename Translator>
+		void setup_parser(args::parser& parser,
+		                  lng inname_usage,
+		                  lng outname_usage,
+		                  Translator _) {
+			parser.set<std::true_type>(verbose, "v", "verbose")
+			    .help(_(lng::ARGS_APP_VERBOSE))
+			    .opt();
+			parser.arg(color_type, "color")
+			    .meta(_(lng::ARGS_APP_META_WHEN))
+			    .help(_(lng::ARGS_APP_COLOR))
+			    .opt();
+			parser.arg(inname, "i", "in")
+			    .meta(_(lng::ARGS_APP_META_FILE))
+			    .help(_(inname_usage));
+			parser.arg(outname, "o", "out")
+			    .meta(_(lng::ARGS_APP_META_FILE))
+			    .help(_(outname_usage));
+		}
+	};
 	template <typename StringsImpl>
-	struct locale_base {
+	struct setup_base {
 		idl_strings strings{};
 		diags::sources diag{};
 		StringsImpl tr;
+		arguments common{};
+		args::parser parser{{}, {}, {}, &tr};
 
 		template <typename... Args>
-		locale_base(Args&&... args) : tr{std::forward<Args>(args)...} {
-			using printer = diags::basic_printer;
-			diag.set_printer<printer>(&diags::get_stdout(), tr.make());
+		setup_base(Args&&... args) : tr{std::forward<Args>(args)...} {}
+
+		~setup_base() { diag.print_diagnostics(); }
+
+		void parser_common(lng inname_usage, lng outname_usage) {
+			common.setup_parser(parser, inname_usage, outname_usage,
+			                    [tr = &tr](lng id) { return tr->get(id); });
 		}
 
-		~locale_base() {
-			diag.print_diagnostics();
-		}
+		int read_strings() {
+			using printer = diags::printer;
+			diag.set_printer<printer>(&diags::get_stdout(), tr.make(),
+			                          common.color_type);
 
-		int read_strings(args::parser& parser,
-		                 const std::filesystem::path& in,
-		                 bool verbose) {
-			return app::read_strings(parser.program(), in, strings, verbose,
-			                         diag)
+			return app::read_strings(parser.program(), common.inname, strings,
+			                         common.verbose, diag)
 			           ? 0
 			           : 1;
 		}
 
 		template <typename Writer>
-		int write(args::parser& parser,
-		          const std::filesystem::path& outname,
-		          Writer writer,
-		          print_outname verbose = without_outname) {
-			return app::write(parser.program(), diag, outname,
-			                  std::move(writer), verbose);
+		int write(Writer writer) {
+			return app::write(parser.program(), diag, common.outname,
+			                  std::move(writer), print_if(common.verbose));
 		}
 	};
 
@@ -189,30 +222,28 @@ namespace lngs::app {
 		                       std::string_view arg1,
 		                       std::string_view arg2) const override {
 			auto const ident = [](auto id) {
-				switch (id) {
-					case args::lng::usage:
-						return lng::ARGS_USAGE;
-					case args::lng::def_meta:
-						return lng::ARGS_DEF_META;
-					case args::lng::optionals:
-						return lng::ARGS_OPTIONALS;
-					case args::lng::help_description:
-						return lng::ARGS_HELP_DESCRIPTION;
-					case args::lng::unrecognized:
-						return lng::ARGS_UNRECOGNIZED;
-					case args::lng::needs_param:
-						return lng::ARGS_NEEDS_PARAM;
-					case args::lng::required:
-						return lng::ARGS_REQUIRED;
-					case args::lng::error_msg:
-						return lng::ARGS_ERROR_MSG;
-					// missing:
-					// - args::lng::positionals
-					// - args::lng::needs_number
-					// - args::lng::needed_number_exceeded
-					default:
-						break;
+				static constexpr std::pair<args::lng, lng> lng_map[] = {
+				    {args::lng::usage, lng::ARGS_USAGE},
+				    {args::lng::def_meta, lng::ARGS_DEF_META},
+				    {args::lng::positionals, lng::ARGS_POSITIONALS},
+				    {args::lng::optionals, lng::ARGS_OPTIONALS},
+				    {args::lng::help_description, lng::ARGS_HELP_DESCRIPTION},
+				    {args::lng::unrecognized, lng::ARGS_UNRECOGNIZED},
+				    {args::lng::needs_param, lng::ARGS_NEEDS_PARAM},
+				    {args::lng::needs_no_param, lng::ARGS_NEEDS_NO_PARAM},
+				    {args::lng::needs_number, lng::ARGS_NEEDS_NUMBER},
+				    {args::lng::needed_number_exceeded,
+				     lng::ARGS_NEEDED_NUMBER_EXCEEDED},
+				    {args::lng::required, lng::ARGS_REQUIRED},
+				    {args::lng::error_msg, lng::ARGS_ERROR_MSG},
+				    {args::lng::needed_enum_unknown,
+				     lng::ARGS_NEEDS_ENUM_UNKNOWN},
+				    {args::lng::needed_enum_known_values,
+				     lng::ARGS_NEEDS_ENUM_KNOWN_VALUES},
 				};
+				for (auto [from, to] : lng_map) {
+					if (from == id) return to;
+				}
 				return static_cast<lng>(0);
 			}(id);
 			return fmt::format(get(ident), arg1, arg2);
@@ -282,7 +313,7 @@ namespace lngs::app {
 	std::exit(0);
 }
 
-    [[noreturn]] void show_version() {
+[[noreturn]] void show_version() {
 	using ver = lngs::app::build::version;
 	fmt::print("lngs {}{}\n", ver::string, ver::stability);
 	std::exit(0);
@@ -303,7 +334,7 @@ int main(int argc, XChar* argv[]) {
 		base.parse(args::parser::allow_subcommands);
 	}
 
-	lngs::app::locale_setup setup{redirected_share};
+	lngs::app::application_setup setup{redirected_share};
 
 	auto show_help_tr = [&setup](args::parser& p) { show_help(p, setup.tr); };
 	auto _ = [&setup](auto id) { return setup.tr.get(id); };
@@ -335,154 +366,103 @@ int main(int argc, XChar* argv[]) {
 		if (cmd.name != name) continue;
 
 		auto view = setup.tr.get(cmd.description);
-		args::parser sub{{view.data(), view.size()}, unparsed, &setup.tr};
-		sub.program(base.program() + " " + sub.program());
+		setup.parser =
+		    args::parser{{view.data(), view.size()}, unparsed, &setup.tr};
+		setup.parser.program(base.program() + " " + setup.parser.program());
 
-		return cmd.call(sub, setup);
+		return cmd.call(setup);
 	}
 
 	base.error(fmt::format(_(lng::ARGS_APP_UNK_COMMAND), name));
 }
 
 namespace lngs::app::pot {
-	int call(args::parser& parser, locale_setup& setup) {
-		std::filesystem::path inname, outname;
-		bool verbose = false;
+	int call(application_setup& setup) {
 		info nfo;
 
 		auto _ = [&setup](auto id) { return setup.tr.get(id); };
 
-		parser.set<std::true_type>(verbose, "v", "verbose")
-		    .help(_(lng::ARGS_APP_VERBOSE))
-		    .opt();
-		parser.arg(inname, "i", "in")
-		    .meta(_(lng::ARGS_APP_META_FILE))
-		    .help(_(lng::ARGS_APP_IN_IDL));
-		parser.arg(nfo.copy, "c", "copy")
+		setup.parser_common(lng::ARGS_APP_IN_IDL, lng::ARGS_APP_OUT_POT);
+		setup.parser.arg(nfo.copy, "c", "copy")
 		    .meta(_(lng::ARGS_APP_META_HOLDER))
 		    .help(_(lng::ARGS_APP_COPYRIGHT))
 		    .opt();
-		parser.arg(nfo.first_author, "a", "author")
+		setup.parser.arg(nfo.first_author, "a", "author")
 		    .meta(_(lng::ARGS_APP_META_EMAIL))
 		    .help(_(lng::ARGS_APP_AUTHOR));
-		parser.arg(nfo.title, "t", "title")
+		setup.parser.arg(nfo.title, "t", "title")
 		    .meta(_(lng::ARGS_APP_META_TITLE))
 		    .help(_(lng::ARGS_APP_TITLE))
 		    .opt();
-		parser.arg(outname, "o", "out")
-		    .meta(_(lng::ARGS_APP_META_FILE))
-		    .help(_(lng::ARGS_APP_OUT_POT));
-		parser.parse();
+		setup.parser.parse();
 
-		if (int res = setup.read_strings(parser, inname, verbose)) return res;
+		if (int res = setup.read_strings()) return res;
 
-		nfo.year = year_from_template(setup.diag.open(outname));
+		nfo.year = year_from_template(setup.diag.open(setup.common.outname));
 
-		return setup.write(parser, outname,
-		                   [&](diags::outstream& out) {
-			                   return write(out, setup.strings,
-			                                setup.tr.redirected(), nfo);
-		                   },
-		                   print_if(verbose));
+		return setup.write([&](diags::outstream& out) {
+			return write(out, setup.strings, setup.tr.redirected(), nfo);
+		});
 	}
 }  // namespace lngs::app::pot
 
 namespace lngs::app::enums {
-	int call(args::parser& parser, locale_setup& setup) {
-		std::filesystem::path inname, outname;
-		bool verbose = false;
+	int call(application_setup& setup) {
 		bool with_resource = false;
 
 		auto _ = [&setup](auto id) { return setup.tr.get(id); };
 
-		parser.set<std::true_type>(verbose, "v", "verbose")
-		    .help(_(lng::ARGS_APP_VERBOSE))
-		    .opt();
-		parser.set<std::true_type>(with_resource, "r", "resource")
+		setup.parser_common(lng::ARGS_APP_IN_IDL, lng::ARGS_APP_OUT_CPP);
+		setup.parser.set<std::true_type>(with_resource, "r", "resource")
 		    .help(_(lng::ARGS_APP_RESOURCE))
 		    .opt();
-		parser.arg(inname, "i", "in")
-		    .meta(_(lng::ARGS_APP_META_FILE))
-		    .help(_(lng::ARGS_APP_IN_IDL));
-		parser.arg(outname, "o", "out")
-		    .meta(_(lng::ARGS_APP_META_FILE))
-		    .help(_(lng::ARGS_APP_OUT_CPP));
-		parser.parse();
+		setup.parser.parse();
 
-		if (int res = setup.read_strings(parser, inname, verbose)) return res;
+		if (int res = setup.read_strings()) return res;
 
-		return setup.write(parser, outname,
-		                   [&](diags::outstream& out) {
-			                   return write(out, setup.strings,
-			                                setup.tr.redirected(),
-			                                with_resource);
-		                   },
-		                   print_if(verbose));
+		return setup.write([&](diags::outstream& out) {
+			return write(out, setup.strings, setup.tr.redirected(),
+			             with_resource);
+		});
 	}
 }  // namespace lngs::app::enums
 
 namespace lngs::app::py {
-	int call(args::parser& parser, locale_setup& setup) {
-		std::filesystem::path inname, outname;
-		bool verbose = false;
+	int call(application_setup& setup) {
+		setup.parser_common(lng::ARGS_APP_IN_IDL, lng::ARGS_APP_OUT_PY);
+		setup.parser.parse();
 
-		auto _ = [&setup](auto id) { return setup.tr.get(id); };
+		if (int res = setup.read_strings()) return res;
 
-		parser.set<std::true_type>(verbose, "v", "verbose")
-		    .help(_(lng::ARGS_APP_VERBOSE))
-		    .opt();
-		parser.arg(inname, "i", "in")
-		    .meta(_(lng::ARGS_APP_META_FILE))
-		    .help(_(lng::ARGS_APP_IN_IDL));
-		parser.arg(outname, "o", "out")
-		    .meta(_(lng::ARGS_APP_META_FILE))
-		    .help(_(lng::ARGS_APP_OUT_PY));
-		parser.parse();
-
-		if (int res = setup.read_strings(parser, inname, verbose)) return res;
-
-		return setup.write(parser, outname,
-		                   [&](diags::outstream& out) {
-			                   return write(out, setup.strings,
-			                                setup.tr.redirected());
-		                   },
-		                   print_if(verbose));
+		return setup.write([&](diags::outstream& out) {
+			return write(out, setup.strings, setup.tr.redirected());
+		});
 	}
 }  // namespace lngs::app::py
 
 namespace lngs::app::make {
-	int call(args::parser& parser, locale_setup& setup) {
-		std::filesystem::path inname, outname;
+	int call(application_setup& setup) {
 		std::string moname, llname;
-		bool verbose = false;
 		bool warp_missing = false;
 
 		auto _ = [&setup](auto id) { return setup.tr.get(id); };
 
-		parser.set<std::true_type>(verbose, "v", "verbose")
-		    .help(_(lng::ARGS_APP_VERBOSE))
-		    .opt();
-		parser.set<std::true_type>(warp_missing, "w", "warp")
+		setup.parser_common(lng::ARGS_APP_IN_IDL, lng::ARGS_APP_OUT_LNG);
+		setup.parser.set<std::true_type>(warp_missing, "w", "warp")
 		    .help(_(lng::ARGS_APP_WARP_MISSING_SINGULAR))
 		    .opt();
-		parser.arg(inname, "i", "in")
-		    .meta(_(lng::ARGS_APP_META_FILE))
-		    .help(_(lng::ARGS_APP_IN_IDL));
-		parser.arg(moname, "m", "msgs")
+		setup.parser.arg(moname, "m", "msgs")
 		    .meta(_(lng::ARGS_APP_META_PO_MO_FILE))
 		    .help(_(lng::ARGS_APP_IN_PO_MO));
-		parser.arg(llname, "l", "lang")
+		setup.parser.arg(llname, "l", "lang")
 		    .meta(_(lng::ARGS_APP_META_FILE))
 		    .help(_(lng::ARGS_APP_IN_LLCC))
 		    .opt();
-		parser.arg(outname, "o", "out")
-		    .meta(_(lng::ARGS_APP_META_FILE))
-		    .help(_(lng::ARGS_APP_OUT_LNG));
-		parser.parse();
+		setup.parser.parse();
 
-		if (int res = setup.read_strings(parser, inname, verbose)) return res;
+		if (int res = setup.read_strings()) return res;
 
-		auto file = load_msgs(setup.strings, warp_missing, verbose,
+		auto file = load_msgs(setup.strings, warp_missing, setup.common.verbose,
 		                      setup.diag.open(moname, "rb"), setup.diag);
 		if (setup.diag.has_errors()) return 1;
 
@@ -493,90 +473,62 @@ namespace lngs::app::make {
 			return 1;
 
 		return setup.write(
-		    parser, outname,
-		    [&](diags::outstream& out) { return file.write(out); },
-		    print_if(verbose));
+		    [&](diags::outstream& out) { return file.write(out); });
 	}
 }  // namespace lngs::app::make
 
 namespace lngs::app::res {
-	int call(args::parser& parser, locale_setup& setup) {
-		std::filesystem::path inname, outname;
-		bool verbose = false;
+	int call(application_setup& setup) {
 		bool warp_strings = false;
 		bool with_keys = false;
 		std::string include;
 
 		auto _ = [&setup](auto id) { return setup.tr.get(id); };
 
-		parser.set<std::true_type>(verbose, "v", "verbose")
-		    .help(_(lng::ARGS_APP_VERBOSE))
-		    .opt();
-		parser.set<std::true_type>(warp_strings, "w", "warp")
+		setup.parser_common(lng::ARGS_APP_IN_IDL, lng::ARGS_APP_OUT_RES);
+		setup.parser.set<std::true_type>(warp_strings, "w", "warp")
 		    .help(_(lng::ARGS_APP_WARP_ALL_PLURAL))
 		    .opt();
-		parser.set<std::true_type>(with_keys, "k", "keys")
+		setup.parser.set<std::true_type>(with_keys, "k", "keys")
 		    .help(_(lng::ARGS_APP_WITH_KEY_BLOCK))
 		    .opt();
-		parser.arg(inname, "i", "in")
-		    .meta(_(lng::ARGS_APP_META_FILE))
-		    .help(_(lng::ARGS_APP_IN_IDL));
-		parser.arg(include, "include")
+		setup.parser.arg(include, "include")
 		    .meta(_(lng::ARGS_APP_META_FILE))
 		    .help(_(lng::ARGS_APP_ALT_INCLUDE))
 		    .opt();
-		parser.arg(outname, "o", "out")
-		    .meta(_(lng::ARGS_APP_META_FILE))
-		    .help(_(lng::ARGS_APP_OUT_RES));
-		parser.parse();
+		setup.parser.parse();
 
-		if (int res = setup.read_strings(parser, inname, verbose)) return res;
+		if (int res = setup.read_strings()) return res;
 
 		if (include.empty()) include = setup.strings.project + ".hpp";
 
 		auto file = make_resource(setup.strings, warp_strings, with_keys);
 
-		return setup.write(parser, outname,
-		                   [&](diags::outstream& out) {
-			                   return update_and_write(out, file, setup.strings,
-			                                           include,
-			                                           setup.tr.redirected());
-		                   },
-		                   print_if(verbose));
+		return setup.write([&](diags::outstream& out) {
+			return update_and_write(out, file, setup.strings, include,
+			                        setup.tr.redirected());
+		});
 	}
 }  // namespace lngs::app::res
 
 namespace lngs::app::freeze {
-	int call(args::parser& parser, locale_setup& setup) {
-		std::filesystem::path inname, outname;
-		bool verbose = false;
+	int call(application_setup& setup) {
+		setup.parser_common(lng::ARGS_APP_IN_IDL, lng::ARGS_APP_OUT_IDL);
+		setup.parser.parse();
 
-		auto _ = [&setup](auto id) { return setup.tr.get(id); };
-
-		parser.set<std::true_type>(verbose, "v", "verbose")
-		    .help(_(lng::ARGS_APP_VERBOSE))
-		    .opt();
-		parser.arg(inname, "i", "in")
-		    .meta(_(lng::ARGS_APP_META_FILE))
-		    .help(_(lng::ARGS_APP_IN_IDL));
-		parser.arg(outname, "o", "out")
-		    .meta(_(lng::ARGS_APP_META_FILE))
-		    .help(_(lng::ARGS_APP_OUT_IDL));
-		parser.parse();
-
-		if (int res = setup.read_strings(parser, inname, verbose)) return res;
+		if (int res = setup.read_strings()) return res;
 
 		if (!freeze::freeze(setup.strings)) {
-			if (verbose) {
-				auto src = setup.diag.source(inname.string()).position();
+			if (setup.common.verbose) {
+				auto src = setup.diag.source(setup.common.inname).position();
 				setup.diag.push_back(src[diags::severity::note]
 				                     << lng::ERR_NO_NEW_STRINGS);
 			}
 			return 0;
 		}
 
-		auto contents = setup.diag.source(inname.string());
-		return setup.write(parser, outname, [&](diags::outstream& out) {
+		auto contents = setup.diag.source(setup.common.inname);
+		return setup.write([&](diags::outstream& out) {
 			return write(out, setup.strings, contents);
 		});
 	}

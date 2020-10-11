@@ -1,0 +1,4 @@
+[serial(0), project("testing")] strings {
+    [help("")]
+    IDL_NEW = "A string";
+}

@@ -185,7 +185,7 @@ namespace lngs::app::testing {
 		auto result =
 		    read_strings("prog", src_name, actual, param.verbose, diag);
 
-		const auto src = diag.source(src_name.string()).position().token;
+		const auto src = diag.source(src_name).position().token;
 		const auto src1 = diag.source("prog").position().token;
 
 		EXPECT_EQ(result, param.result);

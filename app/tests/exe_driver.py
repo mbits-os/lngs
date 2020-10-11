@@ -1,9 +1,10 @@
 import json
 import os
 import re
+import shlex
 import subprocess
 import sys
-import shlex
+from difflib import unified_diff
 from stat import S_IREAD, S_IRGRP, S_IROTH
 
 env = {name: os.environ[name] for name in os.environ}
@@ -51,6 +52,18 @@ def fix(input, patches):
     return '\n'.join(input)
 
 
+def last_enter(s):
+    if len(s) and s[-1] == '\n':
+        s = s[:-1] + '\\n'
+    return s + '\n'
+
+
+def diff(expected, actual):
+    expected = last_enter(expected).splitlines(keepends=True)
+    actual = last_enter(actual).splitlines(keepends=True)
+    return ''.join(list(unified_diff(expected, actual))[2:])
+
+
 for filename in sorted(testsuite):
     counter += 1
     with open(filename) as f:
@@ -89,7 +102,7 @@ for filename in sorted(testsuite):
         for ndx in range(len(actual)):
             if actual[ndx] != expected[ndx]:
                 print(
-                    f"{flds[ndx]}\n  Expected:\n    {repr(expected[ndx])}\n  Actual:\n    {repr(actual[ndx])}")
+                    f"{flds[ndx]}\n  Expected:\n    {repr(expected[ndx])}\n  Actual:\n    {repr(actual[ndx])}\n Diff:\n{diff(expected[ndx], actual[ndx])}")
         print(' '.join([shlex.quote(arg) for arg in [driven, *expanded]]))
         print(f"[{counter:>{digits}}/{len(testsuite)}] {repr(name)} **FAILED**")
         had_errors = True
