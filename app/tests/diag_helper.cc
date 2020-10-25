@@ -77,6 +77,8 @@ namespace diags::testing {
 				return "command missing";
 			case lng::ARGS_APP_UNK_COMMAND:
 				return "unknown command: {0}";
+			case lng::ARGS_APP_META_INPUT:
+				return "<source>";
 			case lng::ARGS_APP_META_FILE:
 				return "<file>";
 			case lng::ARGS_APP_META_HOLDER:
@@ -281,6 +283,8 @@ namespace diags::testing {
 				return "ARGS_APP_NO_COMMAND";
 			case lng::ARGS_APP_UNK_COMMAND:
 				return "ARGS_APP_UNK_COMMAND";
+			case lng::ARGS_APP_META_INPUT:
+				return "ARGS_APP_META_INPUT";
 			case lng::ARGS_APP_META_FILE:
 				return "ARGS_APP_META_FILE";
 			case lng::ARGS_APP_META_HOLDER:
@@ -448,6 +452,7 @@ namespace diags::testing {
 			NAME(ARGS_APP_KNOWN_CMDS);
 			NAME(ARGS_APP_NO_COMMAND);
 			NAME(ARGS_APP_UNK_COMMAND);
+			NAME(ARGS_APP_META_INPUT);
 			NAME(ARGS_APP_META_FILE);
 			NAME(ARGS_APP_META_HOLDER);
 			NAME(ARGS_APP_META_EMAIL);

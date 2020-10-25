@@ -1,1 +1,1 @@
-{"name": "0005: POT (no IDL)", "args": ["pot", "-i", "nothing.idl", "-a", "<a@a.a>", "-o", "-"], "expected": [1, "lngs pot: error: could not open `nothing.idl'\n", ""]}
+{"name": "0005: POT (no IDL)", "args": ["pot", "nothing.idl", "-a", "<a@a.a>", "-o", "-"], "expected": [1, "lngs pot: error: could not open `nothing.idl'\n", ""]}

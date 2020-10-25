@@ -1,1 +1,1 @@
-{"name": "0019: res (no IDL)", "args": ["res", "-i", "nothing.idl", "-o", "-"], "expected": [1, "lngs res: error: could not open `nothing.idl'\n", ""]}
+{"name": "0019: res (no IDL)", "args": ["res", "nothing.idl", "-o", "-"], "expected": [1, "lngs res: error: could not open `nothing.idl'\n", ""]}

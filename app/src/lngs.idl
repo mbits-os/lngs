@@ -2,206 +2,208 @@
 	project("lngs"),
 	namespace("lngs::app"),
 	version("0.4"),
-	serial(7)
+	serial(8)
 ] strings {
-	[help("Synopsis header; please note there is one space at the end of this entry"), id(500)]
+	[help("Synopsis header; please note there is one space at the end of this entry"), id(1001)]
 	ARGS_USAGE = "usage: ";
-	[help("Default name of an argument"), id(501)]
+	[help("Default name of an argument"), id(1002)]
 	ARGS_DEF_META = "<arg>";
-	[help("Header for list of positional arguments"), id(502)]
+	[help("Header for list of positional arguments"), id(1003)]
 	ARGS_POSITIONALS = "positional arguments";
-	[help("Header for list of optional arguments"), id(503)]
+	[help("Header for list of optional arguments"), id(1004)]
 	ARGS_OPTIONALS = "optional arguments";
-	[help("Description for the -h/--help argument"), id(504)]
+	[help("Description for the -h/--help argument"), id(1005)]
 	ARGS_HELP_DESCRIPTION = "shows this help message and exits";
-	[help("Error message for an unrecognized argument; the placeholder will contain the name of the argument"), id(505)]
+	[help("Error message for an unrecognized argument; the placeholder will contain the name of the argument"), id(1006)]
 	ARGS_UNRECOGNIZED = "unrecognized argument: {0}";
-	[help("Error message for a missing argument"), id(506)]
+	[help("Error message for a missing argument"), id(1007)]
 	ARGS_NEEDS_PARAM = "argument {0}: expected one argument";
-	[help("Error message for unneeded value"), id(1039)]
+	[help("Error message for unneeded value"), id(1008)]
 	ARGS_NEEDS_NO_PARAM = "argument {0}: value was not expected";
-	[help("Error message for a numeric argument, when parsing failed"), id(507)]
+	[help("Error message for a numeric argument, when parsing failed"), id(1009)]
 	ARGS_NEEDS_NUMBER = "argument {0}: expected a number";
-	[help("Error message for a numeric argument, when parsing would get outside of representable bounds"), id(508)]
+	[help("Error message for a numeric argument, when parsing would get outside of representable bounds"), id(1010)]
 	ARGS_NEEDED_NUMBER_EXCEEDED = "argument {0}: number outside of expected bounds";
-	[help("Error message for a list of arguments, when parsing failed"), id(1040)]
+	[help("Error message for a list of arguments, when parsing failed"), id(1011)]
 	ARGS_NEEDS_ENUM_UNKNOWN = "argument {0}: value {1} is not recognized";
-	[help("Help message presenting a list of possible values for a list-type argument"), id(1041)]
+	[help("Help message presenting a list of possible values for a list-type argument"), id(1012)]
 	ARGS_NEEDS_ENUM_KNOWN_VALUES = "known values for {0}: {1}";
-	[help("Error message for a missing required argument"), id(509)]
+	[help("Error message for a missing required argument"), id(1013)]
 	ARGS_REQUIRED = "argument {0} is required";
-	[help("Error message template; placeholder 0 will get the name of program, placeholder 1 an actual message"), id(510)]
+	[help("Error message template; placeholder 0 will get the name of program, placeholder 1 an actual message"), id(1014)]
 	ARGS_ERROR_MSG = "{0}: error: {1}";
 
-	[help("Help description for the 'lngs make' command"), id(511)]
+	[help("Help description for the 'lngs make' command"), id(1015)]
 	ARGS_APP_DESCR_CMD_MAKE = "Translates PO/MO file to LNG file.";
-	[help("Help description for the 'lngs pot' command"), id(512)]
+	[help("Help description for the 'lngs pot' command"), id(1016)]
 	ARGS_APP_DESCR_CMD_POT = "Creates POT file from message file.";
-	[help("Help description for the 'lngs enums' command"), id(513)]
+	[help("Help description for the 'lngs enums' command"), id(1017)]
 	ARGS_APP_DESCR_CMD_ENUMS = "Creates header file from message file.";
-	[help("Help description for the 'lngs py' command"), id(514)]
+	[help("Help description for the 'lngs py' command"), id(1018)]
 	ARGS_APP_DESCR_CMD_PY = "Creates Python module with string keys.";
-	[help("Help description for the 'lngs res' command"), id(515)]
+	[help("Help description for the 'lngs res' command"), id(1019)]
 	ARGS_APP_DESCR_CMD_RES = "Creates C++ file with fallback resource for the message file.";
-	[help("Help description for the 'lngs freeze' command"), id(516)]
+	[help("Help description for the 'lngs freeze' command"), id(1020)]
 	ARGS_APP_DESCR_CMD_FREEZE = "Reads the language description file and assigns values to new strings.";
 
-	[help("Synopsis for the app. The \"[-h] [--version] [--share\" part should be left intact, only the \"<dir>\", \"command\" and \"arguments\" words should be translated."), id(517)]
-	ARGS_APP_DESCR_USAGE = "[-h] [--version] [--share <dir>] <command> [<arguments>]";
+	[help("Synopsis for the app. The \"[-h] [--version] [--share\" part should be left intact, only the \"<dir>\", \"command\", \"<source>\", \"<file>\" and \"arguments\" words should be translated."), id(1021)]
+	ARGS_APP_DESCR_USAGE = "[-h] [--version] [--share <dir>] <command> <source> -o <file> [<arguments>]";
 
-	[help("Title for the description of the flow for different roles"), id(518)]
+	[help("Title for the description of the flow for different roles"), id(1022)]
 	ARGS_APP_FLOW_TITLE = "The flow for string management and creation";
-	[help("Name of a role responsible for finalizing the list of translations"), id(519)]
+	[help("Name of a role responsible for finalizing the list of translations"), id(1023)]
 	ARGS_APP_FLOW_ROLE_STRMGR = "Translation Manager";
-	[help("Name of a role responsible for supplying translated strings"), id(520)]
+	[help("Name of a role responsible for supplying translated strings"), id(1024)]
 	ARGS_APP_FLOW_ROLE_TRANSLATOR = "Translator";
-	[help("Name of a role responsible for updating the C++ interfaces to project-specific lngs files"), id(521)]
+	[help("Name of a role responsible for updating the C++ interfaces to project-specific lngs files"), id(1025)]
 	ARGS_APP_FLOW_ROLE_DEV_COMPILE = "Developer (compiling existing list)";
-	[help("Name of a role responsible for adding new entries to be used in the code"), id(522)]
+	[help("Name of a role responsible for adding new entries to be used in the code"), id(1026)]
 	ARGS_APP_FLOW_ROLE_DEV_ADD = "Developer (adding new string)";
-	[help("Name of a role responsible for transforming .po files to lngs files"), id(523)]
+	[help("Name of a role responsible for transforming .po files to lngs files"), id(1027)]
 	ARGS_APP_FLOW_ROLE_DEV_RELEASE = "Developer (releasing a build)";
 
-	[help("Header for list of known commands"), id(524)]
+	[help("Header for list of known commands"), id(1028)]
 	ARGS_APP_KNOWN_CMDS = "known commands";
-	[help("Error message displayed, when a command is missing in the command line"), id(525)]
+	[help("Error message displayed, when a command is missing in the command line"), id(1029)]
 	ARGS_APP_NO_COMMAND = "command missing";
-	[help("Error message displayed, when a command from command line is not recognized"), id(526)]
+	[help("Error message displayed, when a command from command line is not recognized"), id(1030)]
 	ARGS_APP_UNK_COMMAND = "unknown command: {0}";
 
-	[help("Name of argument holding always/never/auto value"), id(1042)]
+	[help("Name of argument holding always/never/auto value"), id(1031)]
 	ARGS_APP_META_WHEN = "<when>";
-	[help("Name of argument holding a file name"), id(527)]
+	[help("Name of input argument"), id(1032)]
+	ARGS_APP_META_INPUT = "<source>";
+	[help("Name of argument holding a file name"), id(1033)]
 	ARGS_APP_META_FILE = "<file>";
-	[help("Name of argument for rights holder"), id(528)]
+	[help("Name of argument for rights holder"), id(1034)]
 	ARGS_APP_META_HOLDER = "<holder>";
-	[help("Name of argument holding an email address"), id(529)]
+	[help("Name of argument holding an email address"), id(1035)]
 	ARGS_APP_META_EMAIL = "<email>";
-	[help("Name of argument holding a heading"), id(530)]
+	[help("Name of argument holding a heading"), id(1036)]
 	ARGS_APP_META_TITLE = "<title>";
-	[help("Name of argument holding a file name for a GetText PO/MO file"), id(531)]
+	[help("Name of argument holding a file name for a GetText PO/MO file"), id(1037)]
 	ARGS_APP_META_PO_MO_FILE = "<gettext file>";
-	[help("Name of argument holding a directory"), id(1032)]
+	[help("Name of argument holding a directory"), id(1038)]
 	ARGS_APP_META_DIR = "<dir>";
 
-	[help("Description for 'version' argument"), id(532)]
+	[help("Description for 'version' argument"), id(1039)]
 	ARGS_APP_VERSION = "shows program version and exits";
-	[help("Description for 'color' argument; <when> should translated the same, as ARGS_APP_META_WHEN, words 'never', 'always', and 'auto' should be left unchanged"), id(1043)]
+	[help("Description for 'color' argument; <when> should translated the same, as ARGS_APP_META_WHEN, words 'never', 'always', and 'auto' should be left unchanged"), id(1040)]
 	ARGS_APP_COLOR = "uses color in diagnostics; <when> is 'never', 'always', or 'auto'";
-	[help("Description for 'share' argument"), id(1033)]
+	[help("Description for 'share' argument"), id(1041)]
 	ARGS_APP_SHARE_REDIR = "replaces {0} as new data directory";
-	[help("Description for 'verbose' argument"), id(533)]
+	[help("Description for 'verbose' argument"), id(1042)]
 	ARGS_APP_VERBOSE = "shows more info";
-	[help("Description for 'copyright' argument"), id(534)]
+	[help("Description for 'copyright' argument"), id(1043)]
 	ARGS_APP_COPYRIGHT = "sets the name of copyright holder";
-	[help("Description for 'author' argument"), id(535)]
+	[help("Description for 'author' argument"), id(1044)]
 	ARGS_APP_AUTHOR = "sets the name and email address of first author";
-	[help("Description for 'title' argument"), id(536)]
+	[help("Description for 'title' argument"), id(1045)]
 	ARGS_APP_TITLE = "sets a descriptive title for the POT project";
-	[help("Description for 'resource' argument"), id(537)]
+	[help("Description for 'resource' argument"), id(1046)]
 	ARGS_APP_RESOURCE = "instructs the Strings type to use data generated by the `lngs res'.";
-	[help("Description for argument adding in English strings of missing entries, but replacing all letters with similar-looking but different letters."), id(538)]
+	[help("Description for argument adding in English strings of missing entries, but replacing all letters with similar-looking but different letters."), id(1047)]
 	ARGS_APP_WARP_MISSING_SINGULAR = "replaces missing strings with warped ones; resulting strings are always singular";
-	[help("Description for argument changing all strings in a resource file, by replacing all letters with similar-looking but different letters."), id(539)]
+	[help("Description for argument changing all strings in a resource file, by replacing all letters with similar-looking but different letters."), id(1048)]
 	ARGS_APP_WARP_ALL_PLURAL = "replaces all strings with warped ones; plural strings will still be plural (as if English)";
-	[help("Description for argument allowing for additional, optional block in resulting file"), id(540)]
+	[help("Description for argument allowing for additional, optional block in resulting file"), id(1049)]
 	ARGS_APP_WITH_KEY_BLOCK = "adds block of strings with key names";
-	[help("Description for argument allowing to change the name of an include file to be more in-line with project's layout"), id(541)]
+	[help("Description for argument allowing to change the name of an include file to be more in-line with project's layout"), id(1050)]
 	ARGS_APP_ALT_INCLUDE = "sets file name to #include in the implementation of the Resource class; defaults to \"<project>.hpp\".";
 
-	[help("Description for output argument for lngs pot"), id(542)]
+	[help("Description for output argument for lngs pot"), id(1051)]
 	ARGS_APP_OUT_POT = "sets POT file name to write results to; use \"-\" for standard output";
-	[help("Description for output argument for lngs enums"), id(543)]
+	[help("Description for output argument for lngs enums"), id(1052)]
 	ARGS_APP_OUT_CPP = "sets C++ header file name to write results to; use \"-\" for standard output";
-	[help("Description for output argument for lngs res"), id(544)]
+	[help("Description for output argument for lngs res"), id(1053)]
 	ARGS_APP_OUT_RES = "sets C++ code file name with builtin strings to write results to; use \"-\" for standard output";
-	[help("Description for output argument for lngs py"), id(545)]
+	[help("Description for output argument for lngs py"), id(1054)]
 	ARGS_APP_OUT_PY = "sets Python file name to write results to; use \"-\" for standard output";
-	[help("Description for output argument for lngs make"), id(546)]
+	[help("Description for output argument for lngs make"), id(1055)]
 	ARGS_APP_OUT_LNG = "sets LNG binary file name to write results to; use \"-\" for standard output";
-	[help("Description for output argument for lngs freeze"), id(547)]
+	[help("Description for output argument for lngs freeze"), id(1056)]
 	ARGS_APP_OUT_IDL = "sets IDL message file name to write results to; it may be the same as input; use \"-\" for standard output";
 
-	[help("Description for input argument taking IDL file"), id(548)]
+	[help("Description for input argument taking IDL file"), id(1057)]
 	ARGS_APP_IN_IDL = "sets message file name to read from";
-	[help("Description for input argument taking GetText PO/MO file"), id(549)]
+	[help("Description for input argument taking GetText PO/MO file"), id(1058)]
 	ARGS_APP_IN_PO_MO = "sets GetText message file name to read from";
-	[help("Description for input argument taking TXT file with language/country names"), id(550)]
+	[help("Description for input argument taking TXT file with language/country names"), id(1059)]
 	ARGS_APP_IN_LLCC = "sets ATTR_LANGUAGE file name with ll_CC (language_COUNTRY) names list";
 
-	[help("Name of the severity label for notes."), id(1001)]
+	[help("Name of the severity label for notes."), id(1060)]
 	SEVERITY_NOTE = "note";
-	[help("Name of the severity label for warnings."), id(1002)]
+	[help("Name of the severity label for warnings."), id(1061)]
 	SEVERITY_WARNING = "warning";
-	[help("Name of the severity label for errors."), id(1003)]
+	[help("Name of the severity label for errors."), id(1062)]
 	SEVERITY_ERROR = "error";
-	[help("Name of the severity label for fatals."), id(1004)]
+	[help("Name of the severity label for fatals."), id(1063)]
 	SEVERITY_FATAL = "fatal";
 
-	[help("Needed file was not found; filename is going to be shown as argument {0}."), id(1005)]
+	[help("Needed file was not found; filename is going to be shown as argument {0}."), id(1064)]
 	ERR_FILE_MISSING = "could not open `{0}'";
-	[help("Needed file was not found; filename is going to be shown as source of message."), id(1006)]
+	[help("Needed file was not found; filename is going to be shown as source of message."), id(1065)]
 	ERR_FILE_NOT_FOUND = "could not open the file";
-	[help("Presented as additional message, if input file was not parsed properly."), id(1007)]
+	[help("Presented as additional message, if input file was not parsed properly."), id(1066)]
 	ERR_NOT_STRINGS_FILE = "`{0}' is not strings file";
-	[help("Shown by lngs freeze."), id(1008)]
+	[help("Shown by lngs freeze."), id(1067)]
 	ERR_NO_NEW_STRINGS = "no new strings";
 
-	[help("Used for attributes with no value. The argument represents the name of the attribute."), id(1009)]
+	[help("Used for attributes with no value. The argument represents the name of the attribute."), id(1068)]
 	ERR_ATTR_EMPTY = "attribute `{0}' should not be empty";
-	[help("Optional attribute is not present. The argument represents the name of the attribute."), id(1010)]
+	[help("Optional attribute is not present. The argument represents the name of the attribute."), id(1069)]
 	ERR_ATTR_MISSING = "attribute `{0}' is missing";
-	[help("A required attribute is not present. The argument represents the name of the attribute."), id(1011)]
+	[help("A required attribute is not present. The argument represents the name of the attribute."), id(1070)]
 	ERR_REQ_ATTR_MISSING = "required attribute `{0}' is missing";
-	[help("Hint for IDL authors, when an id attribute is missing."), id(1012)]
+	[help("Hint for IDL authors, when an id attribute is missing."), id(1071)]
 	ERR_ID_MISSING_HINT = "before finalizing a value, use `id(-1)'";
 
-	[help("Information about bad syntax in the strings file. The arguments represent the expected and actual token, respectively."), id(1013)]
+	[help("Information about bad syntax in the strings file. The arguments represent the expected and actual token, respectively."), id(1072)]
 	ERR_EXPECTED = "expected {0}, got {1}";
-	[help("Used as second argument for ERR_EXPECTED, as in \"..., got unrecognized text\""), id(1014)]
+	[help("Used as second argument for ERR_EXPECTED, as in \"..., got unrecognized text\""), id(1073)]
 	ERR_EXPECTED_GOT_UNRECOGNIZED = "unrecognized text";
-	[help("Used as first argument for ERR_EXPECTED, as in \"expected EOF\""), id(1034)]
+	[help("Used as first argument for ERR_EXPECTED, as in \"expected EOF\""), id(1074)]
 	ERR_EXPECTED_EOF = "end of file";
-	[help("Used as first argument for ERR_EXPECTED, as in \"expected EOL\""), id(1035)]
+	[help("Used as first argument for ERR_EXPECTED, as in \"expected EOL\""), id(1075)]
 	ERR_EXPECTED_EOL = "end of line";
-	[help("Used as first argument for ERR_EXPECTED, as in \"expected string\""), id(1016)]
+	[help("Used as first argument for ERR_EXPECTED, as in \"expected string\""), id(1076)]
 	ERR_EXPECTED_STRING = "string";
-	[help("Used as first argument for ERR_EXPECTED, as in \"expected number\""), id(1017)]
+	[help("Used as first argument for ERR_EXPECTED, as in \"expected number\""), id(1077)]
 	ERR_EXPECTED_NUMBER = "number";
-	[help("Used as first argument for ERR_EXPECTED, as in \"expected identifier\""), id(1018)]
+	[help("Used as first argument for ERR_EXPECTED, as in \"expected identifier\""), id(1078)]
 	ERR_EXPECTED_ID = "identifier";
-	[help("Used as second argument for ERR_EXPECTED, as in \"..., got EOF\""), id(1019)]
+	[help("Used as second argument for ERR_EXPECTED, as in \"..., got EOF\""), id(1079)]
 	ERR_EXPECTED_GOT_EOF = "end of file";
-	[help("Used as second argument for ERR_EXPECTED, as in \"..., got EOL\""), id(1036)]
+	[help("Used as second argument for ERR_EXPECTED, as in \"..., got EOL\""), id(1080)]
 	ERR_EXPECTED_GOT_EOL = "end of line";
-	[help("Used as second argument for ERR_EXPECTED, as in \"..., got string\""), id(1020)]
+	[help("Used as second argument for ERR_EXPECTED, as in \"..., got string\""), id(1081)]
 	ERR_EXPECTED_GOT_STRING = "string";
-	[help("Used as second argument for ERR_EXPECTED, as in \"..., got number\""), id(1021)]
+	[help("Used as second argument for ERR_EXPECTED, as in \"..., got number\""), id(1082)]
 	ERR_EXPECTED_GOT_NUMBER = "number";
-	[help("Used as second argument for ERR_EXPECTED, as in \"..., got identifier\""), id(1022)]
+	[help("Used as second argument for ERR_EXPECTED, as in \"..., got identifier\""), id(1083)]
 	ERR_EXPECTED_GOT_ID = "identifier";
 
-	[help("Warning for a missing string. The argument will be replaced by identifier with missing translation."), id(1023)]
+	[help("Warning for a missing string. The argument will be replaced by identifier with missing translation."), id(1084)]
 	ERR_MSGS_TRANSLATION_MISSING = "message file does not contain translation for \"{0}\"";
-	[help("The gettext MO file has no attribute for language-REGION pair. The word \"Language\" is not to be translated."), id(1024)]
+	[help("The gettext MO file has no attribute for language-REGION pair. The word \"Language\" is not to be translated."), id(1085)]
 	ERR_MSGS_ATTR_LANG_MISSING = "message file does not contain Language attribute";
-	[help("Message for missing name for a locale with no name for the culture in file with locale/name pairs."), id(1025)]
+	[help("Message for missing name for a locale with no name for the culture in file with locale/name pairs."), id(1086)]
 	ERR_UNANMED_LOCALE = "locale {0} has no name";
-	[help("Message for missing locale in file with locale/culture name pairs."), id(1026)]
+	[help("Message for missing locale in file with locale/culture name pairs."), id(1087)]
 	ERR_LOCALE_MISSING = "no {0} locale on the list";
 
-	[help("The MO file has unexpected contents"), id(1027)]
+	[help("The MO file has unexpected contents"), id(1088)]
 	ERR_GETTEXT_FORMAT = "gettext file format error";
-	[help("Detail of what was wrong with the contents"), id(1028)]
+	[help("Detail of what was wrong with the contents"), id(1089)]
 	ERR_GETTEXT_BLOCKS_OVERLAP = "two or more blocks occupy the same space";
-	[help("Detail of what was wrong with the contents"), id(1029)]
+	[help("Detail of what was wrong with the contents"), id(1090)]
 	ERR_GETTEXT_STRING_OUTSIDE = "string not contained inside the block";
-	[help("Detail of what was wrong with the contents"), id(1030)]
+	[help("Detail of what was wrong with the contents"), id(1091)]
 	ERR_GETTEXT_FILE_TRUNCATED = "file truncated; data missing";
-	[help("Detail of what was wrong with the contents"), id(1031)]
+	[help("Detail of what was wrong with the contents"), id(1092)]
 	ERR_GETTEXT_NOT_ASCIIZ = "strings must end with a zero";
-	[help("The PO file has unexpected field name"), id(1037)]
+	[help("The PO file has unexpected field name"), id(1093)]
 	ERR_GETTEXT_UNRECOGNIZED_FIELD = "unrecognized field `{0}'";
-	[help("The PO file has unexpected string contents"), id(1038)]
+	[help("The PO file has unexpected string contents"), id(1094)]
 	ERR_GETTEXT_UNRECOGNIZED_ESCAPE = "unrecognized escape sequence `\\{0}'";
 }

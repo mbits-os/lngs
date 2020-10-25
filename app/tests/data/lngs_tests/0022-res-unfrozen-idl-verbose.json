@@ -1,1 +1,1 @@
-{"name": "0022: res (unfrozen.idl + include)", "args": ["res", "-i", "$DATA/unfrozen.idl", "-o", "$DATA/gitignored.cpp", "-v"], "expected": [0, "$DATA/unfrozen.idl\n$DATA/gitignored.cpp\n", ""]}
+{"name": "0022: res (unfrozen.idl + include)", "args": ["res", "$DATA/unfrozen.idl", "-o", "$DATA/gitignored.cpp", "-v"], "expected": [0, "$DATA/unfrozen.idl\n$DATA/gitignored.cpp\n", ""]}

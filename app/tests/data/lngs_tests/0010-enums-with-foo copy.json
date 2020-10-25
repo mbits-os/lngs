@@ -1,1 +1,1 @@
-{"name": "0010: Enums (with --foo)", "args": ["enums", "--foo"], "expected": [2, "", "usage: lngs enums [-h] [-v] [--color <when>] -i <file> -o <file> [-r]\nlngs enums: error: unrecognized argument: --foo\n"]}
+{"name": "0010: Enums (with --foo)", "args": ["enums", "--foo"], "expected": [2, "", "usage: lngs enums <source> -o <file> [-h] [-v] [--color <when>] [-r]\nlngs enums: error: unrecognized argument: --foo\n"]}

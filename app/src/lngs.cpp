@@ -71,6 +71,18 @@ namespace lngs::app {
 		                  lng inname_usage,
 		                  lng outname_usage,
 		                  Translator _) {
+			parser.provide_help(false);
+			auto show_help = +[](args::parser& p) { p.help(); };
+
+			parser.arg(inname)
+			    .meta(_(lng::ARGS_APP_META_INPUT))
+			    .help(_(inname_usage));
+			parser.arg(outname, "o")
+			    .meta(_(lng::ARGS_APP_META_FILE))
+			    .help(_(outname_usage));
+			parser.custom(show_help, "h", "help")
+			    .help(_(lng::ARGS_HELP_DESCRIPTION))
+			    .opt();
 			parser.set<std::true_type>(verbose, "v", "verbose")
 			    .help(_(lng::ARGS_APP_VERBOSE))
 			    .opt();
@@ -78,12 +90,6 @@ namespace lngs::app {
 			    .meta(_(lng::ARGS_APP_META_WHEN))
 			    .help(_(lng::ARGS_APP_COLOR))
 			    .opt();
-			parser.arg(inname, "i", "in")
-			    .meta(_(lng::ARGS_APP_META_FILE))
-			    .help(_(inname_usage));
-			parser.arg(outname, "o", "out")
-			    .meta(_(lng::ARGS_APP_META_FILE))
-			    .help(_(outname_usage));
 		}
 	};
 	template <typename StringsImpl>

@@ -1,1 +1,1 @@
-{"name": "0025: Freeze (unfrozen.idl to a file)", "args": ["freeze", "-i", "$DATA/unfrozen.idl", "-o", "$DATA/gitignored.idl", "-v"], "expected": [0, "$DATA/unfrozen.idl\n$DATA/gitignored.idl\n", ""]}
+{"name": "0025: Freeze (unfrozen.idl to a file)", "args": ["freeze", "$DATA/unfrozen.idl", "-o", "$DATA/gitignored.idl", "-v"], "expected": [0, "$DATA/unfrozen.idl\n$DATA/gitignored.idl\n", ""]}

@@ -1,1 +1,1 @@
-{"name": "0004: Non-command", "args": ["non-command"], "expected": [2, "", "usage: lngs [-h] [--version] [--share <dir>] <command> [<arguments>]\nlngs: error: unknown command: non-command\n"]}
+{"name": "0004: Non-command", "args": ["non-command"], "expected": [2, "", "usage: lngs [-h] [--version] [--share <dir>] <command> <source> -o <file> [<arguments>]\nlngs: error: unknown command: non-command\n"]}

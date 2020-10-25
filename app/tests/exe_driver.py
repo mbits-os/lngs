@@ -101,8 +101,12 @@ for filename in sorted(testsuite):
     else:
         for ndx in range(len(actual)):
             if actual[ndx] != expected[ndx]:
-                print(
-                    f"{flds[ndx]}\n  Expected:\n    {repr(expected[ndx])}\n  Actual:\n    {repr(actual[ndx])}\n Diff:\n{diff(expected[ndx], actual[ndx])}")
+                if ndx:
+                    print(
+                        f"{flds[ndx]}\n  Expected:\n    {repr(expected[ndx])}\n  Actual:\n    {repr(actual[ndx])}\nDiff:\n{diff(expected[ndx], actual[ndx])}")
+                else:
+                    print(
+                        f"{flds[ndx]}\n  Expected:\n    {repr(expected[ndx])}\n  Actual:\n    {repr(actual[ndx])}")
         print(' '.join([shlex.quote(arg) for arg in [driven, *expanded]]))
         print(f"[{counter:>{digits}}/{len(testsuite)}] {repr(name)} **FAILED**")
         had_errors = True

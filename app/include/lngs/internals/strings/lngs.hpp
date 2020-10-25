@@ -7,191 +7,193 @@
 namespace lngs::app {
     enum class lng {
         /// usage:  (Synopsis header; please note there is one space at the end of this entry)
-        ARGS_USAGE = 500,
+        ARGS_USAGE = 1001,
         /// <arg> (Default name of an argument)
-        ARGS_DEF_META = 501,
+        ARGS_DEF_META = 1002,
         /// positional arguments (Header for list of positional arguments)
-        ARGS_POSITIONALS = 502,
+        ARGS_POSITIONALS = 1003,
         /// optional arguments (Header for list of optional arguments)
-        ARGS_OPTIONALS = 503,
+        ARGS_OPTIONALS = 1004,
         /// shows this help message and exits (Description for the -h/--help argument)
-        ARGS_HELP_DESCRIPTION = 504,
+        ARGS_HELP_DESCRIPTION = 1005,
         /// unrecognized argument: {0} (Error message for an unrecognized argument; the placeholder will contain the name of the argument)
-        ARGS_UNRECOGNIZED = 505,
+        ARGS_UNRECOGNIZED = 1006,
         /// argument {0}: expected one argument (Error message for a missing argument)
-        ARGS_NEEDS_PARAM = 506,
+        ARGS_NEEDS_PARAM = 1007,
         /// argument {0}: value was not expected (Error message for unneeded value)
-        ARGS_NEEDS_NO_PARAM = 1039,
+        ARGS_NEEDS_NO_PARAM = 1008,
         /// argument {0}: expected a number (Error message for a numeric argument, when parsing failed)
-        ARGS_NEEDS_NUMBER = 507,
+        ARGS_NEEDS_NUMBER = 1009,
         /// argument {0}: number outside of expected bounds (Error message for a numeric argument, when parsing would get outside of representable bounds)
-        ARGS_NEEDED_NUMBER_EXCEEDED = 508,
+        ARGS_NEEDED_NUMBER_EXCEEDED = 1010,
         /// argument {0}: value {1} is not recognized (Error message for a list of arguments, when parsing failed)
-        ARGS_NEEDS_ENUM_UNKNOWN = 1040,
+        ARGS_NEEDS_ENUM_UNKNOWN = 1011,
         /// known values for {0}: {1} (Help message presenting a list of possible values for a list-type argument)
-        ARGS_NEEDS_ENUM_KNOWN_VALUES = 1041,
+        ARGS_NEEDS_ENUM_KNOWN_VALUES = 1012,
         /// argument {0} is required (Error message for a missing required argument)
-        ARGS_REQUIRED = 509,
+        ARGS_REQUIRED = 1013,
         /// {0}: error: {1} (Error message template; placeholder 0 will get the name of program, placeholder 1 an actual message)
-        ARGS_ERROR_MSG = 510,
+        ARGS_ERROR_MSG = 1014,
         /// Translates PO/MO file to LNG file. (Help description for the 'lngs make' command)
-        ARGS_APP_DESCR_CMD_MAKE = 511,
+        ARGS_APP_DESCR_CMD_MAKE = 1015,
         /// Creates POT file from message file. (Help description for the 'lngs pot' command)
-        ARGS_APP_DESCR_CMD_POT = 512,
+        ARGS_APP_DESCR_CMD_POT = 1016,
         /// Creates header file from message file. (Help description for the 'lngs enums' command)
-        ARGS_APP_DESCR_CMD_ENUMS = 513,
+        ARGS_APP_DESCR_CMD_ENUMS = 1017,
         /// Creates Python module with string keys. (Help description for the 'lngs py' command)
-        ARGS_APP_DESCR_CMD_PY = 514,
+        ARGS_APP_DESCR_CMD_PY = 1018,
         /// Creates C++ file with fallback resource for the message file. (Help description for the 'lngs res' command)
-        ARGS_APP_DESCR_CMD_RES = 515,
+        ARGS_APP_DESCR_CMD_RES = 1019,
         /// Reads the language description file and assigns values to new strings. (Help description for the 'lngs freeze' command)
-        ARGS_APP_DESCR_CMD_FREEZE = 516,
-        /// [-h] [--version] [--share <dir>] <command> [<arguments>] (Synopsis for the app. The "[-h] [--version] [--share" part should be left intact, only the "<dir>", "command" and "arguments" words should be translated.)
-        ARGS_APP_DESCR_USAGE = 517,
+        ARGS_APP_DESCR_CMD_FREEZE = 1020,
+        /// [-h] [--version] [--share <dir>] <command> <source> -o <file> [<arguments>] (Synopsis for the app. The "[-h] [--version] [--share" part should be left intact, only the "<dir>", "command", "<source>", "<file>" and "arguments" words should be translated.)
+        ARGS_APP_DESCR_USAGE = 1021,
         /// The flow for string management and creation (Title for the description of the flow for different roles)
-        ARGS_APP_FLOW_TITLE = 518,
+        ARGS_APP_FLOW_TITLE = 1022,
         /// Translation Manager (Name of a role responsible for finalizing the list of translations)
-        ARGS_APP_FLOW_ROLE_STRMGR = 519,
+        ARGS_APP_FLOW_ROLE_STRMGR = 1023,
         /// Translator (Name of a role responsible for supplying translated strings)
-        ARGS_APP_FLOW_ROLE_TRANSLATOR = 520,
+        ARGS_APP_FLOW_ROLE_TRANSLATOR = 1024,
         /// Developer (compiling existing list) (Name of a role responsible for updating the C++ interfaces to project-specific lngs files)
-        ARGS_APP_FLOW_ROLE_DEV_COMPILE = 521,
+        ARGS_APP_FLOW_ROLE_DEV_COMPILE = 1025,
         /// Developer (adding new string) (Name of a role responsible for adding new entries to be used in the code)
-        ARGS_APP_FLOW_ROLE_DEV_ADD = 522,
+        ARGS_APP_FLOW_ROLE_DEV_ADD = 1026,
         /// Developer (releasing a build) (Name of a role responsible for transforming .po files to lngs files)
-        ARGS_APP_FLOW_ROLE_DEV_RELEASE = 523,
+        ARGS_APP_FLOW_ROLE_DEV_RELEASE = 1027,
         /// known commands (Header for list of known commands)
-        ARGS_APP_KNOWN_CMDS = 524,
+        ARGS_APP_KNOWN_CMDS = 1028,
         /// command missing (Error message displayed, when a command is missing in the command line)
-        ARGS_APP_NO_COMMAND = 525,
+        ARGS_APP_NO_COMMAND = 1029,
         /// unknown command: {0} (Error message displayed, when a command from command line is not recognized)
-        ARGS_APP_UNK_COMMAND = 526,
+        ARGS_APP_UNK_COMMAND = 1030,
         /// <when> (Name of argument holding always/never/auto value)
-        ARGS_APP_META_WHEN = 1042,
+        ARGS_APP_META_WHEN = 1031,
+        /// <source> (Name of input argument)
+        ARGS_APP_META_INPUT = 1032,
         /// <file> (Name of argument holding a file name)
-        ARGS_APP_META_FILE = 527,
+        ARGS_APP_META_FILE = 1033,
         /// <holder> (Name of argument for rights holder)
-        ARGS_APP_META_HOLDER = 528,
+        ARGS_APP_META_HOLDER = 1034,
         /// <email> (Name of argument holding an email address)
-        ARGS_APP_META_EMAIL = 529,
+        ARGS_APP_META_EMAIL = 1035,
         /// <title> (Name of argument holding a heading)
-        ARGS_APP_META_TITLE = 530,
+        ARGS_APP_META_TITLE = 1036,
         /// <gettext file> (Name of argument holding a file name for a GetText PO/MO file)
-        ARGS_APP_META_PO_MO_FILE = 531,
+        ARGS_APP_META_PO_MO_FILE = 1037,
         /// <dir> (Name of argument holding a directory)
-        ARGS_APP_META_DIR = 1032,
+        ARGS_APP_META_DIR = 1038,
         /// shows program version and exits (Description for 'version' argument)
-        ARGS_APP_VERSION = 532,
+        ARGS_APP_VERSION = 1039,
         /// uses color in diagnostics; <when> is 'never', 'always', or 'auto' (Description for 'color' argument; <when> should translated the same, as ARGS_APP_META_WHEN, words 'never', 'always', and 'auto' should be left unchanged)
-        ARGS_APP_COLOR = 1043,
+        ARGS_APP_COLOR = 1040,
         /// replaces {0} as new data directory (Description for 'share' argument)
-        ARGS_APP_SHARE_REDIR = 1033,
+        ARGS_APP_SHARE_REDIR = 1041,
         /// shows more info (Description for 'verbose' argument)
-        ARGS_APP_VERBOSE = 533,
+        ARGS_APP_VERBOSE = 1042,
         /// sets the name of copyright holder (Description for 'copyright' argument)
-        ARGS_APP_COPYRIGHT = 534,
+        ARGS_APP_COPYRIGHT = 1043,
         /// sets the name and email address of first author (Description for 'author' argument)
-        ARGS_APP_AUTHOR = 535,
+        ARGS_APP_AUTHOR = 1044,
         /// sets a descriptive title for the POT project (Description for 'title' argument)
-        ARGS_APP_TITLE = 536,
+        ARGS_APP_TITLE = 1045,
         /// instructs the Strings type to use data generated by the `lngs res'. (Description for 'resource' argument)
-        ARGS_APP_RESOURCE = 537,
+        ARGS_APP_RESOURCE = 1046,
         /// replaces missing strings with warped ones; resulting strings are always singular (Description for argument adding in English strings of missing entries, but replacing all letters with similar-looking but different letters.)
-        ARGS_APP_WARP_MISSING_SINGULAR = 538,
+        ARGS_APP_WARP_MISSING_SINGULAR = 1047,
         /// replaces all strings with warped ones; plural strings will still be plural (as if English) (Description for argument changing all strings in a resource file, by replacing all letters with similar-looking but different letters.)
-        ARGS_APP_WARP_ALL_PLURAL = 539,
+        ARGS_APP_WARP_ALL_PLURAL = 1048,
         /// adds block of strings with key names (Description for argument allowing for additional, optional block in resulting file)
-        ARGS_APP_WITH_KEY_BLOCK = 540,
+        ARGS_APP_WITH_KEY_BLOCK = 1049,
         /// sets file name to #include in the implementation of the Resource class; defaults to "<project>.hpp". (Description for argument allowing to change the name of an include file to be more in-line with project's layout)
-        ARGS_APP_ALT_INCLUDE = 541,
+        ARGS_APP_ALT_INCLUDE = 1050,
         /// sets POT file name to write results to; use "-" for standard output (Description for output argument for lngs pot)
-        ARGS_APP_OUT_POT = 542,
+        ARGS_APP_OUT_POT = 1051,
         /// sets C++ header file name to write results to; use "-" for standard output (Description for output argument for lngs enums)
-        ARGS_APP_OUT_CPP = 543,
+        ARGS_APP_OUT_CPP = 1052,
         /// sets C++ code file name with builtin strings to write results to; use "-" for standard output (Description for output argument for lngs res)
-        ARGS_APP_OUT_RES = 544,
+        ARGS_APP_OUT_RES = 1053,
         /// sets Python file name to write results to; use "-" for standard output (Description for output argument for lngs py)
-        ARGS_APP_OUT_PY = 545,
+        ARGS_APP_OUT_PY = 1054,
         /// sets LNG binary file name to write results to; use "-" for standard output (Description for output argument for lngs make)
-        ARGS_APP_OUT_LNG = 546,
+        ARGS_APP_OUT_LNG = 1055,
         /// sets IDL message file name to write results to; it may be the same as input; use "-" for standard output (Description for output argument for lngs freeze)
-        ARGS_APP_OUT_IDL = 547,
+        ARGS_APP_OUT_IDL = 1056,
         /// sets message file name to read from (Description for input argument taking IDL file)
-        ARGS_APP_IN_IDL = 548,
+        ARGS_APP_IN_IDL = 1057,
         /// sets GetText message file name to read from (Description for input argument taking GetText PO/MO file)
-        ARGS_APP_IN_PO_MO = 549,
+        ARGS_APP_IN_PO_MO = 1058,
         /// sets ATTR_LANGUAGE file name with ll_CC (language_COUNTRY) names list (Description for input argument taking TXT file with language/country names)
-        ARGS_APP_IN_LLCC = 550,
+        ARGS_APP_IN_LLCC = 1059,
         /// note (Name of the severity label for notes.)
-        SEVERITY_NOTE = 1001,
+        SEVERITY_NOTE = 1060,
         /// warning (Name of the severity label for warnings.)
-        SEVERITY_WARNING = 1002,
+        SEVERITY_WARNING = 1061,
         /// error (Name of the severity label for errors.)
-        SEVERITY_ERROR = 1003,
+        SEVERITY_ERROR = 1062,
         /// fatal (Name of the severity label for fatals.)
-        SEVERITY_FATAL = 1004,
+        SEVERITY_FATAL = 1063,
         /// could not open `{0}' (Needed file was not found; filename is going to be shown as argument {0}.)
-        ERR_FILE_MISSING = 1005,
+        ERR_FILE_MISSING = 1064,
         /// could not open the file (Needed file was not found; filename is going to be shown as source of message.)
-        ERR_FILE_NOT_FOUND = 1006,
+        ERR_FILE_NOT_FOUND = 1065,
         /// `{0}' is not strings file (Presented as additional message, if input file was not parsed properly.)
-        ERR_NOT_STRINGS_FILE = 1007,
+        ERR_NOT_STRINGS_FILE = 1066,
         /// no new strings (Shown by lngs freeze.)
-        ERR_NO_NEW_STRINGS = 1008,
+        ERR_NO_NEW_STRINGS = 1067,
         /// attribute `{0}' should not be empty (Used for attributes with no value. The argument represents the name of the attribute.)
-        ERR_ATTR_EMPTY = 1009,
+        ERR_ATTR_EMPTY = 1068,
         /// attribute `{0}' is missing (Optional attribute is not present. The argument represents the name of the attribute.)
-        ERR_ATTR_MISSING = 1010,
+        ERR_ATTR_MISSING = 1069,
         /// required attribute `{0}' is missing (A required attribute is not present. The argument represents the name of the attribute.)
-        ERR_REQ_ATTR_MISSING = 1011,
+        ERR_REQ_ATTR_MISSING = 1070,
         /// before finalizing a value, use `id(-1)' (Hint for IDL authors, when an id attribute is missing.)
-        ERR_ID_MISSING_HINT = 1012,
+        ERR_ID_MISSING_HINT = 1071,
         /// expected {0}, got {1} (Information about bad syntax in the strings file. The arguments represent the expected and actual token, respectively.)
-        ERR_EXPECTED = 1013,
+        ERR_EXPECTED = 1072,
         /// unrecognized text (Used as second argument for ERR_EXPECTED, as in "..., got unrecognized text")
-        ERR_EXPECTED_GOT_UNRECOGNIZED = 1014,
+        ERR_EXPECTED_GOT_UNRECOGNIZED = 1073,
         /// end of file (Used as first argument for ERR_EXPECTED, as in "expected EOF")
-        ERR_EXPECTED_EOF = 1034,
+        ERR_EXPECTED_EOF = 1074,
         /// end of line (Used as first argument for ERR_EXPECTED, as in "expected EOL")
-        ERR_EXPECTED_EOL = 1035,
+        ERR_EXPECTED_EOL = 1075,
         /// string (Used as first argument for ERR_EXPECTED, as in "expected string")
-        ERR_EXPECTED_STRING = 1016,
+        ERR_EXPECTED_STRING = 1076,
         /// number (Used as first argument for ERR_EXPECTED, as in "expected number")
-        ERR_EXPECTED_NUMBER = 1017,
+        ERR_EXPECTED_NUMBER = 1077,
         /// identifier (Used as first argument for ERR_EXPECTED, as in "expected identifier")
-        ERR_EXPECTED_ID = 1018,
+        ERR_EXPECTED_ID = 1078,
         /// end of file (Used as second argument for ERR_EXPECTED, as in "..., got EOF")
-        ERR_EXPECTED_GOT_EOF = 1019,
+        ERR_EXPECTED_GOT_EOF = 1079,
         /// end of line (Used as second argument for ERR_EXPECTED, as in "..., got EOL")
-        ERR_EXPECTED_GOT_EOL = 1036,
+        ERR_EXPECTED_GOT_EOL = 1080,
         /// string (Used as second argument for ERR_EXPECTED, as in "..., got string")
-        ERR_EXPECTED_GOT_STRING = 1020,
+        ERR_EXPECTED_GOT_STRING = 1081,
         /// number (Used as second argument for ERR_EXPECTED, as in "..., got number")
-        ERR_EXPECTED_GOT_NUMBER = 1021,
+        ERR_EXPECTED_GOT_NUMBER = 1082,
         /// identifier (Used as second argument for ERR_EXPECTED, as in "..., got identifier")
-        ERR_EXPECTED_GOT_ID = 1022,
+        ERR_EXPECTED_GOT_ID = 1083,
         /// message file does not contain translation for "{0}" (Warning for a missing string. The argument will be replaced by identifier with missing translation.)
-        ERR_MSGS_TRANSLATION_MISSING = 1023,
+        ERR_MSGS_TRANSLATION_MISSING = 1084,
         /// message file does not contain Language attribute (The gettext MO file has no attribute for language-REGION pair. The word "Language" is not to be translated.)
-        ERR_MSGS_ATTR_LANG_MISSING = 1024,
+        ERR_MSGS_ATTR_LANG_MISSING = 1085,
         /// locale {0} has no name (Message for missing name for a locale with no name for the culture in file with locale/name pairs.)
-        ERR_UNANMED_LOCALE = 1025,
+        ERR_UNANMED_LOCALE = 1086,
         /// no {0} locale on the list (Message for missing locale in file with locale/culture name pairs.)
-        ERR_LOCALE_MISSING = 1026,
+        ERR_LOCALE_MISSING = 1087,
         /// gettext file format error (The MO file has unexpected contents)
-        ERR_GETTEXT_FORMAT = 1027,
+        ERR_GETTEXT_FORMAT = 1088,
         /// two or more blocks occupy the same space (Detail of what was wrong with the contents)
-        ERR_GETTEXT_BLOCKS_OVERLAP = 1028,
+        ERR_GETTEXT_BLOCKS_OVERLAP = 1089,
         /// string not contained inside the block (Detail of what was wrong with the contents)
-        ERR_GETTEXT_STRING_OUTSIDE = 1029,
+        ERR_GETTEXT_STRING_OUTSIDE = 1090,
         /// file truncated; data missing (Detail of what was wrong with the contents)
-        ERR_GETTEXT_FILE_TRUNCATED = 1030,
+        ERR_GETTEXT_FILE_TRUNCATED = 1091,
         /// strings must end with a zero (Detail of what was wrong with the contents)
-        ERR_GETTEXT_NOT_ASCIIZ = 1031,
+        ERR_GETTEXT_NOT_ASCIIZ = 1092,
         /// unrecognized field `{0}' (The PO file has unexpected field name)
-        ERR_GETTEXT_UNRECOGNIZED_FIELD = 1037,
+        ERR_GETTEXT_UNRECOGNIZED_FIELD = 1093,
         /// unrecognized escape sequence `\{0}' (The PO file has unexpected string contents)
-        ERR_GETTEXT_UNRECOGNIZED_ESCAPE = 1038,
+        ERR_GETTEXT_UNRECOGNIZED_ESCAPE = 1094,
     }; // enum class lng
 
     struct Resource {
@@ -199,7 +201,7 @@ namespace lngs::app {
         static std::size_t size();
     };
 
-    using Strings = lngs::SingularStrings<lng, lngs::VersionedFile<7,
+    using Strings = lngs::SingularStrings<lng, lngs::VersionedFile<8,
         lngs::storage::FileWithBuiltin<Resource>>>;
 } // namespace lngs::app
 // clang-format on

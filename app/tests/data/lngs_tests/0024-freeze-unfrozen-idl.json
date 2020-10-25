@@ -1,1 +1,1 @@
-{"name": "0024: Freeze (unfrozen.idl)", "args": ["freeze", "-i", "$DATA/unfrozen.idl", "-o", "-"], "expected": [0, "[serial(1), project(\"testing\")] strings {\n    [help(\"Help\"), id(1001)]\n    IDL_NEW = \"A string\";\n}\n", ""]}
+{"name": "0024: Freeze (unfrozen.idl)", "args": ["freeze", "$DATA/unfrozen.idl", "-o", "-"], "expected": [0, "[serial(1), project(\"testing\")] strings {\n    [help(\"Help\"), id(1001)]\n    IDL_NEW = \"A string\";\n}\n", ""]}

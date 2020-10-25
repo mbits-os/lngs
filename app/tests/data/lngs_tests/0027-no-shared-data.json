@@ -1,1 +1,1 @@
-{"name": "0027: No shared data", "args": ["--share", "."], "expected": [2, "", "usage: lngs [-h] [--version] [--share <dir>] <command> [<arguments>]\nlngs: error: command missing\n"]}
+{"name": "0027: No shared data", "args": ["--share", "."], "expected": [2, "", "usage: lngs [-h] [--version] [--share <dir>] <command> <source> -o <file> [<arguments>]\nlngs: error: command missing\n"]}

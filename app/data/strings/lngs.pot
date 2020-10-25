@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: lngs 0.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-10-11 18:49+0200\n"
+"POT-Creation-Date: 2020-10-25 09:11+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -67,9 +67,9 @@ msgctxt "ARGS_APP_DESCR_CMD_RES"
 msgid "Creates C++ file with fallback resource for the message file."
 msgstr ""
 
-#. Synopsis for the app. The "[-h] [--version] [--share" part should be left intact, only the "<dir>", "command" and "arguments" words should be translated.
+#. Synopsis for the app. The "[-h] [--version] [--share" part should be left intact, only the "<dir>", "command", "<source>", "<file>" and "arguments" words should be translated.
 msgctxt "ARGS_APP_DESCR_USAGE"
-msgid "[-h] [--version] [--share <dir>] <command> [<arguments>]"
+msgid "[-h] [--version] [--share <dir>] <command> <source> -o <file> [<arguments>]"
 msgstr ""
 
 #. Name of a role responsible for adding new entries to be used in the code
@@ -140,6 +140,11 @@ msgstr ""
 #. Name of argument for rights holder
 msgctxt "ARGS_APP_META_HOLDER"
 msgid "<holder>"
+msgstr ""
+
+#. Name of input argument
+msgctxt "ARGS_APP_META_INPUT"
+msgid "<source>"
 msgstr ""
 
 #. Name of argument holding a file name for a GetText PO/MO file

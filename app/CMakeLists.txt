@@ -106,7 +106,7 @@ foreach(PO ${PO_FILES})
 				make_directory ${CMAKE_CURRENT_BINARY_DIR}/${SHARE_DIR}/locale/${PO_NAME}
 		COMMAND
 			$<TARGET_FILE:lngs> make
-				-i "${LNGS_IDL}"
+				"${LNGS_IDL}"
 				-m "${PO}"
 				-o "${LNG}"
 
