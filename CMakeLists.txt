@@ -14,6 +14,9 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 conan_basic_setup(TARGETS)
 
+find_package(GTest REQUIRED CONFIG HINTS ${PROJECT_BINARY_DIR})
+find_package(fmt REQUIRED CONFIG HINTS ${PROJECT_BINARY_DIR})
+
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
 set(LNGS_TESTING ON CACHE BOOL "Compile and/or run self-tests")

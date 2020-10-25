@@ -71,7 +71,7 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/lngs.pc DESTINATION share/pkgconfig)
 
 if (LNGS_TESTING)
 
-add_test_executable(liblngs-test CONAN_PKG DATA_PATH data LIBRARIES liblngs lngs_app)
+add_test_executable(liblngs-test DATA_PATH data LIBRARIES liblngs lngs_app)
 
 add_test(NAME liblngs.file COMMAND liblngs-test --gtest_filter=file.*)
 add_test(NAME liblngs.plurals COMMAND liblngs-test --gtest_filter=*/plurals.*:*/plural_ops.*)

@@ -1,9 +1,11 @@
 [requires]
 gtest/1.10.0
 fmt/7.0.3
+mbits-args/0.12.3
 
 [options]
 gtest:build_gmock=False
 
 [generators]
-cmake 
+cmake
+cmake_find_package_multi
