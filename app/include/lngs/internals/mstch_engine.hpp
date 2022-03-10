@@ -6,6 +6,7 @@
 #include <filesystem>
 #include <lngs/internals/strings.hpp>
 #include <mstch/mstch.hpp>
+#include <optional>
 #include <tuple>
 
 namespace diags {
