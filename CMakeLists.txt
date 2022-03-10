@@ -15,9 +15,6 @@ set(CONAN_DISABLE_CHECK_COMPILER ON)
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 conan_basic_setup(TARGETS)
 
-find_package(GTest REQUIRED CONFIG HINTS ${PROJECT_BINARY_DIR})
-find_package(fmt REQUIRED CONFIG HINTS ${PROJECT_BINARY_DIR})
-
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
 set(LNGS_TESTING ON CACHE BOOL "Compile and/or run self-tests")
@@ -76,22 +73,24 @@ else()
   endif()
 endif()
 
-foreach(MOD lngs)
-  list(APPEND COVERALLS_DIRS
-    libs/lib${MOD}/include/${MOD}
-    libs/lib${MOD}/src)
-endforeach()
-
-list(APPEND COVERALLS_DIRS
-  app/include
-  app/src)
-
 find_package(Python3 COMPONENTS Interpreter REQUIRED)
-  
-include(tools/coveralls/Coveralls.cmake)
+find_package(fmt REQUIRED CONFIG HINTS ${PROJECT_BINARY_DIR})
 
-if (COVERALLS AND NOT LNGS_TESTING)
-  message(FATAL_ERROR "Coveralls are useless without -DLNGS_TESTING=ON")
+  
+if (LNGS_TESTING)
+  find_package(GTest REQUIRED CONFIG HINTS ${PROJECT_BINARY_DIR})
+
+  foreach(MOD lngs)
+    list(APPEND COVERALLS_DIRS
+      libs/lib${MOD}/include/${MOD}
+      libs/lib${MOD}/src)
+  endforeach()
+
+  list(APPEND COVERALLS_DIRS
+    app/include
+    app/src)
+
+  include(tools/coveralls/Coveralls.cmake)
 endif()
 
 find_package(Git)
