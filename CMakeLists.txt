@@ -18,6 +18,7 @@ conan_basic_setup(TARGETS)
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
 set(LNGS_TESTING ON CACHE BOOL "Compile and/or run self-tests")
+set(LNGS_LITE ON CACHE BOOL "Create lngs_lite library")
 
 if (MSVC)
   set(ADDITIONAL_WALL_FLAGS
