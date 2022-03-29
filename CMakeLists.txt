@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 3.10)
 project (lngs
-  VERSION 0.6.3
+  VERSION 0.6.4
   DESCRIPTION "Locale File Format And Processor"
   LANGUAGES CXX)
 
