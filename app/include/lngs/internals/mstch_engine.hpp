@@ -19,14 +19,15 @@ namespace lngs::app {
 		explicit mstch_engine(
 		    std::optional<std::filesystem::path> const& redirected);
 		std::string load(std::string const& partial) final;
-		bool is_valid(std::string const& partial) final;
+		bool need_update(const std::string& partial) const final;
+		bool is_valid(std::string const& partial) const final;
 
 	private:
 		static std::tuple<bool, time_t, std::filesystem::path> stat(
 		    std::filesystem::path const& root,
 		    std::string const& tmplt_name);
 		std::pair<bool, std::filesystem::path> stat(
-		    std::string const& tmplt_name);
+		    std::string const& tmplt_name) const;
 		std::string read(std::filesystem::path const&);
 
 		std::filesystem::path m_installed_templates;

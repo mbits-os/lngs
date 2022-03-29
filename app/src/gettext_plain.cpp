@@ -90,8 +90,8 @@ namespace gtt {
 					auto idid = rec.size();
 					std::size_t string_length = 0;
 					std::size_t ndx = 0;
-					for (auto const& line : rec) {
-						switch (line.type) {
+					for (auto const& cmd : rec) {
+						switch (cmd.type) {
 							case cmd_type::msgctx:
 								ctxid = ndx;
 								break;
@@ -99,7 +99,7 @@ namespace gtt {
 								idid = ndx;
 								break;
 							case cmd_type::msgstr:
-								string_length += line.contents.size() + 1;
+								string_length += cmd.contents.size() + 1;
 								break;
 							default:
 								break;
@@ -115,11 +115,11 @@ namespace gtt {
 
 					std::string message(string_length, '\0');
 					auto ptr = message.data();
-					for (auto const& line : rec) {
-						if (line.type != cmd_type::msgstr) continue;
-						std::memcpy(ptr, line.contents.data(),
-						            line.contents.size());
-						ptr += line.contents.size() + 1;
+					for (auto const& cmd : rec) {
+						if (cmd.type != cmd_type::msgstr) continue;
+						std::memcpy(ptr, cmd.contents.data(),
+						            cmd.contents.size());
+						ptr += cmd.contents.size() + 1;
 					}
 
 					result[std::move(key)] = std::move(message);

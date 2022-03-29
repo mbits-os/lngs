@@ -127,7 +127,8 @@ namespace lngs::app::pot {
 		        {
 		            "copy",
 		            mstch::map{
-		                {"year", nfo.year == -1 ? thisYear() : nfo.year},
+		                {"year", static_cast<long long>(
+		                             nfo.year == -1 ? thisYear() : nfo.year)},
 		                {"holder", nfo.copy},
 		            },
 		        },

@@ -38,7 +38,7 @@ namespace lngs::app {
 	}
 
 	std::pair<bool, std::filesystem::path> mstch_engine::stat(
-	    std::string const& tmplt_name) {
+	    std::string const& tmplt_name) const {
 		auto [installed_exists, installed, installed_path] =
 		    stat(m_installed_templates, tmplt_name);
 #ifndef NDEBUG
@@ -64,7 +64,11 @@ namespace lngs::app {
 		return read(path);
 	}
 
-	bool mstch_engine::is_valid(std::string const& partial) {
+	bool mstch_engine::need_update(const std::string&) const {
+		return false;
+	}
+
+	bool mstch_engine::is_valid(std::string const& partial) const {
 		return stat(partial).first;
 	}
 
@@ -74,7 +78,7 @@ namespace lngs::app {
 		    {"value", (*value)(str.value)},
 		    {"help", (*help)(str.help)},
 		    {"plural", (*plural)(str.plural)},
-		    {"id", str.id},
+		    {"id", static_cast<long long>(str.id)},
 		};
 	}
 

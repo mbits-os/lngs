@@ -458,7 +458,13 @@ command commands[] = {
 	std::exit(0);
 }
 
+#ifdef _WIN32
+extern "C" __declspec(dllimport) int __stdcall SetConsoleOutputCP(unsigned);
+#endif
 int main(int argc, XChar* argv[]) {
+#ifdef _WIN32
+	SetConsoleOutputCP(65001);
+#endif
 	std::optional<std::filesystem::path> redirected_share{};
 
 	{
