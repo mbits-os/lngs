@@ -1,5 +1,3 @@
-find_package(args REQUIRED CONFIG HINTS ${PROJECT_BINARY_DIR})
-
 set(lngs_app_SRCS
   src/cmds/cmd_freeze_ids.cpp
   src/cmds/cmd_load_msgs.cpp
@@ -38,7 +36,14 @@ target_include_directories(lngs_app
   	${CMAKE_CURRENT_SOURCE_DIR}/src
   	${CMAKE_CURRENT_BINARY_DIR}/src)
 
-target_link_libraries(lngs_app PUBLIC liblngs mbits::args fmt::fmt mstch utfconv diags)
+target_link_libraries(lngs_app PUBLIC
+	liblngs
+	mbits::args
+	fmt::fmt
+	mbits-libmstch::libmstch
+	mbits-utfconv::utfconv
+	mbits-diags::diags
+)
 
 set(SHARE_DIR share/lngs-${PROJECT_VERSION_SHORT})
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/build.in.hpp ${CMAKE_CURRENT_BINARY_DIR}/src/build.hpp @ONLY)

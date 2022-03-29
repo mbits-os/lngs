@@ -10,7 +10,7 @@ target_include_directories(lngs_lite PUBLIC
   $<INSTALL_INTERFACE:include>
 )
 
-target_link_libraries(lngs_lite liblngs)
+target_link_libraries(lngs_lite PUBLIC liblngs)
 
 install(TARGETS lngs_lite
 	ARCHIVE DESTINATION lib

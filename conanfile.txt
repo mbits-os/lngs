@@ -1,7 +1,11 @@
 [requires]
-gtest/1.10.0
-fmt/7.0.3
+gtest/cci.20210126
+fmt/8.1.1
 mbits-args/0.12.3
+mbits-semver/0.1.0
+mbits-utfconv/1.0.2
+mbits-diags/0.9.3
+mbits-libmstch/1.0.3
 
 [options]
 gtest:build_gmock=False

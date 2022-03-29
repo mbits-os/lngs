@@ -11,11 +11,12 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-set(CONAN_DISABLE_CHECK_COMPILER ON)
+list(APPEND CMAKE_MODULE_PATH "${PROJECT_BINARY_DIR}" "${PROJECT_SOURCE_DIR}/cmake")
+list(APPEND CMAKE_PREFIX_PATH "${PROJECT_BINARY_DIR}")
+
+set(CONAN_CMAKE_SILENT_OUTPUT ON)
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 conan_basic_setup(TARGETS)
-
-list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
 set(LNGS_TESTING ON CACHE BOOL "Compile and/or run self-tests")
 set(LNGS_LITE ON CACHE BOOL "Create lngs_lite library")
@@ -75,11 +76,14 @@ else()
 endif()
 
 find_package(Python3 COMPONENTS Interpreter REQUIRED)
-find_package(fmt REQUIRED CONFIG HINTS ${PROJECT_BINARY_DIR})
-
+find_package(fmt REQUIRED CONFIG)
+find_package(args REQUIRED CONFIG)
+find_package(mbits-libmstch REQUIRED CONFIG)
+find_package(mbits-utfconv REQUIRED CONFIG)
+find_package(mbits-diags REQUIRED CONFIG)
   
 if (LNGS_TESTING)
-  find_package(GTest REQUIRED CONFIG HINTS ${PROJECT_BINARY_DIR})
+  find_package(GTest REQUIRED CONFIG HINTS)
 
   foreach(MOD lngs)
     list(APPEND COVERALLS_DIRS
@@ -118,7 +122,6 @@ define_property(TARGET PROPERTY IDL
   BRIEF_DOCS "The language file path"
   FULL_DOCS "The language file path")
 
-add_subdirectory(external)
 add_subdirectory(libs)
 add_subdirectory(app)
 
