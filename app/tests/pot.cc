@@ -3,6 +3,7 @@
 #include <lngs/internals/strings.hpp>
 #include <regex>
 #include "diag_helper.h"
+#include "test_env.hh"
 
 namespace lngs::app::testing {
 	using namespace ::std::literals;
@@ -35,24 +36,23 @@ namespace lngs::app::testing {
 		sources diag;
 		diag.set_contents("", input);
 
-		idl_strings strings;
-		bool idl_valid = read_strings(diag.source(""), strings, diag);
+		test_env<outstrstream> data{};
+		bool idl_valid = read_strings(diag.source(""), data.strings, diag);
 		EXPECT_TRUE(idl_valid);
 
-		outstrstream output;
-		app::pot::write(output, strings, {}, info);
+		app::pot::write(data.env(), info);
 
 		std::regex pot_creation_date{
 		    R"("POT-Creation-Date: ((\d{4})-\d{2}-\d{2} \d{2}:\d{2}[+-]\d{4})\\n")"};
 		std::smatch matches;
 		ASSERT_TRUE(
-		    std::regex_search(output.contents, matches, pot_creation_date));
+		    std::regex_search(data.output.contents, matches, pot_creation_date));
 
 		auto expected =
 		    fmt::format(expected_template, fmt::arg("ThisYear", matches.str(2)),
 		                fmt::arg("CurrentDate", matches.str(1)));
 
-		EXPECT_EQ(expected, output.contents);
+		EXPECT_EQ(expected, data.output.contents);
 	}
 
 	TEST_P(pot_year, text) {
@@ -63,26 +63,25 @@ namespace lngs::app::testing {
 
 		if (file_exists) diag.set_contents("template", prev);
 
-		idl_strings strings;
-		bool idl_valid = read_strings(diag.source(""), strings, diag);
+		test_env<outstrstream> data{};
+		bool idl_valid = read_strings(diag.source(""), data.strings, diag);
 		EXPECT_TRUE(idl_valid);
 
 		info.year = app::pot::year_from_template(diag.open("template"));
 
-		outstrstream output;
-		app::pot::write(output, strings, {}, info);
+		app::pot::write(data.env(), info);
 
 		std::regex pot_creation_date{
 		    R"("POT-Creation-Date: ((\d{4})-\d{2}-\d{2} \d{2}:\d{2}[+-]\d{4})\\n")"};
 		std::smatch matches;
-		ASSERT_TRUE(
-		    std::regex_search(output.contents, matches, pot_creation_date));
+		ASSERT_TRUE(std::regex_search(data.output.contents, matches,
+		                              pot_creation_date));
 
 		auto expected =
 		    fmt::format(expected_template, fmt::arg("ThisYear", matches.str(2)),
 		                fmt::arg("CurrentDate", matches.str(1)));
 
-		EXPECT_EQ(expected, output.contents);
+		EXPECT_EQ(expected, data.output.contents);
 	}
 
 	const pot_result sources[] = {

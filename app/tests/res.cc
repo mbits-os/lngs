@@ -7,6 +7,7 @@
 #include "diag_helper.h"
 #include "ostrstream.h"
 #include "strings_helper.h"
+#include "test_env.hh"
 
 namespace lngs {
 	void PrintTo(const string_key& key, std::ostream* o) {
@@ -298,11 +299,10 @@ namespace lngs::app::testing {
 	TEST_P(res_write, compile) {
 		auto [input, include, project, expected] = GetParam();
 
-		outstrstream actual;
-		idl_strings defs{};
-		defs.project.assign(project);
-		res::update_and_write(actual, input, defs, include, {});
-		EXPECT_EQ(expected, actual.contents);
+		test_env<outstrstream> data{};
+		data.strings.project.assign(project);
+		res::update_and_write(data.env(), input, include);
+		EXPECT_EQ(expected, data.output.contents);
 	}
 
 	TEST_P(res_write, partial_middle) {
@@ -311,11 +311,10 @@ namespace lngs::app::testing {
 		const auto pos1 = expected.find("const char __resource[] = {") + 27;
 		const auto pos2 = expected.find("}; // __resource", pos1);
 
-		partial_ostrstream actual{pos1 + (pos2 - pos1) / 2};
-		idl_strings defs{};
-		defs.project.assign(project);
-		res::update_and_write(actual, input, defs, include, {});
-		EXPECT_EQ(expected.substr(0, actual.chars), actual.contents);
+		test_env<partial_ostrstream> data{{pos1 + (pos2 - pos1) / 2}};
+		data.strings.project.assign(project);
+		res::update_and_write(data.env(), input, include);
+		EXPECT_EQ(expected.substr(0, data.output.chars), data.output.contents);
 	}
 
 	TEST_P(res_write, partial_start) {
@@ -323,11 +322,10 @@ namespace lngs::app::testing {
 
 		const auto pos = expected.find("const char __resource[] = {") + 30;
 
-		partial_ostrstream actual{pos};
-		idl_strings defs{};
-		defs.project.assign(project);
-		res::update_and_write(actual, input, defs, include, {});
-		EXPECT_EQ(expected.substr(0, actual.chars), actual.contents);
+		test_env<partial_ostrstream> data{{pos}};
+		data.strings.project.assign(project);
+		res::update_and_write(data.env(), input, include);
+		EXPECT_EQ(expected.substr(0, data.output.chars), data.output.contents);
 	}
 
 	TEST_P(res_write, partial_endline) {
@@ -337,11 +335,10 @@ namespace lngs::app::testing {
 		const auto pos2 = expected.find("}; // __resource", pos1);
 		const auto pos = expected.rfind("\"\n", pos2);
 
-		partial_ostrstream actual{pos};
-		idl_strings defs{};
-		defs.project.assign(project);
-		res::update_and_write(actual, input, defs, include, {});
-		EXPECT_EQ(expected.substr(0, actual.chars), actual.contents);
+		test_env<partial_ostrstream> data{{pos}};
+		data.strings.project.assign(project);
+		res::update_and_write(data.env(), input, include);
+		EXPECT_EQ(expected.substr(0, data.output.chars), data.output.contents);
 	}
 
 	TEST_P(res_write, partial_finalize) {
@@ -350,11 +347,10 @@ namespace lngs::app::testing {
 		const auto pos1 = expected.find("const char __resource[] = {") + 27;
 		const auto pos = expected.find("\"\n", pos1) + 1;
 
-		partial_ostrstream actual{pos};
-		idl_strings defs{};
-		defs.project.assign(project);
-		res::update_and_write(actual, input, defs, include, {});
-		EXPECT_EQ(expected.substr(0, actual.chars), actual.contents);
+		test_env<partial_ostrstream> data{{pos}};
+		data.strings.project.assign(project);
+		res::update_and_write(data.env(), input, include);
+		EXPECT_EQ(expected.substr(0, data.output.chars), data.output.contents);
 	}
 
 	const write_result write_resources[] = {

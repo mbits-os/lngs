@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include <diags/streams.hpp>
 #include <lngs/internals/mstch_engine.hpp>
+#include "test_env.hh"
 
 namespace lngs::app::testing {
 	class strstream : public diags::outstream {
@@ -15,11 +16,13 @@ namespace lngs::app::testing {
 	};
 
 	TEST(mstch, context_conflict) {
-		strstream out{};
-		idl_strings defs{"project", "version", {}, 0, -1, false, {}};
-		auto result = write_mstch(out, defs, {}, "no_such",
-		                          {{"project", "name"}, {"version", "0.1.0"}});
+		test_env<strstream> data{
+		    {},
+		    {"project", "version", {}, 0, -1, false, {}},
+		};
+		auto result = data.env().write_mstch(
+		    "no_such", {{"project", "name"}, {"version", "0.1.0"}});
 		EXPECT_EQ(0, result);
-		EXPECT_TRUE(out.str.empty());
+		EXPECT_TRUE(data.output.str.empty());
 	}
 }  // namespace lngs::app::testing

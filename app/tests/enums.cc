@@ -2,6 +2,7 @@
 #include <lngs/internals/commands.hpp>
 #include <lngs/internals/strings.hpp>
 #include "diag_helper.h"
+#include "test_env.hh"
 
 namespace lngs::app::testing {
 	using namespace ::std::literals;
@@ -27,13 +28,12 @@ namespace lngs::app::testing {
 		diags::sources diag;
 		diag.set_contents("", input);
 
-		idl_strings strings;
-		bool idl_valid = read_strings(diag.source(""), strings, diag);
+		test_env<outstrstream> data{};
+		bool idl_valid = read_strings(diag.source(""), data.strings, diag);
 		EXPECT_TRUE(idl_valid);
 
-		outstrstream output;
-		app::enums::write(output, strings, {}, false);
-		EXPECT_EQ(expected, output.contents);
+		app::enums::write(data.env(), false);
+		EXPECT_EQ(expected, data.output.contents);
 	}
 
 	TEST_P(enums, text_res) {
@@ -42,13 +42,12 @@ namespace lngs::app::testing {
 		diags::sources diag;
 		diag.set_contents("", input);
 
-		idl_strings strings;
-		bool idl_valid = read_strings(diag.source(""), strings, diag);
+		test_env<outstrstream> data{};
+		bool idl_valid = read_strings(diag.source(""), data.strings, diag);
 		EXPECT_TRUE(idl_valid);
 
-		outstrstream output;
-		app::enums::write(output, strings, {}, true);
-		EXPECT_EQ(with_resource, output.contents);
+		app::enums::write(data.env(), true);
+		EXPECT_EQ(with_resource, data.output.contents);
 	}
 
 	const enums_result sources[] = {

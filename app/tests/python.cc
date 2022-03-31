@@ -2,6 +2,7 @@
 #include <lngs/internals/commands.hpp>
 #include <lngs/internals/strings.hpp>
 #include "diag_helper.h"
+#include "test_env.hh"
 
 namespace lngs::app::testing {
 	using namespace ::std::literals;
@@ -22,13 +23,12 @@ namespace lngs::app::testing {
 		sources diag;
 		diag.set_contents("", input);
 
-		idl_strings strings;
-		bool idl_valid = read_strings(diag.source(""), strings, diag);
+		test_env<outstrstream> data{};
+		bool idl_valid = read_strings(diag.source(""), data.strings, diag);
 		EXPECT_TRUE(idl_valid);
 
-		outstrstream output;
-		app::py::write(output, strings, {});
-		EXPECT_EQ(expected, output.contents);
+		app::py::write(data.env());
+		EXPECT_EQ(expected, data.output.contents);
 	}
 
 	const py_result sources[] = {
