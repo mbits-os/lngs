@@ -16,13 +16,16 @@ namespace diags {
 namespace lngs::app {
 	class mstch_engine : public mstch::cache {
 	public:
+#ifndef LNGS_LINKED_RESOURCES
 		explicit mstch_engine(
 		    std::optional<std::filesystem::path> const& redirected);
+#endif
 		std::string load(std::string const& partial) final;
 		bool need_update(const std::string& partial) const final;
 		bool is_valid(std::string const& partial) const final;
 
 	private:
+#ifndef LNGS_LINKED_RESOURCES
 		static std::tuple<bool, time_t, std::filesystem::path> stat(
 		    std::filesystem::path const& root,
 		    std::string const& tmplt_name);
@@ -34,6 +37,7 @@ namespace lngs::app {
 #ifndef NDEBUG
 		std::filesystem::path m_srcdir_templates;
 #endif
+#endif  // !defined LNGS_LINKED_RESOURCES
 	};
 
 	std::string straighten(std::string const& str);

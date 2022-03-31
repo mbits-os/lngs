@@ -5,21 +5,43 @@
 #include <diags/streams.hpp>
 #include <lngs/internals/mstch_engine.hpp>
 #include "build.hpp"
+#ifdef LNGS_LINKED_RESOURCES
+#include "templates.hpp"
+#endif
+
+using namespace std::literals;
 
 namespace lngs::app {
 	namespace {
+#ifdef LNGS_LINKED_RESOURCES
+#define TMPLT(X)   \
+	X(enum_string) \
+	X(enums)       \
+	X(pot)         \
+	X(py)          \
+	X(py_string)   \
+	X(res)
+		constexpr std::pair<std::string_view, std::string_view (*)()>
+		    known_templates[] = {
+#define TMPLT_PAIR(NAME) {#NAME##sv, [] { return templates::NAME::view(); }},
+		        TMPLT(TMPLT_PAIR)
+#undef TMPLT_PAIR
+		};
+#else
 		std::filesystem::path get_install_dir(
 		    std::optional<std::filesystem::path> const& redirected) {
 			return redirected ? *redirected / "templates"
 			                  : app::build::directory_info::mstch_install;
 		}
+#endif
 	}  // namespace
 
+#ifndef LNGS_LINKED_RESOURCES
 	mstch_engine::mstch_engine(
 	    std::optional<std::filesystem::path> const& redirected)
 	    : m_installed_templates(get_install_dir(redirected))
 #ifndef NDEBUG
-	    , m_srcdir_templates(app::build ::directory_info::mstch_build)
+	    , m_srcdir_templates(app::build::directory_info::mstch_build)
 #endif
 	{
 	}
@@ -57,19 +79,35 @@ namespace lngs::app {
 		auto const data = file.read();
 		return {reinterpret_cast<char const*>(data.data()), data.size()};
 	}
+#endif  // !defined LNGS_LINKED_RESOURCES
 
 	std::string mstch_engine::load(std::string const& partial) {
+#ifdef LNGS_LINKED_RESOURCES
+		for (auto const& [key, cb] : known_templates) {
+			if (key == partial) {
+				auto view = cb();
+				return {view.data(), view.size()};
+			}
+		}
+		return {};
+#else
 		auto [exists, path] = stat(partial);
 		if (!exists) return {};
 		return read(path);
+#endif
 	}
 
-	bool mstch_engine::need_update(const std::string&) const {
-		return false;
-	}
+	bool mstch_engine::need_update(const std::string&) const { return false; }
 
 	bool mstch_engine::is_valid(std::string const& partial) const {
+#ifdef LNGS_LINKED_RESOURCES
+		for (auto const& [key, _] : known_templates) {
+			if (key == partial) return true;
+		}
+		return false;
+#else
 		return stat(partial).first;
+#endif
 	}
 
 	mstch::map str_transform::from(idl_string const& str) const {
@@ -134,7 +172,11 @@ namespace lngs::app {
 		append(ctx, "plural", std::move(plural));
 		append(ctx, "strings", std::move(strings));
 
+#ifdef LNGS_LINKED_RESOURCES
+		mstch_engine mstch{};
+#else
 		mstch_engine mstch{redirected};
+#endif
 		out.write(mstch.render(tmplt_name, ctx));
 		return 0;
 	}
