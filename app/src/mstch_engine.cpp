@@ -129,12 +129,9 @@ namespace lngs::app {
 		}
 	}
 
-	int write_mstch(diags::outstream& out,
-	                const idl_strings& defs,
-	                std::optional<std::filesystem::path> const& redirected,
-	                std::string const& tmplt_name,
-	                mstch::map ctx,
-	                str_transform const& stringify) {
+	int mstch_env::write_mstch(std::string const& tmplt_name,
+	                           mstch::map ctx,
+	                           str_transform const& stringify) const {
 		mstch::array singular, plural, strings;
 
 		mstch::array* refs[] = {&plural, &singular};

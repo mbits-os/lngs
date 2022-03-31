@@ -18,6 +18,7 @@ namespace diags {
 namespace lngs::app {
 	struct file;
 	struct idl_strings;
+	struct mstch_env;
 
 	std::string straighten(std::string const& str);
 }  // namespace lngs::app
@@ -31,23 +32,15 @@ namespace lngs::app::pot {
 	};
 
 	int year_from_template(diags::source_code file);
-	int write(diags::outstream& out,
-	          const idl_strings& defs,
-	          std::optional<std::filesystem::path> const& redirected,
-	          const info& nfo);
+	int write(mstch_env const& env, const info& nfo);
 }  // namespace lngs::app::pot
 
 namespace lngs::app::enums {
-	int write(diags::outstream& out,
-	          const idl_strings& defs,
-	          std::optional<std::filesystem::path> const& redirected,
-	          bool with_resource);
+	int write(mstch_env const& env, bool with_resource);
 }
 
 namespace lngs::app::py {
-	int write(diags::outstream& out,
-	          const idl_strings& defs,
-	          std::optional<std::filesystem::path> const& redirected);
+	int write(mstch_env const& env);
 }
 
 namespace lngs::app::make {
@@ -66,12 +59,9 @@ namespace lngs::app::res {
 	file make_resource(const idl_strings& defs,
 	                   bool warp_strings,
 	                   bool with_keys);
-	int update_and_write(
-	    diags::outstream& out,
-	    file& data,
-	    const idl_strings& defs,
-	    std::string_view include,
-	    std::optional<std::filesystem::path> const& redirected);
+	int update_and_write(mstch_env const& env,
+	                     file& data,
+	                     std::string_view include);
 }  // namespace lngs::app::res
 
 namespace lngs::app::freeze {

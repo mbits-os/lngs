@@ -5,11 +5,7 @@
 #include <lngs/internals/mstch_engine.hpp>
 
 namespace lngs::app::enums {
-	int write(diags::outstream& out,
-	          const idl_strings& defs,
-	          std::optional<std::filesystem::path> const& redirected,
-	          bool with_resource) {
-		return write_mstch(out, defs, redirected, "enums",
-		                   {{"with_resource", with_resource}});
+	int write(mstch_env const& env, bool with_resource) {
+		return env.write_mstch("enums", {{"with_resource", with_resource}});
 	}
 }  // namespace lngs::app::enums

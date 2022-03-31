@@ -5,9 +5,7 @@
 #include <lngs/internals/mstch_engine.hpp>
 
 namespace lngs::app::py {
-	int write(diags::outstream& out,
-	          const idl_strings& defs,
-	          std::optional<std::filesystem::path> const& redirected) {
-		return write_mstch(out, defs, redirected, "py");
+	int write(mstch_env const& env) {
+		return env.write_mstch("py");
 	}
 }  // namespace lngs::app::py

@@ -74,19 +74,15 @@ namespace lngs::app::res {
 		return file;
 	}
 
-	int update_and_write(
-	    diags::outstream& out,
-	    file& data,
-	    const idl_strings& defs,
-	    std::string_view include,
-	    std::optional<std::filesystem::path> const& redirected) {
+	int update_and_write(mstch_env const& env,
+	                     file& data,
+	                     std::string_view include) {
 		auto resource = mstch::lambda{[&]() -> mstch::node {
 			table_outstream os{};
 			data.write(os);
 			return os.finalize();
 		}};
-		return write_mstch(
-		    out, defs, redirected, "res",
-		    {{"include", std::string{include}}, {"resource", resource}});
+		return env.write_mstch(
+		    "res", {{"include", std::string{include}}, {"resource", resource}});
 	}
 }  // namespace lngs::app::res

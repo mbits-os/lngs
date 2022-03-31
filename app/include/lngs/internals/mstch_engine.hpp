@@ -49,10 +49,15 @@ namespace lngs::app {
 		mstch::map from(idl_string const&) const;
 	};
 
-	int write_mstch(diags::outstream& out,
-	                const idl_strings& defs,
-	                std::optional<std::filesystem::path> const& redirected,
-	                std::string const& tmplt_name,
-	                mstch::map initial = {},
-	                str_transform const& stringify = {});
+	struct mstch_env {
+		diags::outstream& out;
+		idl_strings const& defs;
+#ifndef LNGS_LINKED_RESOURCES
+		std::optional<std::filesystem::path> const& redirected;
+#endif
+
+		int write_mstch(std::string const& tmplt_name,
+		                mstch::map initial = {},
+		                str_transform const& stringify = {}) const;
+	};
 }  // namespace lngs::app

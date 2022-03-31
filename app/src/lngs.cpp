@@ -8,6 +8,7 @@
 #include <lngs/internals/languages.hpp>
 #include <lngs/internals/strings.hpp>
 #include <lngs/translation.hpp>
+#include <lngs/internals/mstch_engine.hpp>
 #include "build.hpp"
 
 using namespace std::literals;
@@ -126,18 +127,40 @@ namespace lngs::app {
 			return app::write(parser.program(), diag, common.outname,
 			                  std::move(writer), print_if(common.verbose));
 		}
+
+		mstch_env env(diags::outstream& out) {
+#ifdef LNGS_LINKED_RESOURCES
+			return {out, this->strings};
+#else
+			return {out, this->strings, this->tr.redirected() };
+#endif
+		}
 	};
 
 	struct main_strings : public translator_type, public args::base_translator {
-		main_strings(std::optional<std::filesystem::path> const& redirected)
-		    : m_redirected{redirected} {
+		main_strings(
+#ifndef LNGS_LINKED_RESOURCES
+		    std::optional<std::filesystem::path> const& redirected
+#endif
+		    )
+#ifndef LNGS_LINKED_RESOURCES
+		    : m_redirected {
+			redirected
+		}
+#endif
+		{
+#ifndef LNGS_LINKED_RESOURCES
 			if (m_redirected) {
 				m_install.path_manager<manager::SubdirPath>(
 				    *m_redirected / "locale", "lngs.lng");
 			} else {
+#endif
+				// TODO: use built-in languages
 				m_install.path_manager<manager::SubdirPath>(
 				    build::directory_info::lngs_install, "lngs.lng");
+#ifndef LNGS_LINKED_RESOURCES
 			}
+#endif
 			m_build.path_manager<manager::SubdirPath>(
 			    build::directory_info::lngs_build, "lngs.lng");
 
@@ -154,11 +177,12 @@ namespace lngs::app {
 				m_build.open_first_of(system);
 			}();
 		}
-
+#ifndef LNGS_LINKED_RESOURCES
 		std::optional<std::filesystem::path> const& redirected()
 		    const noexcept {
 			return m_redirected;
 		}
+#endif
 
 		// diags::translator
 		std::string_view get(lng str) const noexcept final {
@@ -226,7 +250,9 @@ namespace lngs::app {
 			}
 		} m_build;
 
+#ifndef LNGS_LINKED_RESOURCES
 		std::optional<std::filesystem::path> m_redirected;
+#endif
 	};
 
 	using application_setup = setup_base<main_strings>;
@@ -257,7 +283,7 @@ namespace lngs::app::pot {
 		nfo.year = year_from_template(setup.diag.open(setup.common.outname));
 
 		return setup.write([&](diags::outstream& out) {
-			return write(out, setup.strings, setup.tr.redirected(), nfo);
+			return write(setup.env(out), nfo);
 		});
 	}
 }  // namespace lngs::app::pot
@@ -277,8 +303,7 @@ namespace lngs::app::enums {
 		if (int res = setup.read_strings()) return res;
 
 		return setup.write([&](diags::outstream& out) {
-			return write(out, setup.strings, setup.tr.redirected(),
-			             with_resource);
+			return write(setup.env(out), with_resource);
 		});
 	}
 }  // namespace lngs::app::enums
@@ -291,7 +316,7 @@ namespace lngs::app::py {
 		if (int res = setup.read_strings()) return res;
 
 		return setup.write([&](diags::outstream& out) {
-			return write(out, setup.strings, setup.tr.redirected());
+			return write(setup.env(out));
 		});
 	}
 }  // namespace lngs::app::py
@@ -361,8 +386,7 @@ namespace lngs::app::res {
 		auto file = make_resource(setup.strings, warp_strings, with_keys);
 
 		return setup.write([&](diags::outstream& out) {
-			return update_and_write(out, file, setup.strings, include,
-			                        setup.tr.redirected());
+			return update_and_write(setup.env(out), file, include);
 		});
 	}
 }  // namespace lngs::app::res
@@ -465,7 +489,9 @@ int main(int argc, XChar* argv[]) {
 #ifdef _WIN32
 	SetConsoleOutputCP(65001);
 #endif
+#ifndef LNGS_LINKED_RESOURCES
 	std::optional<std::filesystem::path> redirected_share{};
+#endif
 
 	{
 		auto noop = [] {};
@@ -475,11 +501,17 @@ int main(int argc, XChar* argv[]) {
 		base.provide_help(false);
 		base.custom(noop, "h", "help").opt();
 		base.custom(noop, "v", "version").opt();
+#ifndef LNGS_LINKED_RESOURCES
 		base.arg(redirected_share, "share");
+#endif
 		base.parse(args::parser::allow_subcommands);
 	}
 
+#ifdef LNGS_LINKED_RESOURCES
+	lngs::app::application_setup setup{};
+#else
 	lngs::app::application_setup setup{redirected_share};
+#endif
 
 	auto show_help_tr = [&setup](args::parser& p) { show_help(p, setup.tr); };
 	auto _ = [&setup](auto id) { return setup.tr.get(id); };
@@ -497,12 +529,13 @@ int main(int argc, XChar* argv[]) {
 	base.custom(show_version, "v", "version")
 	    .help(_(lng::ARGS_APP_VERSION))
 	    .opt();
+#ifndef LNGS_LINKED_RESOURCES
 	base.custom([](std::string const&) {}, "share")
 	    .meta(_(lng::ARGS_APP_META_DIR))
 	    .help(fmt::format(_(lng::ARGS_APP_SHARE_REDIR),
 	                      lngs::app::build::directory_info::data_dir))
 	    .opt();
-
+#endif
 	auto const unparsed = base.parse(args::parser::allow_subcommands);
 	if (unparsed.empty()) base.error(_s(lng::ARGS_APP_NO_COMMAND));
 

@@ -114,12 +114,9 @@ namespace lngs::app::pot {
 		return -1;
 	}
 
-	int write(diags::outstream& out,
-	          const idl_strings& defs,
-	          std::optional<std::filesystem::path> const& redirected,
-	          const info& nfo) {
-		return write_mstch(
-		    out, defs, redirected, "pot",
+	int write(mstch_env const& env, const info& nfo) {
+		return env.write_mstch(
+		    "pot",
 		    {
 		        {"title", nfo.title},
 		        {"first_author", nfo.first_author},
