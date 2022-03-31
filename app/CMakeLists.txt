@@ -24,6 +24,28 @@ set (lngs_app_INCS
   include/lngs/internals/strings/lngs.hpp
 )
 
+if (LNGS_LINKED_RESOURCES)
+	file(GLOB MSTCH_FILES data/templates/*.mustache)
+	add_custom_command(
+		OUTPUT
+			"${CMAKE_CURRENT_BINARY_DIR}/src/templates.cpp"
+			"${CMAKE_CURRENT_BINARY_DIR}/src/templates.hpp"
+		COMMAND
+			"${Python3_EXECUTABLE}"
+			"${LNGS_TOOLS_DIR}/embed.py"
+			-O "${CMAKE_CURRENT_BINARY_DIR}/src/templates.cpp"
+			--inc-dir "${CMAKE_CURRENT_BINARY_DIR}/src"
+			--ns "lngs::templates"
+			${MSTCH_FILES}
+		DEPENDS
+			${MSTCH_FILES}
+	)
+	list(APPEND lngs_app_SRCS
+			"${CMAKE_CURRENT_BINARY_DIR}/src/templates.cpp"
+			"${CMAKE_CURRENT_BINARY_DIR}/src/templates.hpp"
+	)
+endif(LNGS_LINKED_RESOURCES)
+
 add_library(lngs_app STATIC ${lngs_app_SRCS} ${lngs_app_INCS})
 set_target_properties(lngs_app PROPERTIES
   FOLDER app
@@ -35,6 +57,10 @@ target_include_directories(lngs_app
   PRIVATE
   	${CMAKE_CURRENT_SOURCE_DIR}/src
   	${CMAKE_CURRENT_BINARY_DIR}/src)
+
+if (LNGS_LINKED_RESOURCES)
+	target_compile_definitions(lngs_app PUBLIC LNGS_LINKED_RESOURCES)
+endif(LNGS_LINKED_RESOURCES)
 
 target_link_libraries(lngs_app PUBLIC
 	liblngs
@@ -125,7 +151,9 @@ if (PO_NAMES)
 	message(STATUS "Found strings for: ${PO_NAMES}")
 endif()
 install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${SHARE_DIR}/ DESTINATION ${SHARE_DIR})
-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/data/templates DESTINATION ${SHARE_DIR})
+if (NOT LNGS_LINKED_RESOURCES)
+	install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/data/templates DESTINATION ${SHARE_DIR})
+endif()
 
 get_filename_component(IDL_DIR ${LNGS_IDL} DIRECTORY)
 

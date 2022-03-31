@@ -20,6 +20,7 @@ conan_basic_setup(TARGETS)
 
 set(LNGS_TESTING ON CACHE BOOL "Compile and/or run self-tests")
 set(LNGS_LITE ON CACHE BOOL "Create lngs_lite library")
+set(LNGS_LINKED_RESOURCES OFF CACHE BOOL "Compile templates and translations into the lngs binary")
 
 if (MSVC)
   set(ADDITIONAL_WALL_FLAGS
@@ -122,6 +123,7 @@ define_property(TARGET PROPERTY IDL
   BRIEF_DOCS "The language file path"
   FULL_DOCS "The language file path")
 
+set(LNGS_TOOLS_DIR "${CMAKE_CURRENT_LIST_DIR}/tools")
 add_subdirectory(libs)
 add_subdirectory(app)
 
