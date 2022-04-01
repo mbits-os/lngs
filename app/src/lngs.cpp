@@ -6,10 +6,11 @@
 #include <lngs/internals/commands.hpp>
 #include <lngs/internals/diagnostics.hpp>
 #include <lngs/internals/languages.hpp>
+#include <lngs/internals/mstch_engine.hpp>
 #include <lngs/internals/strings.hpp>
 #include <lngs/translation.hpp>
-#include <lngs/internals/mstch_engine.hpp>
 #include "build.hpp"
+#include "embedded_languages.hpp"
 
 using namespace std::literals;
 
@@ -132,9 +133,71 @@ namespace lngs::app {
 #ifdef LNGS_LINKED_RESOURCES
 			return {out, this->strings};
 #else
-			return {out, this->strings, this->tr.redirected() };
+			return {out, this->strings, this->tr.redirected()};
 #endif
 		}
+	};
+
+	class MemoryBased {
+		lang_file m_file{};
+		memory_view m_data{};
+
+		bool open(const std::string& lng, SerialNumber serial) {
+			auto const check_serial = serial != SerialNumber::UseAny;
+			auto const serial_to_check = static_cast<unsigned>(serial);
+
+			auto const view = languages::get_resource(lng);
+			if (!view) return false;
+			m_data = memory_view{
+			    reinterpret_cast<std::byte const*>(view->data()),
+			    view->size(),
+			};
+
+			if (!m_file.open(m_data) ||
+			    (check_serial && m_file.get_serial() != serial_to_check)) {
+				m_file.close();
+				m_data = memory_block{};
+				return false;
+			}
+			return true;
+		}
+
+	public:
+		using FileBased = lngs::storage::FileBased;
+		template <typename C>
+		std::enable_if_t<FileBased::is_range_of<std::string, C>::value, bool>
+		open_first_of(C&& langs, SerialNumber serial) {
+			for (auto& lang : langs) {
+				if (open(lang, serial)) return true;
+			}
+
+			return false;
+		}
+
+		std::string_view get_string(lang_file::identifier id) const noexcept {
+			return m_file.get_string(id);
+		}
+	};
+
+	template <typename ResourceT>
+	class MemoryWithBuiltin : private MemoryBased,
+	                          private lngs::storage::Builtin<ResourceT> {
+		using B1 = MemoryBased;
+		using B2 = lngs::storage::Builtin<ResourceT>;
+
+	protected:
+		using identifier = lang_file::identifier;
+		using quantity = lang_file::quantity;
+
+		std::string_view get_string(identifier val) const noexcept {
+			auto ret = B1::get_string(val);
+			if (!ret.empty()) return ret;
+			return B2::get_string(val);
+		}
+
+	public:
+		using MemoryBased::open_first_of;
+		using lngs::storage::Builtin<ResourceT>::init_builtin;
 	};
 
 	struct main_strings : public translator_type, public args::base_translator {
@@ -154,19 +217,17 @@ namespace lngs::app {
 				m_install.path_manager<manager::SubdirPath>(
 				    *m_redirected / "locale", "lngs.lng");
 			} else {
-#endif
-				// TODO: use built-in languages
 				m_install.path_manager<manager::SubdirPath>(
 				    build::directory_info::lngs_install, "lngs.lng");
-#ifndef LNGS_LINKED_RESOURCES
 			}
-#endif
 			m_build.path_manager<manager::SubdirPath>(
 			    build::directory_info::lngs_build, "lngs.lng");
+#endif
 
 			auto system = system_locales();
 			[&] {
 				m_build.init_builtin();
+#ifndef LNGS_LINKED_RESOURCES
 				if (m_install.open_first_of(system)) {
 					auto locale = m_install.attr(ATTR_CULTURE);
 					if (!locale.empty()) {
@@ -174,6 +235,7 @@ namespace lngs::app {
 						return;
 					}
 				}
+#endif
 				m_build.open_first_of(system);
 			}();
 		}
@@ -186,9 +248,13 @@ namespace lngs::app {
 
 		// diags::translator
 		std::string_view get(lng str) const noexcept final {
+#ifdef LNGS_LINKED_RESOURCES
+			return m_build.get(str);
+#else
 			auto result = m_install.get(str);
 			if (result.empty()) result = m_build.get(str);
 			return result;
+#endif
 		}
 
 		std::string_view get(diags::severity sev) const noexcept final {
@@ -238,6 +304,14 @@ namespace lngs::app {
 		}
 
 	private:
+#ifdef LNGS_LINKED_RESOURCES
+		struct BuiltStrings : lngs::app::Strings::rebind<
+		                          MemoryWithBuiltin<lngs::app::Resource>> {
+			std::string_view get(lng str) const noexcept {
+				return get_string(static_cast<identifier>(str));
+			}
+		} m_build;
+#else
 		struct InstalledStrings : lngs::app::Strings::rebind<> {
 			std::string_view get(lng str) const noexcept {
 				return get_string(static_cast<identifier>(str));
@@ -249,8 +323,6 @@ namespace lngs::app {
 				return get_string(static_cast<identifier>(str));
 			}
 		} m_build;
-
-#ifndef LNGS_LINKED_RESOURCES
 		std::optional<std::filesystem::path> m_redirected;
 #endif
 	};
@@ -282,9 +354,8 @@ namespace lngs::app::pot {
 
 		nfo.year = year_from_template(setup.diag.open(setup.common.outname));
 
-		return setup.write([&](diags::outstream& out) {
-			return write(setup.env(out), nfo);
-		});
+		return setup.write(
+		    [&](diags::outstream& out) { return write(setup.env(out), nfo); });
 	}
 }  // namespace lngs::app::pot
 
@@ -315,9 +386,8 @@ namespace lngs::app::py {
 
 		if (int res = setup.read_strings()) return res;
 
-		return setup.write([&](diags::outstream& out) {
-			return write(setup.env(out));
-		});
+		return setup.write(
+		    [&](diags::outstream& out) { return write(setup.env(out)); });
 	}
 }  // namespace lngs::app::py
 

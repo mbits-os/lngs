@@ -7,6 +7,7 @@ namespace lngs::app::build {
 	std::filesystem::path get_exec_dir();
 
 	// clang-format off
+#ifndef LNGS_LINKED_RESOURCES
 	struct directory_info {
 		constexpr static const char share[] = "@SHARE_DIR@";
 		constexpr static const char data_dir[] = "@CMAKE_INSTALL_PREFIX@/@SHARE_DIR@";
@@ -15,6 +16,7 @@ namespace lngs::app::build {
 		constexpr static const char mstch_install[] = "@CMAKE_INSTALL_PREFIX@/@SHARE_DIR@/templates";
 		constexpr static const char mstch_build[] = "@CMAKE_CURRENT_SOURCE_DIR@/data/templates";
 	};
+#endif
 
 	struct version {
 		constexpr static const unsigned major = @PROJECT_VERSION_MAJOR@;
