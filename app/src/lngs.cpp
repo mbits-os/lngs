@@ -142,6 +142,18 @@ namespace lngs::app {
 		lang_file m_file{};
 		memory_view m_data{};
 
+	public:
+		using FileBased = lngs::storage::FileBased;
+		template <typename C>
+		std::enable_if_t<FileBased::is_range_of<std::string, C>::value, bool>
+		open_first_of(C&& langs, SerialNumber serial) {
+			for (auto& lang : langs) {
+				if (open(lang, serial)) return true;
+			}
+
+			return false;
+		}
+
 		bool open(const std::string& lng, SerialNumber serial) {
 			auto const check_serial = serial != SerialNumber::UseAny;
 			auto const serial_to_check = static_cast<unsigned>(serial);
@@ -160,18 +172,6 @@ namespace lngs::app {
 				return false;
 			}
 			return true;
-		}
-
-	public:
-		using FileBased = lngs::storage::FileBased;
-		template <typename C>
-		std::enable_if_t<FileBased::is_range_of<std::string, C>::value, bool>
-		open_first_of(C&& langs, SerialNumber serial) {
-			for (auto& lang : langs) {
-				if (open(lang, serial)) return true;
-			}
-
-			return false;
 		}
 
 		std::string_view get_string(lang_file::identifier id) const noexcept {
@@ -196,6 +196,7 @@ namespace lngs::app {
 		}
 
 	public:
+		using MemoryBased::open;
 		using MemoryBased::open_first_of;
 		using lngs::storage::Builtin<ResourceT>::init_builtin;
 	};
