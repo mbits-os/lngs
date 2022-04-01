@@ -188,7 +188,7 @@ if (LNGS_LINKED_RESOURCES)
 			"${Python3_EXECUTABLE}"
 			"${LNGS_TOOLS_DIR}/embed.py"
 			-O "${CMAKE_CURRENT_BINARY_DIR}/src/generated_languages.cpp"
-			--inc-dir "${CMAKE_CURRENT_BINARY_DIR}/src"
+			--inc-as "embedded_languages.hpp"
 			--ns "lngs::languages"
 			${LNG_FILES}
 		COMMAND
