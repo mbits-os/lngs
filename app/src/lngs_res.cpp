@@ -275,6 +275,6 @@ namespace lngs::app {
     } // namespace
 
     /*static*/ const char* Resource::data() { return __resource; }
-    /*static*/ std::size_t Resource::size() { return sizeof(__resource); }
+    /*static*/ std::size_t Resource::size() { return sizeof(__resource) - 1; }
 } // namespace lngs::app
 // clang-format on

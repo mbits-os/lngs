@@ -9,6 +9,6 @@ namespace {{ns_name}}{{^ns_name}}{{project}}{{/ns_name}} {
     } // namespace
 
     /*static*/ const char* Resource::data() { return __resource; }
-    /*static*/ std::size_t Resource::size() { return sizeof(__resource); }
+    /*static*/ std::size_t Resource::size() { return sizeof(__resource) - 1; }
 } // namespace {{ns_name}}{{^ns_name}}{{project}}{{/ns_name}}
 // clang-format on
