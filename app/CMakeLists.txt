@@ -38,6 +38,7 @@ if (LNGS_LINKED_RESOURCES)
 			--ns "lngs::templates"
 			${MSTCH_FILES}
 		DEPENDS
+			"${LNGS_TOOLS_DIR}/embed.py"
 			${MSTCH_FILES}
 	)
 	list(APPEND lngs_app_SRCS

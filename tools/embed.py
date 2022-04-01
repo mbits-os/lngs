@@ -39,6 +39,7 @@ with open(args.header, "w", encoding="UTF-8") as header:
 
 #include <cstddef>
 #include <string_view>
+#include <optional>
 
 // clang-format off
 """)
@@ -55,6 +56,38 @@ with open(args.header, "w", encoding="UTF-8") as header:
 {prefix}    static const char* data() noexcept;
 {prefix}    static std::size_t size() noexcept;
 {prefix}    static std::string_view view() noexcept {{ return {{data(), size()}}; }}
+{prefix}}};
+
+""")
+
+    header.write(f"""{prefix}inline std::optional<std::string_view> get_resource(std::string_view key) noexcept {{
+#ifdef _MSC_VER
+{prefix}    #pragma warning(push)
+{prefix}    #pragma warning(disable: 4455)
+#endif
+{prefix}    using std::literals::operator""sv;
+#ifdef _MSC_VER
+{prefix}    #pragma warning(pop)
+#endif
+
+{prefix}    struct pair {{
+{prefix}        std::string_view key;
+{prefix}        std::string_view (*get)();
+{prefix}    }};
+
+{prefix}    static constexpr pair blobs[] = {{
+""")
+    for input in inputs:
+        ident = idents[input]
+        header.write(f"""{prefix}        {{"{ident}"sv, [] {{ return {ident}::view(); }}}},
+""")
+    header.write(f"""{prefix}    }};
+
+{prefix}    for (auto const& [blob, get] : blobs) {{
+{prefix}        if (blob == key) return get();
+{prefix}    }}
+
+{prefix}    return std::nullopt;
 {prefix}}};
 """)
 

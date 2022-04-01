@@ -13,21 +13,7 @@ using namespace std::literals;
 
 namespace lngs::app {
 	namespace {
-#ifdef LNGS_LINKED_RESOURCES
-#define TMPLT(X)   \
-	X(enum_string) \
-	X(enums)       \
-	X(pot)         \
-	X(py)          \
-	X(py_string)   \
-	X(res)
-		constexpr std::pair<std::string_view, std::string_view (*)()>
-		    known_templates[] = {
-#define TMPLT_PAIR(NAME) {#NAME##sv, [] { return templates::NAME::view(); }},
-		        TMPLT(TMPLT_PAIR)
-#undef TMPLT_PAIR
-		};
-#else
+#ifndef LNGS_LINKED_RESOURCES
 		std::filesystem::path get_install_dir(
 		    std::optional<std::filesystem::path> const& redirected) {
 			return redirected ? *redirected / "templates"
@@ -83,13 +69,9 @@ namespace lngs::app {
 
 	std::string mstch_engine::load(std::string const& partial) {
 #ifdef LNGS_LINKED_RESOURCES
-		for (auto const& [key, cb] : known_templates) {
-			if (key == partial) {
-				auto view = cb();
-				return {view.data(), view.size()};
-			}
-		}
-		return {};
+		auto const data = templates::get_resource(partial);
+		if (!data) return {};
+		return {data->data(), data->size()};
 #else
 		auto [exists, path] = stat(partial);
 		if (!exists) return {};
@@ -101,10 +83,7 @@ namespace lngs::app {
 
 	bool mstch_engine::is_valid(std::string const& partial) const {
 #ifdef LNGS_LINKED_RESOURCES
-		for (auto const& [key, _] : known_templates) {
-			if (key == partial) return true;
-		}
-		return false;
+		return !!templates::get_resource(partial);
 #else
 		return stat(partial).first;
 #endif
