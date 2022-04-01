@@ -21,6 +21,7 @@ conan_basic_setup(TARGETS)
 set(LNGS_TESTING ON CACHE BOOL "Compile and/or run self-tests")
 set(LNGS_LITE ON CACHE BOOL "Create lngs_lite library")
 set(LNGS_LINKED_RESOURCES OFF CACHE BOOL "Compile templates and translations into the lngs binary")
+set(LNGS_NO_PKG_CONFIG OFF CACHE BOOL "Skip lngs.pc installation")
 
 if (MSVC)
   set(ADDITIONAL_WALL_FLAGS

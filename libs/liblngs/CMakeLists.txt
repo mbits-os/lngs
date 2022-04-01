@@ -63,7 +63,9 @@ install(FILES
 	${CMAKE_CURRENT_BINARY_DIR}/include/lngs/version.hpp
 	../../LICENSE
 	DESTINATION include/lngs)
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/lngs.pc DESTINATION share/pkgconfig)
+if (NOT LNGS_NO_PKG_CONFIG)
+	install(FILES ${CMAKE_CURRENT_BINARY_DIR}/lngs.pc DESTINATION share/pkgconfig)
+endif()
 
 ##################################################################
 ##  TESTING
