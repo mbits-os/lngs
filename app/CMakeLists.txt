@@ -109,9 +109,9 @@ get_target_property(LNGS_IDL lngs_app IDL)
 add_custom_target(lngs_pot
 	COMMAND
 		$<TARGET_FILE:lngs> pot -v
-			-o '${CMAKE_CURRENT_SOURCE_DIR}/data/strings/lngs.pot'
-			-i '${LNGS_IDL}'
-			-a 'Marcin Zdun <mzdun@midnightbits.com>'
+			"${LNGS_IDL}"
+			-o "${CMAKE_CURRENT_SOURCE_DIR}/data/strings/lngs.pot"
+			-a "Marcin Zdun <mzdun@midnightbits.com>"
 			-c midnightBITS
 			-t "Locale File Processor translation"
 
@@ -216,12 +216,12 @@ get_filename_component(IDL_DIR ${LNGS_IDL} DIRECTORY)
 add_custom_target(lngs_enums
   COMMAND
     $<TARGET_FILE:lngs> res
-			-i "${LNGS_IDL}"
+			"${LNGS_IDL}"
 			-o "${IDL_DIR}/lngs_res.cpp"
 			--include lngs/internals/strings/lngs.hpp
   COMMAND
     $<TARGET_FILE:lngs> enums -r
-			-i "${LNGS_IDL}"
+			"${LNGS_IDL}"
 			-o "${IDL_DIR}/../include/lngs/internals/strings/lngs.hpp"
   DEPENDS
 		lngs
