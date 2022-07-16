@@ -4,6 +4,12 @@ project (lngs
   DESCRIPTION "Locale File Format And Processor"
   LANGUAGES CXX)
 
+set(LNGS_TESTING ON CACHE BOOL "Compile and/or run self-tests")
+set(LNGS_LITE ON CACHE BOOL "Create lngs_lite library")
+set(LNGS_APP ON CACHE BOOL "Compile lngs application in addition to liblngs")
+set(LNGS_LINKED_RESOURCES OFF CACHE BOOL "Compile templates and translations into the lngs binary")
+set(LNGS_NO_PKG_CONFIG OFF CACHE BOOL "Skip lngs.pc installation")
+
 set(PROJECT_VERSION_SHORT "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}")
 set(PROJECT_VERSION_STABILITY "")
 
@@ -14,14 +20,11 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_BINARY_DIR}" "${PROJECT_SOURCE_DIR}/cmake")
 list(APPEND CMAKE_PREFIX_PATH "${PROJECT_BINARY_DIR}")
 
-set(CONAN_CMAKE_SILENT_OUTPUT ON)
-include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
-conan_basic_setup(TARGETS)
-
-set(LNGS_TESTING ON CACHE BOOL "Compile and/or run self-tests")
-set(LNGS_LITE ON CACHE BOOL "Create lngs_lite library")
-set(LNGS_LINKED_RESOURCES OFF CACHE BOOL "Compile templates and translations into the lngs binary")
-set(LNGS_NO_PKG_CONFIG OFF CACHE BOOL "Skip lngs.pc installation")
+if (LNGS_APP)
+  set(CONAN_CMAKE_SILENT_OUTPUT ON)
+  include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+  conan_basic_setup(TARGETS)
+endif() # LNGS_LIBRARY_ONLY
 
 if (MSVC)
   set(ADDITIONAL_WALL_FLAGS
@@ -77,12 +80,14 @@ else()
   endif()
 endif()
 
-find_package(Python3 COMPONENTS Interpreter REQUIRED)
-find_package(fmt REQUIRED CONFIG)
-find_package(args REQUIRED CONFIG)
-find_package(mbits-libmstch REQUIRED CONFIG)
-find_package(mbits-utfconv REQUIRED CONFIG)
-find_package(mbits-diags REQUIRED CONFIG)
+if (LNGS_APP)
+  find_package(Python3 COMPONENTS Interpreter REQUIRED)
+  find_package(fmt REQUIRED CONFIG)
+  find_package(args REQUIRED CONFIG)
+  find_package(mbits-libmstch REQUIRED CONFIG)
+  find_package(mbits-utfconv REQUIRED CONFIG)
+  find_package(mbits-diags REQUIRED CONFIG)
+endif() # LNGS_LIBRARY_ONLY
   
 if (LNGS_TESTING)
   find_package(GTest REQUIRED CONFIG HINTS)
@@ -126,6 +131,8 @@ define_property(TARGET PROPERTY IDL
 
 set(LNGS_TOOLS_DIR "${CMAKE_CURRENT_LIST_DIR}/tools")
 add_subdirectory(libs)
-add_subdirectory(app)
 
-include(prepare_pack)
+if (LNGS_APP)
+  add_subdirectory(app)
+  include(prepare_pack)
+endif()

@@ -25,21 +25,6 @@ set (liblngs_INCS
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-set(EXTRA_LIBS)
-
-if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-	include(CheckIncludeFileCXX)
-	check_include_file_cxx(__config HAS_LIBCXX)
-	if (HAS_LIBCXX)
-		list(APPEND EXTRA_LIBS c++abi c++fs)
-	else()
-		list(APPEND EXTRA_LIBS stdc++fs)
-	endif()
-endif()
-if (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-	list(APPEND EXTRA_LIBS stdc++fs)
-endif()
-
 add_library(liblngs STATIC ${liblngs_SRCS} ${liblngs_INCS})
 set_target_properties(liblngs PROPERTIES
 	VERSION ${PROJECT_VERSION}
@@ -52,7 +37,6 @@ target_include_directories(liblngs
 	  $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
 	  $<INSTALL_INTERFACE:include>
 	PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
-target_link_libraries(liblngs PUBLIC ${EXTRA_LIBS})
 
 install(TARGETS liblngs
 	ARCHIVE DESTINATION lib
