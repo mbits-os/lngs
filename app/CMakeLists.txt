@@ -102,7 +102,9 @@ target_include_directories(lngs
 )
 target_link_libraries(lngs PRIVATE lngs_app)
 
-install(TARGETS lngs DESTINATION bin)
+if (LNGS_INSTALL)
+	install(TARGETS lngs DESTINATION bin)
+endif()
 
 get_target_property(LNGS_IDL lngs_app IDL)
 
@@ -206,7 +208,7 @@ if (LNGS_LINKED_RESOURCES)
 	set_target_properties(lngs_embedd PROPERTIES FOLDER tools/strings)
 endif(LNGS_LINKED_RESOURCES)
 
-if (NOT LNGS_LINKED_RESOURCES)
+if (LNGS_INSTALL AND NOT LNGS_LINKED_RESOURCES)
 	install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${SHARE_DIR}/ DESTINATION ${SHARE_DIR})
 	install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/data/templates DESTINATION ${SHARE_DIR})
 endif()

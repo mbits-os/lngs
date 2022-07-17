@@ -5,6 +5,7 @@ project (lngs
   LANGUAGES CXX)
 
 set(LNGS_TESTING ON CACHE BOOL "Compile and/or run self-tests")
+set(LNGS_INSTALL ON CACHE BOOL "Create install targets")
 set(LNGS_LITE ON CACHE BOOL "Create lngs_lite library")
 set(LNGS_APP ON CACHE BOOL "Compile lngs application in addition to liblngs")
 set(LNGS_LINKED_RESOURCES OFF CACHE BOOL "Compile templates and translations into the lngs binary")
