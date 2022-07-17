@@ -62,7 +62,7 @@ namespace lngs {
 			return out.get();
 		}
 
-#elif defined(GNU_LOCALES)
+#endif
 
 		template <size_t size>
 		inline bool starts_with(const char* value,
@@ -109,8 +109,6 @@ namespace lngs {
 		                     const char* name) {
 			expand(locales, std::getenv(name));
 		}
-
-#endif
 	}  // namespace
 
 #ifdef WIN32_LOCALES
@@ -125,6 +123,7 @@ namespace lngs {
 
 		std::vector<std::string> out;
 
+		try_environment(out, "LANGUAGE");
 		appendLocale(out, get_locale(GetUserDefaultLocaleName));
 		appendLocale(out, get_locale(GetSystemDefaultLocaleName));
 		appendLocale(out, "en");

@@ -28,6 +28,9 @@ endif() # LNGS_LIBRARY_ONLY
 
 if (MSVC)
   set(ADDITIONAL_WALL_FLAGS
+      /D_CRT_SECURE_NO_WARNINGS
+      /D_CRT_NONSTDC_NO_WARNINGS
+      /utf-8
       /permissive-
       /Zc:__cplusplus
       /W4
