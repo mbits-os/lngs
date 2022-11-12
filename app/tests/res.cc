@@ -370,7 +370,7 @@ namespace  {
     } // namespace
 
     /*static*/ const char* Resource::data() { return __resource; }
-    /*static*/ std::size_t Resource::size() { return sizeof(__resource); }
+    /*static*/ std::size_t Resource::size() { return sizeof(__resource) - 1; }
 } // namespace 
 // clang-format on
 )"},
@@ -390,7 +390,7 @@ namespace project {
     } // namespace
 
     /*static*/ const char* Resource::data() { return __resource; }
-    /*static*/ std::size_t Resource::size() { return sizeof(__resource); }
+    /*static*/ std::size_t Resource::size() { return sizeof(__resource) - 1; }
 } // namespace project
 // clang-format on
 )"},
@@ -427,7 +427,7 @@ namespace project {
     } // namespace
 
     /*static*/ const char* Resource::data() { return __resource; }
-    /*static*/ std::size_t Resource::size() { return sizeof(__resource); }
+    /*static*/ std::size_t Resource::size() { return sizeof(__resource) - 1; }
 } // namespace project
 // clang-format on
 )"},
@@ -486,7 +486,7 @@ namespace project {
     } // namespace
 
     /*static*/ const char* Resource::data() { return __resource; }
-    /*static*/ std::size_t Resource::size() { return sizeof(__resource); }
+    /*static*/ std::size_t Resource::size() { return sizeof(__resource) - 1; }
 } // namespace project
 // clang-format on
 )"},
@@ -537,7 +537,7 @@ namespace project {
     } // namespace
 
     /*static*/ const char* Resource::data() { return __resource; }
-    /*static*/ std::size_t Resource::size() { return sizeof(__resource); }
+    /*static*/ std::size_t Resource::size() { return sizeof(__resource) - 1; }
 } // namespace project
 // clang-format on
 )"},

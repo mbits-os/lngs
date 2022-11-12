@@ -276,6 +276,10 @@ namespace lngs::app {
 							case 'v':
 								s.push_back('\v');
 								break;
+							case '\n':
+								++line_;
+								column_ = 1;
+								break;
 							default:
 								s.push_back(c);
 						};
@@ -408,6 +412,7 @@ namespace lngs::app {
 	struct store_attr_base : attr {
 		virtual tok_t primary() const noexcept = 0;
 		virtual void visit(const token& tok, const std::string& /*arg*/) = 0;
+		virtual void prepare() = 0;
 	};
 
 #if USE_SET_ATTR
@@ -451,10 +456,20 @@ namespace lngs::app {
 		dst = src;
 	}
 
+	void store(std::string& dst, const std::string& src) {
+		dst.append(src);
+	}
+
 	void store(int& dst, const std::string& src) { dst = atoi(src.c_str()); }
 
 	void store(uint32_t& dst, const std::string& src) {
 		dst = static_cast<uint32_t>(atoi(src.c_str()));
+	}
+
+	template <typename T>
+	void clear(T const&) {}
+	void clear(std::string& dst) {
+		dst.clear();
 	}
 
 	template <typename T>
@@ -479,6 +494,10 @@ namespace lngs::app {
 		void visit(const token& tok, const std::string& arg) override {
 			store(*ptr, arg);
 			visited(tok, true);
+		}
+
+		void prepare() override {
+			clear(*ptr);
 		}
 	};
 
@@ -552,6 +571,18 @@ namespace lngs::app {
 				auto& val = tok.peek();
 				switch (val.type) {
 					case STRING:
+						store.prepare();
+						store.visit(name, val.value);
+						tok.get();
+
+						while (tok.peek().type == STRING) {
+							auto continuation = tok.get();
+							store.visit(name, continuation.value);
+						}
+
+						if (!tok.expect(BRAKET_C, true, diag)) return false;
+						tok.get();
+						break;
 					case NUMBER:
 						store.visit(name, val.value);
 						tok.get();
@@ -682,6 +713,11 @@ namespace lngs::app {
 		if (!tok.expect(STRING, true, diag)) return false;
 		auto value = tok.get();
 		str.value = value.value;
+
+		while (tok.peek().type == STRING) {
+			auto continuation = tok.get();
+			str.value.append(continuation.value);
+		}
 
 		if (!tok.expect(SEMI, true, diag)) return false;
 		tok.get();

@@ -140,8 +140,8 @@ namespace lngs::app::testing {
 				                             noenum::string::formatable&>) {
 					    std::visit(
 					        [](auto& inner) {
-						        if constexpr (is_string_ref_v<decltype(
-						                          inner)>) {
+						        if constexpr (is_string_ref_v<
+						                          decltype(inner)>) {
 							        fix_datapath_str(inner);
 						        }
 					        },
@@ -468,6 +468,46 @@ namespace lngs::app::testing {
 	                            HelpStr{"help string"},
 	                            PluralStr{"values"})
 	                    .offset(23))},
+	    {R"([serial(0)] strings { [id(-1), help("escaped \\ string")] ID = "value \" with quotation"; })",
+	     {},
+	     true,
+	     basic.make(test_string(1001,
+	                            -1,
+	                            "ID",
+	                            "value \" with quotation",
+	                            HelpStr{"escaped \\ string"})
+	                    .offset(23))},
+	    {R"([serial(0)] strings { [id(-1), help("removed EOL")] ID = "multi \
+line"; })",
+	     {},
+	     true,
+	     basic.make(
+	         test_string(1001, -1, "ID", "multi line", HelpStr{"removed EOL"})
+	             .offset(23))},
+	    {R"([serial(0)] strings { [id(-1), help("chunked string value")] ID = "chunked "
+"value"; })",
+	     {},
+	     true,
+	     basic.make(test_string(1001,
+	                            -1,
+	                            "ID",
+	                            "chunked value",
+	                            HelpStr{"chunked string value"})
+	                    .offset(23))},
+	    {R"([serial(0)] strings { [id(-1), help("chunked" " attribute" " value")] ID = "value"; })",
+	     {},
+	     true,
+	     basic.make(test_string(1001,
+	                            -1,
+	                            "ID",
+	                            "value",
+	                            HelpStr{"chunked attribute value"})
+	                    .offset(23))},
+	    {R"([serial(0)] strings { [id(-1), help("mixed" 432 " types")] ID = "value"; })",
+	     {pos(1, 45)[severity::error]
+	      << format(lng::ERR_EXPECTED, "`)'", lng::ERR_EXPECTED_GOT_NUMBER)},
+	     false,
+	     serial_0},
 	};
 
 	INSTANTIATE_TEST_SUITE_P(singles, read, ValuesIn(singles));
@@ -572,6 +612,29 @@ strings {
 	                .offset(89),
 	            test_string(123456789, "ID3", "value3", HelpStr{"help string"})
 	                .offset(156))},
+	    {
+	        R"([serial(0)]
+strings {
+	[id(1010), help("help string"), plural("values")] ID = "value";
+	[id(1100), plural("values"), help("help string")] ID2 = "before-\
+after";
+	[id(0123456789), help(help-string)] ID3 = "value3";
+})",
+	        {pos(6, 24) - pos(6, 28)[severity::error]
+	         << format(lng::ERR_EXPECTED, lng::ERR_EXPECTED_STRING, "`help'")},
+	        false,
+	        basic.make(test_string(1010,
+	                               "ID",
+	                               "value",
+	                               HelpStr{"help string"},
+	                               PluralStr{"values"})
+	                       .offset(24),
+	                   test_string(1100,
+	                               "ID2",
+	                               "before-after",
+	                               HelpStr{"help string"},
+	                               PluralStr{"values"})
+	                       .offset(89))},
 	};
 
 	INSTANTIATE_TEST_SUITE_P(multiple, read, ValuesIn(multiple));
