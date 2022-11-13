@@ -494,7 +494,8 @@ namespace lngs::app::mustache {
 
 		setup.parser_common(lng::ARGS_APP_IN_IDL, lng::ARGS_APP_OUT_ANY);
 		setup.parser.set<std::true_type>(debug, "d", "debug")
-		    .help(_(lng::ARGS_APP_IN_TMPLT_DIR));
+		    .help(_(lng::ARGS_APP_IN_TMPLT_DIR))
+		    .opt();
 		setup.parser.arg(additional_directory, "tmplt-dir")
 		    .meta(_(lng::ARGS_APP_META_DIR))
 		    .help(_(lng::ARGS_APP_IN_TMPLT_DIR));
