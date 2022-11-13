@@ -54,6 +54,9 @@ namespace lngs::app {
 		return {installed_exists, installed_path};
 	}
 #else   // !defined LNGS_LINKED_RESOURCES
+	mstch_engine::mstch_engine(
+	    std::optional<std::filesystem::path> const& additional)
+	    : m_additional_templates{additional} {}
 #endif  // !defined LNGS_LINKED_RESOURCES
 
 	std::tuple<bool, time_t, std::filesystem::path> mstch_engine::stat(
@@ -80,7 +83,7 @@ namespace lngs::app {
 #ifdef LNGS_LINKED_RESOURCES
 		if (m_additional_templates) {
 			auto [additional_exists, additional, additional_path] =
-			    stat(*m_additional_templates, tmplt_name);
+			    stat(*m_additional_templates, partial);
 			if (additional_exists) return read(additional_path);
 		}
 
@@ -101,7 +104,7 @@ namespace lngs::app {
 	bool mstch_engine::is_valid(std::string const& partial) const {
 #ifdef LNGS_LINKED_RESOURCES
 		if (m_additional_templates) {
-			auto result = stat(*m_additional_templates, tmplt_name);
+			auto result = stat(*m_additional_templates, partial);
 			if (std::get<0>(result)) return true;
 		}
 
@@ -214,7 +217,8 @@ namespace lngs::app {
 #else
 		mstch_engine mstch{redirected, additional};
 #endif
-		out.write(mstch.render(tmplt_name, expand_context(std::move(ctx), stringify)));
+		out.write(mstch.render(tmplt_name,
+		                       expand_context(std::move(ctx), stringify)));
 		return 0;
 	}
 
