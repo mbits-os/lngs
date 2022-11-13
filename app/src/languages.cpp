@@ -107,8 +107,6 @@ namespace lngs::app {
 					return U'\u00dd';  // 'Ý'
 				case U'Z':
 					return U'\u0224';  // 'Ȥ'
-				case U'"':
-					return U'?';  // '?'
 			}
 			return c;
 		}

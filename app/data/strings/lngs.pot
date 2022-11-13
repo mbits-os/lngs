@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: lngs 0.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-10-25 09:11+0100\n"
+"POT-Creation-Date: 2022-11-12 18:39+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -50,6 +50,11 @@ msgstr ""
 #. Help description for the 'lngs make' command
 msgctxt "ARGS_APP_DESCR_CMD_MAKE"
 msgid "Translates PO/MO file to LNG file."
+msgstr ""
+
+#. Help description for the 'lngs freeze' command
+msgctxt "ARGS_APP_DESCR_CMD_MUSTACHE"
+msgid "Uses a custom {{mustache}} template."
 msgstr ""
 
 #. Help description for the 'lngs pot' command
@@ -102,6 +107,11 @@ msgctxt "ARGS_APP_FLOW_TITLE"
 msgid "The flow for string management and creation"
 msgstr ""
 
+#. Description for debug argument
+msgctxt "ARGS_APP_IN_DEBUG"
+msgid "outputs additional debug data"
+msgstr ""
+
 #. Description for input argument taking IDL file
 msgctxt "ARGS_APP_IN_IDL"
 msgid "sets message file name to read from"
@@ -115,6 +125,21 @@ msgstr ""
 #. Description for input argument taking GetText PO/MO file
 msgctxt "ARGS_APP_IN_PO_MO"
 msgid "sets GetText message file name to read from"
+msgstr ""
+
+#. Description for 'tmplt-dir' argument
+msgctxt "ARGS_APP_IN_TMPLT_DIR"
+msgid "adds additional directory for template lookup"
+msgstr ""
+
+#. Description for input argument taking JSON file
+msgctxt "ARGS_APP_IN_TMPLT_JSON"
+msgid "sets additional context for custom mustache file"
+msgstr ""
+
+#. Description for custom template name
+msgctxt "ARGS_APP_IN_TMPLT_NAME"
+msgid "selects a template name to use for output (filename without extension)"
 msgstr ""
 
 #. Header for list of known commands
@@ -147,6 +172,11 @@ msgctxt "ARGS_APP_META_INPUT"
 msgid "<source>"
 msgstr ""
 
+#. Name of argument holding a custom template name
+msgctxt "ARGS_APP_META_MUSTACHE"
+msgid "<template>"
+msgstr ""
+
 #. Name of argument holding a file name for a GetText PO/MO file
 msgctxt "ARGS_APP_META_PO_MO_FILE"
 msgid "<gettext file>"
@@ -165,6 +195,11 @@ msgstr ""
 #. Error message displayed, when a command is missing in the command line
 msgctxt "ARGS_APP_NO_COMMAND"
 msgid "command missing"
+msgstr ""
+
+#. Description for generic output argument
+msgctxt "ARGS_APP_OUT_ANY"
+msgid "sets file name to write results to; use \"-\" for standard output"
 msgstr ""
 
 #. Description for output argument for lngs enums

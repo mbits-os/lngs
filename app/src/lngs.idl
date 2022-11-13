@@ -45,6 +45,8 @@
 	ARGS_APP_DESCR_CMD_RES = "Creates C++ file with fallback resource for the message file.";
 	[help("Help description for the 'lngs freeze' command"), id(1020)]
 	ARGS_APP_DESCR_CMD_FREEZE = "Reads the language description file and assigns values to new strings.";
+	[help("Help description for the 'lngs freeze' command"), id(-1)]
+	ARGS_APP_DESCR_CMD_MUSTACHE = "Uses a custom {{mustache}} template.";
 
 	[help("Synopsis for the app. The \"[-h] [--version] [--share\" part should be left intact, only the \"<dir>\", \"command\", \"<source>\", \"<file>\" and \"arguments\" words should be translated."), id(1021)]
 	ARGS_APP_DESCR_USAGE = "[-h] [--version] [--share <dir>] <command> <source> -o <file> [<arguments>]";
@@ -123,6 +125,8 @@
 	ARGS_APP_OUT_LNG = "sets LNG binary file name to write results to; use \"-\" for standard output";
 	[help("Description for output argument for lngs freeze"), id(1056)]
 	ARGS_APP_OUT_IDL = "sets IDL message file name to write results to; it may be the same as input; use \"-\" for standard output";
+	[help("Description for generic output argument"), id(-1)]
+	ARGS_APP_OUT_ANY = "sets file name to write results to; use \"-\" for standard output";
 
 	[help("Description for input argument taking IDL file"), id(1057)]
 	ARGS_APP_IN_IDL = "sets message file name to read from";
@@ -130,6 +134,16 @@
 	ARGS_APP_IN_PO_MO = "sets GetText message file name to read from";
 	[help("Description for input argument taking TXT file with language/country names"), id(1059)]
 	ARGS_APP_IN_LLCC = "sets ATTR_LANGUAGE file name with ll_CC (language_COUNTRY) names list";
+	[help("Description for 'tmplt-dir' argument"), id(-1)]
+	ARGS_APP_IN_TMPLT_DIR = "adds additional directory for template lookup";
+	[help("Description for custom template name"), id(-1)]
+	ARGS_APP_IN_TMPLT_NAME = "selects a template name to use for output (filename without extension)";
+	[help("Description for input argument taking JSON file"), id(-1)]
+	ARGS_APP_IN_TMPLT_JSON = "sets additional context for custom mustache file";
+	[help("Description for debug argument"), id(-1)]
+	ARGS_APP_IN_DEBUG = "outputs additional debug data";
+	[help("Name of argument holding a custom template name"), id(-1)]
+	ARGS_APP_META_MUSTACHE = "<template>";
 
 	[help("Name of the severity label for notes."), id(1060)]
 	SEVERITY_NOTE = "note";

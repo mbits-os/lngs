@@ -18,26 +18,32 @@ namespace lngs::app {
 	public:
 #ifndef LNGS_LINKED_RESOURCES
 		explicit mstch_engine(
-		    std::optional<std::filesystem::path> const& redirected);
+		    std::optional<std::filesystem::path> const& redirected,
+		    std::optional<std::filesystem::path> const& additional);
+#else
+		explicit mstch_engine(
+		    std::optional<std::filesystem::path> const& additional);
 #endif
 		std::string load(std::string const& partial) final;
 		bool need_update(const std::string& partial) const final;
 		bool is_valid(std::string const& partial) const final;
 
 	private:
-#ifndef LNGS_LINKED_RESOURCES
 		static std::tuple<bool, time_t, std::filesystem::path> stat(
 		    std::filesystem::path const& root,
 		    std::string const& tmplt_name);
+		std::string read(std::filesystem::path const&);
+
+#ifndef LNGS_LINKED_RESOURCES
 		std::pair<bool, std::filesystem::path> stat(
 		    std::string const& tmplt_name) const;
-		std::string read(std::filesystem::path const&);
 
 		std::filesystem::path m_installed_templates;
 #ifndef NDEBUG
 		std::filesystem::path m_srcdir_templates;
 #endif
 #endif  // !defined LNGS_LINKED_RESOURCES
+		std::optional<std::filesystem::path> m_additional_templates;
 	};
 
 	std::string straighten(std::string const& str);
@@ -56,8 +62,12 @@ namespace lngs::app {
 		std::optional<std::filesystem::path> const& redirected;
 #endif
 
-		int write_mstch(std::string const& tmplt_name,
-		                mstch::map initial = {},
-		                str_transform const& stringify = {}) const;
+		int write_mstch(
+		    std::string const& tmplt_name,
+		    mstch::map initial = {},
+		    str_transform const& stringify = {},
+		    std::optional<std::filesystem::path> const& additional = {}) const;
+		mstch::map expand_context(mstch::map context,
+		                          str_transform const& stringify = {}) const;
 	};
 }  // namespace lngs::app

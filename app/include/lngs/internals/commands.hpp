@@ -70,3 +70,10 @@ namespace lngs::app::freeze {
 	          const idl_strings& defs,
 	          diags::source_code& data);
 }  // namespace lngs::app::freeze
+
+namespace lngs::app::mustache {
+	int write(mstch_env const& env,
+	          std::string const& template_name,
+	          std::optional<std::string> const& additional_directory,
+	          std::optional<std::filesystem::path> const& debug_out);
+}  // namespace lngs::app::mustache

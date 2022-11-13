@@ -2,6 +2,7 @@ set(lngs_app_SRCS
   src/cmds/cmd_freeze_ids.cpp
   src/cmds/cmd_load_msgs.cpp
   src/cmds/cmd_write_enums.cpp
+  src/cmds/cmd_write_mustache.cpp
   src/cmds/cmd_write_pot.cpp
   src/cmds/cmd_write_py.cpp
   src/cmds/cmd_write_res.cpp

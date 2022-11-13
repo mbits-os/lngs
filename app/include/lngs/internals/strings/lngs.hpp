@@ -46,6 +46,8 @@ namespace lngs::app {
         ARGS_APP_DESCR_CMD_RES = 1019,
         /// Reads the language description file and assigns values to new strings. (Help description for the 'lngs freeze' command)
         ARGS_APP_DESCR_CMD_FREEZE = 1020,
+        /// Uses a custom {{mustache}} template. (Help description for the 'lngs freeze' command)
+        ARGS_APP_DESCR_CMD_MUSTACHE = 1095,
         /// [-h] [--version] [--share <dir>] <command> <source> -o <file> [<arguments>] (Synopsis for the app. The "[-h] [--version] [--share" part should be left intact, only the "<dir>", "command", "<source>", "<file>" and "arguments" words should be translated.)
         ARGS_APP_DESCR_USAGE = 1021,
         /// The flow for string management and creation (Title for the description of the flow for different roles)
@@ -118,12 +120,24 @@ namespace lngs::app {
         ARGS_APP_OUT_LNG = 1055,
         /// sets IDL message file name to write results to; it may be the same as input; use "-" for standard output (Description for output argument for lngs freeze)
         ARGS_APP_OUT_IDL = 1056,
+        /// sets file name to wrtie results to; use "-" for standard output (Description for generic output argument)
+        ARGS_APP_OUT_ANY = 1096,
         /// sets message file name to read from (Description for input argument taking IDL file)
         ARGS_APP_IN_IDL = 1057,
         /// sets GetText message file name to read from (Description for input argument taking GetText PO/MO file)
         ARGS_APP_IN_PO_MO = 1058,
         /// sets ATTR_LANGUAGE file name with ll_CC (language_COUNTRY) names list (Description for input argument taking TXT file with language/country names)
         ARGS_APP_IN_LLCC = 1059,
+        /// adds additional directory for template lookup (Description for 'tmplt-dir' argument)
+        ARGS_APP_IN_TMPLT_DIR = 1097,
+        /// selects a template name to use for output (filename without extension) (Description for custom template name)
+        ARGS_APP_IN_TMPLT_NAME = 1098,
+        /// sets additional context for custom mustache file (Description for input argument taking JSON file)
+        ARGS_APP_IN_TMPLT_JSON = 1099,
+        /// outputs additional debug data (Description for debug argument)
+        ARGS_APP_IN_DEBUG = 1100,
+        /// <template> (Name of argument holding a custom template name)
+        ARGS_APP_META_MUSTACHE = 1101,
         /// note (Name of the severity label for notes.)
         SEVERITY_NOTE = 1060,
         /// warning (Name of the severity label for warnings.)

@@ -208,9 +208,7 @@ namespace lngs::app {
 #endif
 		    )
 #ifndef LNGS_LINKED_RESOURCES
-		    : m_redirected {
-			redirected
-		}
+		    : m_redirected{redirected}
 #endif
 		{
 #ifndef LNGS_LINKED_RESOURCES
@@ -485,6 +483,45 @@ namespace lngs::app::freeze {
 	}
 }  // namespace lngs::app::freeze
 
+namespace lngs::app::mustache {
+	int call(application_setup& setup) {
+		std::optional<std::string> additional_directory{};
+		std::string template_name;
+		std::optional<std::string> custom_context{};
+		bool debug{false};
+
+		auto _ = [&setup](auto id) { return setup.tr.get(id); };
+
+		setup.parser_common(lng::ARGS_APP_IN_IDL, lng::ARGS_APP_OUT_ANY);
+		setup.parser.set<std::true_type>(debug, "d", "debug")
+		    .help(_(lng::ARGS_APP_IN_TMPLT_DIR));
+		setup.parser.arg(additional_directory, "tmplt-dir")
+		    .meta(_(lng::ARGS_APP_META_DIR))
+		    .help(_(lng::ARGS_APP_IN_TMPLT_DIR));
+#if 0
+		setup.parser.arg(custom_context, "tmplt-json")
+		    .meta(_(lng::ARGS_APP_META_FILE))
+		    .help(_(lng::ARGS_APP_IN_TMPLT_JSON));
+#endif
+		setup.parser.arg(template_name, "tmplt")
+		    .meta(_(lng::ARGS_APP_META_MUSTACHE))
+		    .help(_(lng::ARGS_APP_IN_TMPLT_NAME));
+		setup.parser.parse();
+
+		if (int res = setup.read_strings()) return res;
+
+		return setup.write([&](diags::outstream& out) {
+			std::optional<std::filesystem::path> debug_out;
+			if (debug) {
+				auto const infile = setup.common.inname.u8string();
+				debug_out = infile + u8".json";
+			}
+			return write(setup.env(out), template_name, additional_directory,
+			             debug_out);
+		});
+	}
+}  // namespace lngs::app::mustache
+
 struct command {
 	const char* name;
 	const lng description;
@@ -498,6 +535,7 @@ command commands[] = {
     {"py", lng::ARGS_APP_DESCR_CMD_PY, lngs::app::py::call},
     {"res", lng::ARGS_APP_DESCR_CMD_RES, lngs::app::res::call},
     {"freeze", lng::ARGS_APP_DESCR_CMD_FREEZE, lngs::app::freeze::call},
+    {"mustache", lng::ARGS_APP_DESCR_CMD_MUSTACHE, lngs::app::mustache::call},
 };
 
 [[noreturn]] void show_help(args::parser& p, lngs::app::main_strings& tr) {

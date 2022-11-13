@@ -7,15 +7,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: lngs 0.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-10-25 09:11+0100\n"
-"PO-Revision-Date: 2020-10-25 09:12+0100\n"
+"POT-Creation-Date: 2022-11-12 18:39+0100\n"
+"PO-Revision-Date: 2022-11-12 18:42+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: pl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 2.4.1\n"
+"X-Generator: Poedit 2.4.2\n"
 "Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 "
 "|| n%100>14) ? 1 : 2);\n"
 
@@ -60,6 +60,11 @@ msgctxt "ARGS_APP_DESCR_CMD_MAKE"
 msgid "Translates PO/MO file to LNG file."
 msgstr "Tłumaczy plik PO/MO do pliku LNG."
 
+#. Help description for the 'lngs freeze' command
+msgctxt "ARGS_APP_DESCR_CMD_MUSTACHE"
+msgid "Uses a custom {{mustache}} template."
+msgstr "Używa niestandardowego szablonu {{mustache}}."
+
 #. Help description for the 'lngs pot' command
 msgctxt "ARGS_APP_DESCR_CMD_POT"
 msgid "Creates POT file from message file."
@@ -73,7 +78,7 @@ msgstr "Tworzy moduł języka Python z kluczami napisów."
 #. Help description for the 'lngs res' command
 msgctxt "ARGS_APP_DESCR_CMD_RES"
 msgid "Creates C++ file with fallback resource for the message file."
-msgstr "Tworzy plik C ++ z awaryjnym zasobem dla pliku wiadomości."
+msgstr "Tworzy plik C++ z awaryjnym zasobem dla pliku wiadomości."
 
 #. Synopsis for the app. The "[-h] [--version] [--share" part should be left intact, only the "<dir>", "command", "<source>", "<file>" and "arguments" words should be translated.
 msgctxt "ARGS_APP_DESCR_USAGE"
@@ -113,6 +118,11 @@ msgctxt "ARGS_APP_FLOW_TITLE"
 msgid "The flow for string management and creation"
 msgstr "Przepływ zarządzania i tworzenia napisów"
 
+#. Description for debug argument
+msgctxt "ARGS_APP_IN_DEBUG"
+msgid "outputs additional debug data"
+msgstr "produkuje dodatkowe dane debugowania"
+
 #. Description for input argument taking IDL file
 msgctxt "ARGS_APP_IN_IDL"
 msgid "sets message file name to read from"
@@ -127,6 +137,23 @@ msgstr "ustawia nazwę pliku ATTR_LANGUAGE z listą nazw ll_CC (język_KRAJ)"
 msgctxt "ARGS_APP_IN_PO_MO"
 msgid "sets GetText message file name to read from"
 msgstr "ustawia nazwę pliku wiadomości GetText do odczytu"
+
+#. Description for 'tmplt-dir' argument
+msgctxt "ARGS_APP_IN_TMPLT_DIR"
+msgid "adds additional directory for template lookup"
+msgstr "dodaje dodatkowy katalog do wyszukiwania szablonów"
+
+#. Description for input argument taking JSON file
+msgctxt "ARGS_APP_IN_TMPLT_JSON"
+msgid "sets additional context for custom mustache file"
+msgstr "ustawia dodatkowy kontekst dla niestandardowego szablonu Mustache"
+
+#. Description for custom template name
+msgctxt "ARGS_APP_IN_TMPLT_NAME"
+msgid "selects a template name to use for output (filename without extension)"
+msgstr ""
+"wybiera nazwę szablonu, która ma być używana dla danych wyjściowych (nazwa "
+"pliku bez rozszerzenia)"
 
 #. Header for list of known commands
 msgctxt "ARGS_APP_KNOWN_CMDS"
@@ -158,6 +185,11 @@ msgctxt "ARGS_APP_META_INPUT"
 msgid "<source>"
 msgstr "<źródło>"
 
+#. Name of argument holding a custom template name
+msgctxt "ARGS_APP_META_MUSTACHE"
+msgid "<template>"
+msgstr "<szablon>"
+
 #. Name of argument holding a file name for a GetText PO/MO file
 msgctxt "ARGS_APP_META_PO_MO_FILE"
 msgid "<gettext file>"
@@ -177,6 +209,12 @@ msgstr "<kiedy>"
 msgctxt "ARGS_APP_NO_COMMAND"
 msgid "command missing"
 msgstr "brak polecenia"
+
+#. Description for generic output argument
+msgctxt "ARGS_APP_OUT_ANY"
+msgid "sets file name to write results to; use \"-\" for standard output"
+msgstr ""
+"ustawia nazwę pliku, aby zapisać wyniki; użyj \"-\" dla standardowego wyjścia"
 
 #. Description for output argument for lngs enums
 msgctxt "ARGS_APP_OUT_CPP"
