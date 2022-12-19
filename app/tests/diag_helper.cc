@@ -57,6 +57,9 @@ namespace diags::testing {
 			case lng::ARGS_APP_DESCR_CMD_FREEZE:
 				return "Reads the language description file and assigns values "
 				       "to new strings.";
+			case lng::ARGS_APP_DESCR_CMD_MUSTACHE:
+				return "Uses a custom {{mustache}} template. (Help description "
+				       "for the 'lngs freeze' command)";
 			case lng::ARGS_APP_DESCR_USAGE:
 				return "[-h] [--version] <command> [<arguments>]";
 			case lng::ARGS_APP_FLOW_TITLE:
@@ -135,6 +138,10 @@ namespace diags::testing {
 			case lng::ARGS_APP_OUT_IDL:
 				return "sets IDL message file name to write results to; it may "
 				       "be the same as input; use \"-\" for standard output";
+			case lng::ARGS_APP_OUT_ANY:
+				return "sets file name to wrtie results to; use \"-\" for "
+				       "standard output (Description for generic output "
+				       "argument)";
 			case lng::ARGS_APP_IN_IDL:
 				return "sets message file name to read from";
 			case lng::ARGS_APP_IN_PO_MO:
@@ -142,6 +149,22 @@ namespace diags::testing {
 			case lng::ARGS_APP_IN_LLCC:
 				return "sets ATTR_LANGUAGE file name with ll_CC "
 				       "(language_COUNTRY) names list";
+			case lng::ARGS_APP_IN_TMPLT_DIR:
+				return "adds additional directory for template lookup "
+				       "(Description for 'tmplt-dir' argument)";
+			case lng::ARGS_APP_IN_TMPLT_NAME:
+				return "selects a template name to use for output (filename "
+				       "without extension) (Description for custom template "
+				       "name)";
+			case lng::ARGS_APP_IN_TMPLT_JSON:
+				return "sets additional context for custom mustache file "
+				       "(Description for input argument taking JSON file)";
+			case lng::ARGS_APP_IN_DEBUG:
+				return "outputs additional debug data (Description for debug "
+				       "argument)";
+			case lng::ARGS_APP_META_MUSTACHE:
+				return "<template> (Name of argument holding a custom template "
+				       "name)";
 			case lng::SEVERITY_NOTE:
 				return "note";
 			case lng::SEVERITY_WARNING:
@@ -263,6 +286,8 @@ namespace diags::testing {
 				return "ARGS_APP_DESCR_CMD_RES";
 			case lng::ARGS_APP_DESCR_CMD_FREEZE:
 				return "ARGS_APP_DESCR_CMD_FREEZE";
+			case lng::ARGS_APP_DESCR_CMD_MUSTACHE:
+				return "ARGS_APP_DESCR_CMD_MUSTACHE";
 			case lng::ARGS_APP_DESCR_USAGE:
 				return "ARGS_APP_DESCR_USAGE";
 			case lng::ARGS_APP_FLOW_TITLE:
@@ -331,12 +356,24 @@ namespace diags::testing {
 				return "ARGS_APP_OUT_LNG";
 			case lng::ARGS_APP_OUT_IDL:
 				return "ARGS_APP_OUT_IDL";
+			case lng::ARGS_APP_OUT_ANY:
+				return "ARGS_APP_OUT_ANY";
 			case lng::ARGS_APP_IN_IDL:
 				return "ARGS_APP_IN_IDL";
 			case lng::ARGS_APP_IN_PO_MO:
 				return "ARGS_APP_IN_PO_MO";
 			case lng::ARGS_APP_IN_LLCC:
 				return "ARGS_APP_IN_LLCC";
+			case lng::ARGS_APP_IN_TMPLT_DIR:
+				return "ARGS_APP_IN_TMPLT_DIR";
+			case lng::ARGS_APP_IN_TMPLT_NAME:
+				return "ARGS_APP_IN_TMPLT_NAME";
+			case lng::ARGS_APP_IN_TMPLT_JSON:
+				return "ARGS_APP_IN_TMPLT_JSON";
+			case lng::ARGS_APP_IN_DEBUG:
+				return "ARGS_APP_IN_DEBUG";
+			case lng::ARGS_APP_META_MUSTACHE:
+				return "ARGS_APP_META_MUSTACHE";
 			case lng::SEVERITY_NOTE:
 				return "nnn";
 			case lng::SEVERITY_WARNING:
@@ -442,6 +479,7 @@ namespace diags::testing {
 			NAME(ARGS_APP_DESCR_CMD_PY);
 			NAME(ARGS_APP_DESCR_CMD_RES);
 			NAME(ARGS_APP_DESCR_CMD_FREEZE);
+			NAME(ARGS_APP_DESCR_CMD_MUSTACHE);
 			NAME(ARGS_APP_DESCR_USAGE);
 			NAME(ARGS_APP_FLOW_TITLE);
 			NAME(ARGS_APP_FLOW_ROLE_STRMGR);
@@ -476,9 +514,15 @@ namespace diags::testing {
 			NAME(ARGS_APP_OUT_PY);
 			NAME(ARGS_APP_OUT_LNG);
 			NAME(ARGS_APP_OUT_IDL);
+			NAME(ARGS_APP_OUT_ANY);
 			NAME(ARGS_APP_IN_IDL);
 			NAME(ARGS_APP_IN_PO_MO);
 			NAME(ARGS_APP_IN_LLCC);
+			NAME(ARGS_APP_IN_TMPLT_DIR);
+			NAME(ARGS_APP_IN_TMPLT_NAME);
+			NAME(ARGS_APP_IN_TMPLT_JSON);
+			NAME(ARGS_APP_IN_DEBUG);
+			NAME(ARGS_APP_META_MUSTACHE);
 			NAME(SEVERITY_NOTE);
 			NAME(SEVERITY_WARNING);
 			NAME(SEVERITY_ERROR);

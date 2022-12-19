@@ -308,8 +308,8 @@ namespace lngs::app::testing {
 	TEST_P(res_write, partial_middle) {
 		auto [input, include, project, expected] = GetParam();
 
-		const auto pos1 = expected.find("const char __resource[] = {") + 27;
-		const auto pos2 = expected.find("}; // __resource", pos1);
+		const auto pos1 = expected.find("const char resource[] = {") + 27;
+		const auto pos2 = expected.find("}; // resource", pos1);
 
 		test_env<partial_ostrstream> data{{pos1 + (pos2 - pos1) / 2}};
 		data.strings.project.assign(project);
@@ -320,7 +320,7 @@ namespace lngs::app::testing {
 	TEST_P(res_write, partial_start) {
 		auto [input, include, project, expected] = GetParam();
 
-		const auto pos = expected.find("const char __resource[] = {") + 30;
+		const auto pos = expected.find("const char resource[] = {") + 30;
 
 		test_env<partial_ostrstream> data{{pos}};
 		data.strings.project.assign(project);
@@ -331,8 +331,8 @@ namespace lngs::app::testing {
 	TEST_P(res_write, partial_endline) {
 		auto [input, include, project, expected] = GetParam();
 
-		const auto pos1 = expected.find("const char __resource[] = {") + 27;
-		const auto pos2 = expected.find("}; // __resource", pos1);
+		const auto pos1 = expected.find("const char resource[] = {") + 27;
+		const auto pos2 = expected.find("}; // resource", pos1);
 		const auto pos = expected.rfind("\"\n", pos2);
 
 		test_env<partial_ostrstream> data{{pos}};
@@ -344,7 +344,7 @@ namespace lngs::app::testing {
 	TEST_P(res_write, partial_finalize) {
 		auto [input, include, project, expected] = GetParam();
 
-		const auto pos1 = expected.find("const char __resource[] = {") + 27;
+		const auto pos1 = expected.find("const char resource[] = {") + 27;
 		const auto pos = expected.find("\"\n", pos1) + 1;
 
 		test_env<partial_ostrstream> data{{pos}};
@@ -363,14 +363,14 @@ namespace lngs::app::testing {
 // clang-format off
 namespace  {
     namespace {
-        const char __resource[] = {
+        const char resource[] = {
             "\x4c\x41\x4e\x47\x20\x68\x64\x72\x02\x00\x00\x00\x00\x01\x00\x00"
             "\x00\x00\x00\x00\x6c\x61\x73\x74\x00\x00\x00\x00"
-        }; // __resource
+        }; // resource
     } // namespace
 
-    /*static*/ const char* Resource::data() { return __resource; }
-    /*static*/ std::size_t Resource::size() { return sizeof(__resource) - 1; }
+    /*static*/ const char* Resource::data() { return resource; }
+    /*static*/ std::size_t Resource::size() { return sizeof(resource) - 1; }
 } // namespace 
 // clang-format on
 )"},
@@ -383,14 +383,14 @@ namespace  {
 // clang-format off
 namespace project {
     namespace {
-        const char __resource[] = {
+        const char resource[] = {
             "\x4c\x41\x4e\x47\x20\x68\x64\x72\x02\x00\x00\x00\x00\x01\x00\x00"
             "\x00\x00\x00\x00\x6c\x61\x73\x74\x00\x00\x00\x00"
-        }; // __resource
+        }; // resource
     } // namespace
 
-    /*static*/ const char* Resource::data() { return __resource; }
-    /*static*/ std::size_t Resource::size() { return sizeof(__resource) - 1; }
+    /*static*/ const char* Resource::data() { return resource; }
+    /*static*/ std::size_t Resource::size() { return sizeof(resource) - 1; }
 } // namespace project
 // clang-format on
 )"},
@@ -407,7 +407,7 @@ namespace project {
 // clang-format off
 namespace project {
     namespace {
-        const char __resource[] = {
+        const char resource[] = {
             "\x4c\x41\x4e\x47\x20\x68\x64\x72\x02\x00\x00\x00\x00\x01\x00\x00"
             "\x87\xd6\x12\x00\x61\x74\x74\x72\x0d\x00\x00\x00\x01\x00\x00\x00"
             "\x07\x00\x00\x00\x02\x00\x00\x00\x00\x00\x00\x00\x1c\x00\x00\x00"
@@ -423,11 +423,11 @@ namespace project {
             "\x55\x49\x43\x4b\x20\x42\x52\x4f\x57\x4e\x20\x46\x4f\x58\x20\x4a"
             "\x55\x4d\x50\x53\x20\x4f\x56\x45\x52\x20\x41\x20\x4c\x41\x5a\x59"
             "\x20\x44\x4f\x47\x00\x00\x00\x00\x6c\x61\x73\x74\x00\x00\x00\x00"
-        }; // __resource
+        }; // resource
     } // namespace
 
-    /*static*/ const char* Resource::data() { return __resource; }
-    /*static*/ std::size_t Resource::size() { return sizeof(__resource) - 1; }
+    /*static*/ const char* Resource::data() { return resource; }
+    /*static*/ std::size_t Resource::size() { return sizeof(resource) - 1; }
 } // namespace project
 // clang-format on
 )"},
@@ -456,7 +456,7 @@ namespace project {
 // clang-format off
 namespace project {
     namespace {
-        const char __resource[] = {
+        const char resource[] = {
             "\x4c\x41\x4e\x47\x20\x68\x64\x72\x02\x00\x00\x00\x00\x01\x00\x00"
             "\x87\xd6\x12\x00\x61\x74\x74\x72\x0d\x00\x00\x00\x01\x00\x00\x00"
             "\x07\x00\x00\x00\x02\x00\x00\x00\x00\x00\x00\x00\x1c\x00\x00\x00"
@@ -482,11 +482,11 @@ namespace project {
             "\x44\x5f\x50\x41\x4e\x47\x52\x41\x4d\x5f\x4c\x4f\x57\x45\x52\x00"
             "\x49\x44\x5f\x50\x41\x4e\x47\x52\x41\x4d\x5f\x55\x50\x50\x45\x52"
             "\x00\x00\x00\x00\x6c\x61\x73\x74\x00\x00\x00\x00"
-        }; // __resource
+        }; // resource
     } // namespace
 
-    /*static*/ const char* Resource::data() { return __resource; }
-    /*static*/ std::size_t Resource::size() { return sizeof(__resource) - 1; }
+    /*static*/ const char* Resource::data() { return resource; }
+    /*static*/ std::size_t Resource::size() { return sizeof(resource) - 1; }
 } // namespace project
 // clang-format on
 )"},
@@ -513,7 +513,7 @@ namespace project {
 // clang-format off
 namespace project {
     namespace {
-        const char __resource[] = {
+        const char resource[] = {
             "\x4c\x41\x4e\x47\x20\x68\x64\x72\x02\x00\x00\x00\x00\x01\x00\x00"
             "\x87\xd6\x12\x00\x61\x74\x74\x72\x0d\x00\x00\x00\x01\x00\x00\x00"
             "\x07\x00\x00\x00\x02\x00\x00\x00\x00\x00\x00\x00\x1c\x00\x00\x00"
@@ -533,11 +533,11 @@ namespace project {
             "\x58\x20\xc4\xb4\xc3\x99\x4d\x50\xc5\x9e\x20\xc3\x96\x56\xc8\x84"
             "\xc5\x94\x20\xc3\x84\x20\xc8\xbd\xc3\x84\xc8\xa4\xc3\x9d\x20\xc3"
             "\x90\xc3\x96\xc4\xa0\x00\x00\x00\x6c\x61\x73\x74\x00\x00\x00\x00"
-        }; // __resource
+        }; // resource
     } // namespace
 
-    /*static*/ const char* Resource::data() { return __resource; }
-    /*static*/ std::size_t Resource::size() { return sizeof(__resource) - 1; }
+    /*static*/ const char* Resource::data() { return resource; }
+    /*static*/ std::size_t Resource::size() { return sizeof(resource) - 1; }
 } // namespace project
 // clang-format on
 )"},
