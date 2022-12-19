@@ -4,11 +4,11 @@
 // clang-format off
 namespace {{ns_name}}{{^ns_name}}{{project}}{{/ns_name}} {
     namespace {
-        const char __resource[] = {
-{{{resource}}}        }; // __resource
+        const char resource[] = {
+{{{resource}}}        }; // resource
     } // namespace
 
-    /*static*/ const char* Resource::data() { return __resource; }
-    /*static*/ std::size_t Resource::size() { return sizeof(__resource) - 1; }
+    /*static*/ const char* Resource::data() { return resource; }
+    /*static*/ std::size_t Resource::size() { return sizeof(resource) - 1; }
 } // namespace {{ns_name}}{{^ns_name}}{{project}}{{/ns_name}}
 // clang-format on
