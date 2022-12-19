@@ -66,11 +66,11 @@ endif(LNGS_LINKED_RESOURCES)
 
 target_link_libraries(lngs_app PUBLIC
 	liblngs
-	mbits::args
 	fmt::fmt
-	mbits-libmstch::libmstch
-	mbits-utfconv::utfconv
-	mbits-diags::diags
+	mbits::args
+	mbits::mstch
+	mbits::utfconv
+	mbits::diags
 )
 
 set(SHARE_DIR share/lngs-${PROJECT_VERSION_SHORT})

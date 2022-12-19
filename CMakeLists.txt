@@ -89,7 +89,7 @@ if (LNGS_APP)
   find_package(Python3 COMPONENTS Interpreter REQUIRED)
   find_package(fmt REQUIRED CONFIG)
   find_package(args REQUIRED CONFIG)
-  find_package(mbits-libmstch REQUIRED CONFIG)
+  find_package(mbits-mstch REQUIRED CONFIG)
   find_package(mbits-utfconv REQUIRED CONFIG)
   find_package(mbits-diags REQUIRED CONFIG)
 endif() # LNGS_LIBRARY_ONLY
