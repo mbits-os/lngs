@@ -1,6 +1,6 @@
 [requires]
 gtest/cci.20210126
-fmt/8.1.1
+fmt/9.1.0
 mbits-args/0.12.3
 mbits-semver/0.1.1
 mbits-utfconv/1.0.3
