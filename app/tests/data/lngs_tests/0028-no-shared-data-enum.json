@@ -1,1 +1,1 @@
-{"name": "0028: No shared data", "args": ["--share", ".", "enums", "$DATA/empty.idl", "-o", "-"], "expected": [0, "", ""]}
+{"name": "0028: No shared data", "args": ["--share", ".", "enums", "$DATA/empty.idl", "-o", "-"], "skippable": true, "expected": [0, "", ""]}
