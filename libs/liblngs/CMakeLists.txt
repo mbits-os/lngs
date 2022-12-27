@@ -54,17 +54,20 @@ target_include_directories(liblngs
 	PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
 target_link_libraries(liblngs PUBLIC ${EXTRA_LIBS})
 
-install(TARGETS liblngs
-	ARCHIVE DESTINATION lib
-	LIBRARY DESTINATION lib
-	RUNTIME DESTINATION bin)
-install(DIRECTORY include/lngs/ DESTINATION include/lngs)
-install(FILES
-	${CMAKE_CURRENT_BINARY_DIR}/include/lngs/version.hpp
-	../../LICENSE
-	DESTINATION include/lngs)
-if (NOT LNGS_NO_PKG_CONFIG)
-	install(FILES ${CMAKE_CURRENT_BINARY_DIR}/lngs.pc DESTINATION share/pkgconfig)
+if (LNGS_INSTALL)
+	install(TARGETS liblngs
+		EXPORT mbits-lngs
+		ARCHIVE DESTINATION lib
+		LIBRARY DESTINATION lib
+		RUNTIME DESTINATION bin)
+	install(DIRECTORY include/lngs/ DESTINATION include/lngs)
+	install(FILES
+		${CMAKE_CURRENT_BINARY_DIR}/include/lngs/version.hpp
+		../../LICENSE
+		DESTINATION include/lngs)
+	if (NOT LNGS_NO_PKG_CONFIG)
+		install(FILES ${CMAKE_CURRENT_BINARY_DIR}/lngs.pc DESTINATION share/pkgconfig)
+	endif()
 endif()
 
 ##################################################################

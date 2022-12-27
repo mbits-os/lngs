@@ -12,8 +12,11 @@ target_include_directories(lngs_lite PUBLIC
 
 target_link_libraries(lngs_lite PUBLIC liblngs)
 
-install(TARGETS lngs_lite
-	ARCHIVE DESTINATION lib
-	LIBRARY DESTINATION lib
-	RUNTIME DESTINATION bin)
-install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/lngs/lite.h DESTINATION include/lngs)
+if (LNGS_INSTALL)
+	install(TARGETS lngs_lite
+		EXPORT mbits-lngs
+		ARCHIVE DESTINATION lib
+		LIBRARY DESTINATION lib
+		RUNTIME DESTINATION bin)
+	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/lngs/lite.h DESTINATION include/lngs)
+endif()

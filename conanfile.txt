@@ -7,9 +7,6 @@ mbits-utfconv/1.0.3
 mbits-diags/0.9.4
 mbits-mstch/1.0.4
 
-[options]
-gtest:build_gmock=False
-
 [generators]
-cmake
-cmake_find_package_multi
+CMakeDeps
+CMakeToolchain

@@ -103,7 +103,9 @@ target_include_directories(lngs
 )
 target_link_libraries(lngs PRIVATE lngs_app)
 
-install(TARGETS lngs DESTINATION bin)
+if (LNGS_INSTALL)
+	install(TARGETS lngs EXPORT mbits-lngs DESTINATION bin)
+endif()
 
 get_target_property(LNGS_IDL lngs_app IDL)
 
