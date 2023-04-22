@@ -27,6 +27,13 @@ namespace gtt {
 		}
 	}
 
+	inline auto unrecognized_while_expecting(lng exp, unsigned char surprise) {
+		return format(
+		    "{} ({})",
+		    format(lng::ERR_EXPECTED, exp, lng::ERR_EXPECTED_GOT_UNRECOGNIZED),
+		    fmt::format("CHAR: {:02X}", static_cast<int>(surprise)));
+	}
+
 	struct parser_ctx {
 		diags::source_code& src;
 		diags::sources& diags;
@@ -58,6 +65,8 @@ namespace gtt {
 			line = src.line(++lineno);
 			cur = reinterpret_cast<unsigned char const*>(line.data());
 			end = cur + line.size();
+			while (end != cur && (end[-1] == '\r' || end[-1] == '\n'))
+				--end;
 
 			return true;
 		}
@@ -200,10 +209,9 @@ namespace gtt {
 				while (!eol() && peek() != ']') {
 					auto const c = next();
 					if (!std::isdigit(c)) {
-						push_back(pos()[diags::severity::error] << format(
-						              lng::ERR_EXPECTED,
-						              lng::ERR_EXPECTED_NUMBER,
-						              lng::ERR_EXPECTED_GOT_UNRECOGNIZED));
+						push_back(pos()[diags::severity::error]
+						          << unrecognized_while_expecting(
+						                 lng::ERR_EXPECTED_NUMBER, c));
 						return false;
 					}
 					curr_cmd.counter *= 10;
@@ -294,9 +302,9 @@ namespace gtt {
 				skip_ws();
 
 				if (peek() != '"') {
-					push_back(pos()[diags::severity::error] << format(
-					              lng::ERR_EXPECTED, lng::ERR_EXPECTED_STRING,
-					              lng::ERR_EXPECTED_GOT_UNRECOGNIZED));
+					push_back(pos()[diags::severity::error]
+					          << unrecognized_while_expecting(
+					                 lng::ERR_EXPECTED_STRING, peek()));
 					return false;
 				}
 			}
@@ -307,8 +315,8 @@ namespace gtt {
 			skip_ws();
 			if (!eol()) {
 				push_back(pos()[diags::severity::error]
-				          << format(lng::ERR_EXPECTED, lng::ERR_EXPECTED_EOL,
-				                    lng::ERR_EXPECTED_GOT_UNRECOGNIZED));
+				          << unrecognized_while_expecting(lng::ERR_EXPECTED_EOL,
+				                                          peek()));
 				return false;
 			}
 
