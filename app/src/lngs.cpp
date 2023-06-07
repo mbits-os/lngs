@@ -9,8 +9,10 @@
 #include <lngs/internals/mstch_engine.hpp>
 #include <lngs/internals/strings.hpp>
 #include <lngs/translation.hpp>
+#ifndef LNGS_ZERO
 #include "build.hpp"
 #include "embedded_languages.hpp"
+#endif
 
 using namespace std::literals;
 
@@ -154,7 +156,11 @@ namespace lngs::app {
 			return false;
 		}
 
-		bool open(const std::string& lng, SerialNumber serial) {
+		bool open([[maybe_unused]] const std::string& lng,
+		          [[maybe_unused]] SerialNumber serial) {
+#ifdef LNGS_ZERO
+			return false;
+#else
 			auto const check_serial = serial != SerialNumber::UseAny;
 			auto const serial_to_check = static_cast<unsigned>(serial);
 
@@ -172,6 +178,7 @@ namespace lngs::app {
 				return false;
 			}
 			return true;
+#endif
 		}
 
 		std::string_view get_string(lang_file::identifier id) const noexcept {
@@ -329,6 +336,44 @@ namespace lngs::app {
 	using application_setup = setup_base<main_strings>;
 }  // namespace lngs::app
 
+namespace lngs::app::make {
+	int call(application_setup& setup) {
+		std::string moname, llname;
+		bool warp_missing = false;
+
+		auto _ = [&setup](auto id) { return setup.tr.get(id); };
+
+		setup.parser_common(lng::ARGS_APP_IN_IDL, lng::ARGS_APP_OUT_LNG);
+		setup.parser.set<std::true_type>(warp_missing, "w", "warp")
+		    .help(_(lng::ARGS_APP_WARP_MISSING_SINGULAR))
+		    .opt();
+		setup.parser.arg(moname, "m", "msgs")
+		    .meta(_(lng::ARGS_APP_META_PO_MO_FILE))
+		    .help(_(lng::ARGS_APP_IN_PO_MO));
+		setup.parser.arg(llname, "l", "lang")
+		    .meta(_(lng::ARGS_APP_META_FILE))
+		    .help(_(lng::ARGS_APP_IN_LLCC))
+		    .opt();
+		setup.parser.parse();
+
+		if (int res = setup.read_strings()) return res;
+
+		auto file = load_msgs(setup.strings, warp_missing, setup.common.verbose,
+		                      setup.diag.open(moname, "rb"), setup.diag);
+		if (setup.diag.has_errors()) return 1;
+
+		if (!llname.empty()) setup.diag.open(llname);
+
+		if (auto mo = setup.diag.source(moname);
+		    !fix_attributes(file, mo, llname, setup.diag))
+			return 1;
+
+		return setup.write(
+		    [&](diags::outstream& out) { return file.write(out); });
+	}
+}  // namespace lngs::app::make
+
+#ifndef LNGS_ZERO
 namespace lngs::app::pot {
 	int call(application_setup& setup) {
 		info nfo;
@@ -389,43 +434,6 @@ namespace lngs::app::py {
 		    [&](diags::outstream& out) { return write(setup.env(out)); });
 	}
 }  // namespace lngs::app::py
-
-namespace lngs::app::make {
-	int call(application_setup& setup) {
-		std::string moname, llname;
-		bool warp_missing = false;
-
-		auto _ = [&setup](auto id) { return setup.tr.get(id); };
-
-		setup.parser_common(lng::ARGS_APP_IN_IDL, lng::ARGS_APP_OUT_LNG);
-		setup.parser.set<std::true_type>(warp_missing, "w", "warp")
-		    .help(_(lng::ARGS_APP_WARP_MISSING_SINGULAR))
-		    .opt();
-		setup.parser.arg(moname, "m", "msgs")
-		    .meta(_(lng::ARGS_APP_META_PO_MO_FILE))
-		    .help(_(lng::ARGS_APP_IN_PO_MO));
-		setup.parser.arg(llname, "l", "lang")
-		    .meta(_(lng::ARGS_APP_META_FILE))
-		    .help(_(lng::ARGS_APP_IN_LLCC))
-		    .opt();
-		setup.parser.parse();
-
-		if (int res = setup.read_strings()) return res;
-
-		auto file = load_msgs(setup.strings, warp_missing, setup.common.verbose,
-		                      setup.diag.open(moname, "rb"), setup.diag);
-		if (setup.diag.has_errors()) return 1;
-
-		if (!llname.empty()) setup.diag.open(llname);
-
-		if (auto mo = setup.diag.source(moname);
-		    !fix_attributes(file, mo, llname, setup.diag))
-			return 1;
-
-		return setup.write(
-		    [&](diags::outstream& out) { return file.write(out); });
-	}
-}  // namespace lngs::app::make
 
 namespace lngs::app::res {
 	int call(application_setup& setup) {
@@ -522,6 +530,7 @@ namespace lngs::app::mustache {
 		});
 	}
 }  // namespace lngs::app::mustache
+#endif  // !LNGS_ZERO
 
 struct command {
 	const char* name;
@@ -531,14 +540,17 @@ struct command {
 
 command commands[] = {
     {"make", lng::ARGS_APP_DESCR_CMD_MAKE, lngs::app::make::call},
+#ifndef LNGS_ZERO
     {"pot", lng::ARGS_APP_DESCR_CMD_POT, lngs::app::pot::call},
     {"enums", lng::ARGS_APP_DESCR_CMD_ENUMS, lngs::app::enums::call},
     {"py", lng::ARGS_APP_DESCR_CMD_PY, lngs::app::py::call},
     {"res", lng::ARGS_APP_DESCR_CMD_RES, lngs::app::res::call},
     {"freeze", lng::ARGS_APP_DESCR_CMD_FREEZE, lngs::app::freeze::call},
     {"mustache", lng::ARGS_APP_DESCR_CMD_MUSTACHE, lngs::app::mustache::call},
+#endif
 };
 
+#ifndef LNGS_ZERO
 [[noreturn]] void show_help(args::parser& p, lngs::app::main_strings& tr) {
 	auto _ = [&tr](auto id) { return tr.get(id); };
 	auto args = p.printer_arguments();
@@ -591,6 +603,7 @@ command commands[] = {
 	fmt::print("lngs {}{}\n", ver::string, ver::stability);
 	std::exit(0);
 }
+#endif
 
 #ifdef _WIN32
 extern "C" __declspec(dllimport) int __stdcall SetConsoleOutputCP(unsigned);
@@ -623,7 +636,6 @@ int main(int argc, XChar* argv[]) {
 	lngs::app::application_setup setup{redirected_share};
 #endif
 
-	auto show_help_tr = [&setup](args::parser& p) { show_help(p, setup.tr); };
 	auto _ = [&setup](auto id) { return setup.tr.get(id); };
 	auto _s = [&_](auto id) {
 		auto view = _(id);
@@ -633,12 +645,17 @@ int main(int argc, XChar* argv[]) {
 	args::parser base{{}, args::from_main(argc, argv), &setup.tr};
 	base.usage(_(lng::ARGS_APP_DESCR_USAGE));
 	base.provide_help(false);
+#ifndef LNGS_ZERO
+	auto const show_help_tr = [&setup](args::parser& p) {
+		show_help(p, setup.tr);
+	};
 	base.custom(show_help_tr, "h", "help")
 	    .help(_(lng::ARGS_HELP_DESCRIPTION))
 	    .opt();
 	base.custom(show_version, "v", "version")
 	    .help(_(lng::ARGS_APP_VERSION))
 	    .opt();
+#endif
 #ifndef LNGS_LINKED_RESOURCES
 	base.custom([](std::string const&) {}, "share")
 	    .meta(_(lng::ARGS_APP_META_DIR))

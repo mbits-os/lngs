@@ -78,19 +78,21 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/build.in.hpp ${CMAKE_CURRENT_BINA
 
 message(STATUS "SHARE: ${CMAKE_INSTALL_PREFIX}/${SHARE_DIR}")
 
-file(GLOB PO_FILES data/strings/*.po)
-
 set(SOURCES
 	src/lngs.cpp
 	src/build.in.hpp
 	${CMAKE_CURRENT_BINARY_DIR}/src/build.hpp
-	${PO_FILES})
+)
 if (LNGS_LINKED_RESOURCES)
+	set(SOURCES_ZERO src/lngs.cpp) # ${SOURCES})
 	list(APPEND SOURCES
 		src/embedded_languages.cpp
 		src/embedded_languages.hpp
 	)
 endif()
+
+file(GLOB PO_FILES data/strings/*.po)
+list(APPEND SOURCES ${PO_FILES})
 
 add_executable(lngs ${SOURCES})
 set_target_properties(lngs PROPERTIES
@@ -102,6 +104,18 @@ target_include_directories(lngs
 		"${CMAKE_CURRENT_BINARY_DIR}/src"
 )
 target_link_libraries(lngs PRIVATE lngs_app)
+
+if (LNGS_LINKED_RESOURCES)
+	add_executable(lngs0 ${SOURCES_ZERO})
+	target_include_directories(lngs0
+		PRIVATE
+			"${CMAKE_CURRENT_SOURCE_DIR}/src"
+			"${CMAKE_CURRENT_BINARY_DIR}/src"
+	)
+	target_compile_definitions(lngs0 PRIVATE LNGS_ZERO)
+	target_link_libraries(lngs0 PRIVATE lngs_app)
+	set_target_properties(lngs0 PROPERTIES FOLDER tools/strings)
+endif()
 
 if (LNGS_INSTALL)
 	install(TARGETS lngs EXPORT mbits-lngs DESTINATION bin)
@@ -131,6 +145,7 @@ file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${SHARE_DIR})
 
 set(PO_NAMES)
 set(LNG_FILES)
+set(PO_TARGETS)
 foreach(PO ${PO_FILES})
 	get_filename_component(PO_NAME ${PO} NAME_WE)
 	list(APPEND PO_NAMES ${PO_NAME})
@@ -146,18 +161,21 @@ foreach(PO ${PO_FILES})
 	endif()
 
 	if (LNGS_LINKED_RESOURCES)
-		add_custom_command(
-			TARGET lngs POST_BUILD
+		set(PO_TARGET "${PO_NAME}--strings")
+		list(APPEND PO_TARGETS ${PO_TARGET})
+		add_custom_target(
+			${PO_TARGET}
 			COMMAND
-				$<TARGET_FILE:lngs> make
+				$<TARGET_FILE:lngs0> make
 					"${LNGS_IDL}"
 					-m "${PO}"
 					-o "${LNG}"
 
 			BYPRODUCTS ${LNG}
-			DEPENDS "${PO}"
-			IMPLICIT_DEPENDS $<TARGET_FILE:lngs>
-			COMMENT "[${PO_NAME}] finalizing")
+			DEPENDS "${PO}" lngs0
+			COMMENT "[${PO_NAME}] finalizing"
+		)
+		set_target_properties(${PO_TARGET} PROPERTIES FOLDER tools/strings)
 	else(LNGS_LINKED_RESOURCES)
 		add_custom_command(
 			TARGET lngs POST_BUILD
@@ -178,6 +196,7 @@ foreach(PO ${PO_FILES})
 endforeach()
 
 if (PO_NAMES)
+	string(REPLACE ";" ", " PO_NAMES "${PO_NAMES}")
 	message(STATUS "Found strings for: ${PO_NAMES}")
 endif()
 
@@ -203,7 +222,7 @@ if (LNGS_LINKED_RESOURCES)
 			generated_languages.hpp:embedded_languages.hpp
 		DEPENDS
 			"${LNGS_TOOLS_DIR}/embed.py"
-			${LNG_FILES}
+			${PO_TARGETS}
 		COMMENT "Preparing languages for embedding"
 	)
 	set_target_properties(lngs_embedd PROPERTIES FOLDER tools/strings)

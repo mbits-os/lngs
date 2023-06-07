@@ -4,12 +4,17 @@ project (lngs
   DESCRIPTION "Locale File Format And Processor"
   LANGUAGES CXX)
 
-set(LNGS_TESTING ON CACHE BOOL "Compile and/or run self-tests")
-set(LNGS_INSTALL ON CACHE BOOL "Create install targets")
-set(LNGS_LITE ON CACHE BOOL "Create lngs_lite library")
-set(LNGS_APP ON CACHE BOOL "Compile lngs application in addition to liblngs")
-set(LNGS_LINKED_RESOURCES OFF CACHE BOOL "Compile templates and translations into the lngs binary")
-set(LNGS_NO_PKG_CONFIG OFF CACHE BOOL "Skip lngs.pc installation")
+macro(use_flag NAME VALUE DESCRIPTION)
+  set(${NAME} ${VALUE} CACHE BOOL "${DESCRIPTION}")
+  message(STATUS "${NAME}: ${${NAME}}")
+endmacro()
+
+use_flag(LNGS_TESTING ON "Compile and/or run self-tests")
+use_flag(LNGS_INSTALL ON "Create install targets")
+use_flag(LNGS_LITE ON "Create lngs_lite library")
+use_flag(LNGS_APP ON "Compile lngs application in addition to liblngs")
+use_flag(LNGS_LINKED_RESOURCES OFF "Compile templates and translations into the lngs binary")
+use_flag(LNGS_NO_PKG_CONFIG OFF "Skip lngs.pc installation")
 
 set(PROJECT_VERSION_SHORT "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}")
 set(PROJECT_VERSION_STABILITY "")

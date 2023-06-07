@@ -4,7 +4,7 @@
 // clang-format off
 namespace lngs::languages {
     namespace {
-        const char __en[] = {
+        const char en_data[] = {
             "\x4c\x41\x4e\x47\x20\x68\x64\x72\x02\x00\x00\x00\x00\x01\x00\x00"
             "\x08\x00\x00\x00\x61\x74\x74\x72\x17\x00\x00\x00\x03\x00\x00\x00"
             "\x0d\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x02\x00\x00\x00"
@@ -304,7 +304,7 @@ namespace lngs::languages {
             "\x27\x00\x00\x00\x6c\x61\x73\x74\x00\x00\x00\x00"
         }; // __en
 
-        const char __fr[] = {
+        const char fr_data[] = {
             "\x4c\x41\x4e\x47\x20\x68\x64\x72\x02\x00\x00\x00\x00\x01\x00\x00"
             "\x08\x00\x00\x00\x61\x74\x74\x72\x16\x00\x00\x00\x03\x00\x00\x00"
             "\x0d\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x02\x00\x00\x00"
@@ -487,7 +487,7 @@ namespace lngs::languages {
             "\x6c\x61\x73\x74\x00\x00\x00\x00"
         }; // __fr
 
-        const char __pl[] = {
+        const char pl_data[] = {
             "\x4c\x41\x4e\x47\x20\x68\x64\x72\x02\x00\x00\x00\x00\x01\x00\x00"
             "\x08\x00\x00\x00\x61\x74\x74\x72\x25\x00\x00\x00\x03\x00\x00\x00"
             "\x0d\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x02\x00\x00\x00"
@@ -830,13 +830,13 @@ namespace lngs::languages {
         }; // __pl
     } // namespace
 
-    /*static*/ const char* en::data() noexcept { return __en; }
-    /*static*/ std::size_t en::size() noexcept { return sizeof(__en) - 1; }
+    /*static*/ const char* en::data() noexcept { return en_data; }
+    /*static*/ std::size_t en::size() noexcept { return sizeof(en_data) - 1; }
 
-    /*static*/ const char* fr::data() noexcept { return __fr; }
-    /*static*/ std::size_t fr::size() noexcept { return sizeof(__fr) - 1; }
+    /*static*/ const char* fr::data() noexcept { return fr_data; }
+    /*static*/ std::size_t fr::size() noexcept { return sizeof(fr_data) - 1; }
 
-    /*static*/ const char* pl::data() noexcept { return __pl; }
-    /*static*/ std::size_t pl::size() noexcept { return sizeof(__pl) - 1; }
+    /*static*/ const char* pl::data() noexcept { return pl_data; }
+    /*static*/ std::size_t pl::size() noexcept { return sizeof(pl_data) - 1; }
 } // namespace lngs::languages
 // clang-format on

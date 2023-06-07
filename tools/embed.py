@@ -130,7 +130,7 @@ with open(args.output, "w", encoding="UTF-8") as source:
         if first: first = False
         else: source.write("\n");
         ident = idents[input]
-        source.write(f"""{prefix}    const char __{ident}[] = {{
+        source.write(f"""{prefix}    const char {ident}_data[] = {{
 """)
         with open(input, "rb") as file:
             content = file.read()
@@ -153,8 +153,8 @@ with open(args.output, "w", encoding="UTF-8") as source:
     for input in inputs:
         ident = idents[input]
         source.write(f"""
-{prefix}/*static*/ const char* {ident}::data() noexcept {{ return __{ident}; }}
-{prefix}/*static*/ std::size_t {ident}::size() noexcept {{ return sizeof(__{ident}) - 1; }}
+{prefix}/*static*/ const char* {ident}::data() noexcept {{ return {ident}_data; }}
+{prefix}/*static*/ std::size_t {ident}::size() noexcept {{ return sizeof({ident}_data) - 1; }}
 """)
 
     if args.ns is not None:
