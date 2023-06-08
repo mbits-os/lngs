@@ -142,13 +142,9 @@ msgstr "a\gb\\f\"n\'r\?t\[\]v")");
 	}
 
 	constexpr static location binary{};
-	constexpr static auto error = binary[severity::error];
-	constexpr static auto warning = binary[severity::warning];
-	constexpr static auto note = binary[severity::note];
-
-	static inline tr_string str(uint32_t key, std::string value) {
-		return {key, std::move(value)};
-	}
+	[[maybe_unused]] constexpr static auto error = binary[severity::error];
+	[[maybe_unused]] constexpr static auto warning = binary[severity::warning];
+	[[maybe_unused]] constexpr static auto note = binary[severity::note];
 
 	const po_result sources[] = {
 	    {"comments.po"},
@@ -171,12 +167,16 @@ msgstr "a\gb\\f\"n\'r\?t\[\]v")");
 	                      lng::ERR_EXPECTED_GOT_EOL)}},
 	    {"not-number.po",
 	     {
-	         error << format(lng::ERR_EXPECTED,
-	                         lng::ERR_EXPECTED_NUMBER,
-	                         lng::ERR_EXPECTED_GOT_UNRECOGNIZED),
-	         error << format(lng::ERR_EXPECTED,
-	                         lng::ERR_EXPECTED_STRING,
-	                         lng::ERR_EXPECTED_GOT_UNRECOGNIZED),
+	         error << format("{} ({})",
+	                         format(lng::ERR_EXPECTED,
+	                                lng::ERR_EXPECTED_NUMBER,
+	                                lng::ERR_EXPECTED_GOT_UNRECOGNIZED),
+	                         "CHAR: 61"),
+	         error << format("{} ({})",
+	                         format(lng::ERR_EXPECTED,
+	                                lng::ERR_EXPECTED_STRING,
+	                                lng::ERR_EXPECTED_GOT_UNRECOGNIZED),
+	                         "CHAR: 62"),
 	     }},
 	    {"empty-index.po",
 	     {error << format(lng::ERR_EXPECTED, lng::ERR_EXPECTED_NUMBER, "`]'")}},
@@ -186,14 +186,18 @@ msgstr "a\gb\\f\"n\'r\?t\[\]v")");
 	     {
 	         warning << format(lng::ERR_GETTEXT_UNRECOGNIZED_FIELD,
 	                           "something"),
-	         error << format(lng::ERR_EXPECTED,
-	                         lng::ERR_EXPECTED_STRING,
-	                         lng::ERR_EXPECTED_GOT_UNRECOGNIZED),
+	         error << format("{} ({})",
+	                         format(lng::ERR_EXPECTED,
+	                                lng::ERR_EXPECTED_STRING,
+	                                lng::ERR_EXPECTED_GOT_UNRECOGNIZED),
+	                         "CHAR: 65"),
 	     }},
 	    {"word-string-word.po",
-	     {error << format(lng::ERR_EXPECTED,
-	                      lng::ERR_EXPECTED_EOL,
-	                      lng::ERR_EXPECTED_GOT_UNRECOGNIZED)}},
+	     {error << format("{} ({})",
+	                      format(lng::ERR_EXPECTED,
+	                             lng::ERR_EXPECTED_EOL,
+	                             lng::ERR_EXPECTED_GOT_UNRECOGNIZED),
+	                      "CHAR: 6E")}},
 	};
 
 	INSTANTIATE_TEST_SUITE_P(sources, gettext_plain, ValuesIn(sources));

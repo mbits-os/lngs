@@ -136,8 +136,6 @@ namespace lngs {
 		intmax_t sub = calc_substring(count);
 
 		auto cur = str;
-		auto length = str.length();
-
 		while (sub--) {
 			auto pos = cur.find('\x00', 0);
 			if (pos == std::string_view::npos) {
@@ -147,7 +145,6 @@ namespace lngs {
 
 			++pos;
 			cur = cur.substr(pos);
-			length -= static_cast<uint32_t>(pos);
 		}
 
 		return cur.substr(0, cur.find('\x00', 0));

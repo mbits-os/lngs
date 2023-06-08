@@ -67,44 +67,44 @@ namespace lngs::testing {
 				lngs_file = diags::fs::fopen(
 				    TESTING_data_path / "broken_strs_1.data", "wb");
 				write_lngs_head(lngs_file);
-				write(lngs_file, string_header{strstext_tag, 2, 0, 5});
+				write(lngs_file, string_header{{strstext_tag, 2}, 0, 5});
 				write_lngs_last(lngs_file);
 
 				lngs_file = diags::fs::fopen(
 				    TESTING_data_path / "broken_strs_2.data", "wb");
 				write_lngs_head(lngs_file);
 				write(lngs_file, strstext_tag);
-				write(lngs_file, string_header{strstext_tag, 2, 1, 4});
+				write(lngs_file, string_header{{strstext_tag, 2}, 1, 4});
 				write_lngs_last(lngs_file);
 
 				lngs_file = diags::fs::fopen(
 				    TESTING_data_path / "broken_attr_1.data", "wb");
 				write_lngs_head(lngs_file);
-				write(lngs_file, string_header{attrtext_tag, 5, 1, 7});
+				write(lngs_file, string_header{{attrtext_tag, 5}, 1, 7});
 				write(lngs_file, string_key{1000, 0, 5});
-				write(lngs_file, string_header{strstext_tag, 2, 0, 4});
+				write(lngs_file, string_header{{strstext_tag, 2}, 0, 4});
 				write_lngs_last(lngs_file);
 
 				constexpr static const char valuee[] = "valuee\0\0";
 				lngs_file = diags::fs::fopen(
 				    TESTING_data_path / "broken_attr_2.data", "wb");
 				write_lngs_head(lngs_file);
-				write(lngs_file, string_header{attrtext_tag, 7, 1, 7});
+				write(lngs_file, string_header{{attrtext_tag, 7}, 1, 7});
 				write(lngs_file, string_key{1000, 0, 5});
 				lngs_file.store(valuee, sizeof(valuee) - 1);
-				write(lngs_file, string_header{strstext_tag, 2, 0, 4});
+				write(lngs_file, string_header{{strstext_tag, 2}, 0, 4});
 				write_lngs_last(lngs_file);
 
 				lngs_file = diags::fs::fopen(
 				    TESTING_data_path / "broken_keys_1.data", "wb");
 				write_lngs_head(lngs_file);
-				write(lngs_file, string_header{keystext_tag, 2, 1, 4});
+				write(lngs_file, string_header{{keystext_tag, 2}, 1, 4});
 				write_lngs_last(lngs_file);
 
 				lngs_file = diags::fs::fopen(
 				    TESTING_data_path / "broken_keys_2.data", "wb");
 				write_lngs_head(lngs_file);
-				write(lngs_file, string_header{attrtext_tag, 5, 1, 7});
+				write(lngs_file, string_header{{attrtext_tag, 5}, 1, 7});
 				write(lngs_file, string_key{1000, 10, 5});
 				write_lngs_last(lngs_file);
 			}
