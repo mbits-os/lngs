@@ -105,7 +105,7 @@ target_include_directories(lngs
 )
 target_link_libraries(lngs PRIVATE lngs_app)
 
-if (LNGS_LINKED_RESOURCES)
+if (LNGS_LINKED_RESOURCES AND LNGS_REBUILD_RESOURCES)
 	add_executable(lngs0 ${SOURCES_ZERO})
 	target_include_directories(lngs0
 		PRIVATE
@@ -161,21 +161,23 @@ foreach(PO ${PO_FILES})
 	endif()
 
 	if (LNGS_LINKED_RESOURCES)
-		set(PO_TARGET "${PO_NAME}--strings")
-		list(APPEND PO_TARGETS ${PO_TARGET})
-		add_custom_target(
-			${PO_TARGET}
-			COMMAND
-				$<TARGET_FILE:lngs0> make
-					"${LNGS_IDL}"
-					-m "${PO}"
-					-o "${LNG}"
+		if (LNGS_REBUILD_RESOURCES)
+			set(PO_TARGET "${PO_NAME}--strings")
+			list(APPEND PO_TARGETS ${PO_TARGET})
+			add_custom_target(
+				${PO_TARGET}
+				COMMAND
+					$<TARGET_FILE:lngs0> make
+						"${LNGS_IDL}"
+						-m "${PO}"
+						-o "${LNG}"
 
-			BYPRODUCTS ${LNG}
-			DEPENDS "${PO}" lngs0
-			COMMENT "[${PO_NAME}] finalizing"
-		)
-		set_target_properties(${PO_TARGET} PROPERTIES FOLDER tools/strings)
+				BYPRODUCTS ${LNG}
+				DEPENDS "${PO}" lngs0
+				COMMENT "[${PO_NAME}] finalizing"
+			)
+			set_target_properties(${PO_TARGET} PROPERTIES FOLDER tools/strings)
+		endif(LNGS_REBUILD_RESOURCES)
 	else(LNGS_LINKED_RESOURCES)
 		add_custom_command(
 			TARGET lngs POST_BUILD
@@ -200,7 +202,7 @@ if (PO_NAMES)
 	message(STATUS "Found strings for: ${PO_NAMES}")
 endif()
 
-if (LNGS_LINKED_RESOURCES)
+if (LNGS_LINKED_RESOURCES AND LNGS_REBUILD_RESOURCES)
 	add_custom_target(
 		lngs_embedd ALL
 		BYPRODUCTS
@@ -226,7 +228,7 @@ if (LNGS_LINKED_RESOURCES)
 		COMMENT "Preparing languages for embedding"
 	)
 	set_target_properties(lngs_embedd PROPERTIES FOLDER tools/strings)
-endif(LNGS_LINKED_RESOURCES)
+endif(LNGS_LINKED_RESOURCES AND LNGS_REBUILD_RESOURCES)
 
 if (NOT LNGS_LINKED_RESOURCES)
 	install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${SHARE_DIR}/ DESTINATION ${SHARE_DIR})

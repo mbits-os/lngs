@@ -14,6 +14,7 @@ use_flag(LNGS_INSTALL ON "Create install targets")
 use_flag(LNGS_LITE ON "Create lngs_lite library")
 use_flag(LNGS_APP ON "Compile lngs application in addition to liblngs")
 use_flag(LNGS_LINKED_RESOURCES OFF "Compile templates and translations into the lngs binary")
+use_flag(LNGS_REBUILD_RESOURCES ON "Rebuild translations before embedding")
 use_flag(LNGS_NO_PKG_CONFIG OFF "Skip lngs.pc installation")
 
 set(PROJECT_VERSION_SHORT "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}")
